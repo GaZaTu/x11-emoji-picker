@@ -15,12 +15,12 @@ int main(int argc, char** argv) {
   QMainWindow window;
   window.resize(358, 192);
   window.setWindowOpacity(0.90);
-  window.setWindowFlags(Qt::FramelessWindowHint);
+  window.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
   window.setWindowIcon(QIcon(":/res/72x72/1f0cf.png"));
 
   EmojiPicker mainWidget;
 
-  QObject::connect(&mainWidget, &EmojiPicker::returnPressed, [&](const auto& emojiStr) {
+  QObject::connect(&mainWidget, &EmojiPicker::returnPressed, [&](const std::string& emojiStr) {
     xdo_enter_text_window(xdo, prevX11Window, emojiStr.data(), 0);
   });
 
