@@ -1,0 +1,11 @@
+﻿---
+AlignAfterOpenBracket: DontAlign
+AlignEscapedNewlines: Left
+AlignOperands: 'false'
+AlwaysBreakTemplateDeclarations: 'Yes'
+ColumnLimit: 120
+PointerAlignment: 'Left'
+AllowShortFunctionsOnASingleLine: 'false'
+AllowShortLambdasOnASingleLine: 'false'
+
+...
