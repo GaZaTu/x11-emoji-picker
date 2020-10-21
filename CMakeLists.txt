@@ -1,6 +1,3 @@
-set(CMAKE_C_COMPILER "gcc-6")
-set(CMAKE_CXX_COMPILER "g++-6")
-
 cmake_minimum_required(VERSION 3.0.0)
 project(emoji-picker VERSION 0.1.0)
 
@@ -37,6 +34,12 @@ add_executable(emoji-picker
   src/EmojiPicker.hpp
 )
 
+set_target_properties(emoji-picker PROPERTIES
+  CXX_STANDARD 14
+  CXX_STANDARD_REQUIRED ON
+  CXX_EXTENSIONS OFF
+)
+
 target_link_libraries(emoji-picker
   Qt5::Core
   Qt5::Gui
@@ -47,8 +50,5 @@ target_link_libraries(emoji-picker
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 
 include(CPack)
