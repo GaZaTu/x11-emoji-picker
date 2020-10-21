@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
   QMainWindow window;
   window.resize(358, 192);
   window.setWindowOpacity(0.90);
-  window.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
+  window.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
   window.setWindowIcon(QIcon(":/res/72x72/1f0cf.png"));
 
   EmojiPicker mainWidget;

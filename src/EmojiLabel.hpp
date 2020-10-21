@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QLabel>
+#include <QGraphicsDropShadowEffect>
 
 class EmojiLabel : public QLabel {
   Q_OBJECT
@@ -12,6 +13,11 @@ public:
   const std::string& emojiStr();
   void setEmojiStr(const std::string& emojiStr);
 
+  bool highlighted();
+  void setHighlighted(bool highlighted);
+
 private:
   std::string _emojiStr;
+
+  QGraphicsDropShadowEffect _shadowEffect;
 };

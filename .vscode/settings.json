@@ -50,7 +50,8 @@
     "random": "cpp",
     "qlabel": "cpp",
     "qgridlayout": "cpp",
-    "qmainwindow": "cpp"
+    "qmainwindow": "cpp",
+    "qgraphicsdropshadoweffect": "cpp"
   },
   "cmake.sourceDirectory": "${workspaceFolder}/."
 }

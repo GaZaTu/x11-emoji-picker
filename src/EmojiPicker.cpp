@@ -36,8 +36,7 @@ void saveRecentEmojis(const std::vector<std::string>& recentEmojis) {
 
 std::vector<std::string> recentEmojis = loadRecentEmojis();
 
-const QString stylesheetEmojiLayout = "EmojiLabel { padding: 2px; border-radius: 6px; }";
-const QString stylesheetSelectedEmojiLabel = "EmojiLabel { background-color: #bbbbbb; }";
+const QString stylesheetEmojiLayout = "EmojiLabel { padding: 2px; }";
 
 EmojiPicker::EmojiPicker(QWidget* parent) : QWidget(parent) {
   setLayout(&_mainLayout);
@@ -60,8 +59,8 @@ EmojiPicker::EmojiPicker(QWidget* parent) : QWidget(parent) {
 
 bool EmojiPicker::addEmojiLabel(EmojiLabel* emojiLabel, int& row, int& col) {
   if (col == 0 && row == 0) {
-    emojiLabel->setStyleSheet(stylesheetSelectedEmojiLabel);
     _selectedEmojiLabel = emojiLabel;
+    _selectedEmojiLabel->setHighlighted(true);
   }
 
   _emojiLayout.addWidget(emojiLabel, row, col);
@@ -81,9 +80,12 @@ bool EmojiPicker::addEmojiLabel(EmojiLabel* emojiLabel, int& row, int& col) {
 }
 
 void EmojiPicker::onTextChanged(const QString& textQStr) {
-  _selectedEmojiLabel = nullptr;
+  if (_selectedEmojiLabel != nullptr) {
+    _selectedEmojiLabel->setHighlighted(false);
+    _selectedEmojiLabel = nullptr;
+  }
 
-  while (auto* w = _emojiLayoutWidget.findChild<QLabel*>()) {
+  while (auto* w = _emojiLayoutWidget.findChild<EmojiLabel*>()) {
     delete w;
   }
 
@@ -153,9 +155,9 @@ void EmojiPicker::onArrowKeyPressed(int key) {
     for (EmojiLabel* emojiLabel : _emojiLayoutWidget.findChildren<EmojiLabel*>()) {
       if (emojiLabel == _selectedEmojiLabel) {
         if (prevEmojiLabel != nullptr) {
-          _selectedEmojiLabel->setStyleSheet("");
+          _selectedEmojiLabel->setHighlighted(false);
           _selectedEmojiLabel = prevEmojiLabel;
-          _selectedEmojiLabel->setStyleSheet(stylesheetSelectedEmojiLabel);
+          _selectedEmojiLabel->setHighlighted(true);
         }
 
         break;
@@ -170,9 +172,9 @@ void EmojiPicker::onArrowKeyPressed(int key) {
 
     for (EmojiLabel* emojiLabel : _emojiLayoutWidget.findChildren<EmojiLabel*>()) {
       if (prevWasSelectedEmojiLabel) {
-        _selectedEmojiLabel->setStyleSheet("");
+        _selectedEmojiLabel->setHighlighted(false);
         _selectedEmojiLabel = emojiLabel;
-        _selectedEmojiLabel->setStyleSheet(stylesheetSelectedEmojiLabel);
+        _selectedEmojiLabel->setHighlighted(true);
 
         break;
       }

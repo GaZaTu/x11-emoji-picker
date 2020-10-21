@@ -4,6 +4,12 @@
 #include <unicode/unistr.h>
 
 EmojiLabel::EmojiLabel(QWidget* parent) : QLabel(parent) {
+  setGraphicsEffect(&_shadowEffect);
+
+  _shadowEffect.setColor(QColor(255, 255, 255, 255));
+  _shadowEffect.setOffset(0);
+  _shadowEffect.setBlurRadius(20);
+  _shadowEffect.setEnabled(false);
 }
 
 EmojiLabel::EmojiLabel(QWidget* parent, const std::string& emojiStr) : EmojiLabel(parent) {
@@ -48,4 +54,11 @@ void EmojiLabel::setEmojiStr(const std::string& emojiStr) {
 
   setAccessibleName(QString::fromStdString(emojiStr));
   setPixmap(getPixmapByEmojiStr(_emojiStr).scaled(24, 24, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+}
+
+bool EmojiLabel::highlighted() {
+  return _shadowEffect.isEnabled();
+}
+void EmojiLabel::setHighlighted(bool highlighted) {
+  _shadowEffect.setEnabled(highlighted);
 }
