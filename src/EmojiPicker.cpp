@@ -1,50 +1,63 @@
 #include "EmojiPicker.hpp"
 #include "emojis.hpp"
-#include <fstream>
+#include <QSettings>
+#include <functional>
 
-std::vector<std::string> loadRecentEmojis() {
-  std::vector<std::string> recentEmojis;
-  std::ifstream file("./recentEmojis.txt");
+template <typename T>
+std::vector<T> readQSettingsArrayToStdVector(
+    QSettings& settings, const QString& prefix, std::function<T(QSettings&)> readValue) {
+  std::vector<T> data;
 
-  std::string line;
-  while (std::getline(file, line)) {
-    if (recentEmojis.size() == 40) {
-      break;
-    }
+  const int size = settings.beginReadArray(prefix);
+  for (int i = 0; i < size; i++) {
+    settings.setArrayIndex(i);
 
-    if (line == "") {
-      continue;
-    }
-
-    recentEmojis.push_back(line);
+    data.push_back(readValue(settings));
   }
+  settings.endArray();
 
-  return recentEmojis;
+  return data;
 }
 
-void saveRecentEmojis(const std::vector<std::string>& recentEmojis) {
-  if (recentEmojis.size() == 0) {
-    return;
-  }
+template <typename T>
+void writeQSettingsArrayFromStdVector(QSettings& settings, const QString& prefix, const std::vector<T>& data,
+    std::function<void(QSettings&, const T&)> writeValue) {
+  const int size = data.size();
+  settings.beginWriteArray(prefix, size);
+  for (int i = 0; i < size; i++) {
+    settings.setArrayIndex(i);
 
-  std::ofstream file("./recentEmojis.txt");
-
-  for (const auto& line : recentEmojis) {
-    file << line << std::endl;
+    writeValue(settings, data[i]);
   }
+  settings.endArray();
 }
 
-std::vector<std::string> recentEmojis = loadRecentEmojis();
+std::vector<std::string> readRecentEmojis() {
+  QSettings settings;
 
-const QString stylesheetEmojiLayout = "EmojiLabel { padding: 2px; }";
+  return readQSettingsArrayToStdVector<std::string>(settings, "recentEmojis", [](QSettings& settings) {
+    return settings.value("emojiStr").toString().toStdString();
+  });
+}
+
+void writeRecentEmojis(const std::vector<std::string>& recentEmojis) {
+  QSettings settings;
+
+  writeQSettingsArrayFromStdVector<std::string>(
+      settings, "recentEmojis", recentEmojis, [](QSettings& settings, const std::string& emojiStr) {
+        settings.setValue("emojiStr", QString::fromStdString(emojiStr));
+      });
+}
 
 EmojiPicker::EmojiPicker(QWidget* parent) : QWidget(parent) {
   setLayout(&_mainLayout);
 
+  _recentEmojis = readRecentEmojis();
+
   _emojiLayout.setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
   _emojiLayoutWidget.setLayout(&_emojiLayout);
-  _emojiLayoutWidget.setStyleSheet(stylesheetEmojiLayout);
+  _emojiLayoutWidget.setStyleSheet("EmojiLabel { padding: 2px; }");
 
   _mainLayout.addWidget(&_emojiEdit);
   _mainLayout.addWidget(&_emojiLayoutWidget);
@@ -62,6 +75,9 @@ bool EmojiPicker::addEmojiLabel(EmojiLabel* emojiLabel, int& row, int& col) {
     _selectedEmojiLabel = emojiLabel;
     _selectedEmojiLabel->setHighlighted(true);
   }
+
+  emojiLabel->setProperty("row", row);
+  emojiLabel->setProperty("col", col);
 
   _emojiLayout.addWidget(emojiLabel, row, col);
 
@@ -95,7 +111,7 @@ void EmojiPicker::onTextChanged(const QString& textQStr) {
   std::string text = textQStr.toStdString();
 
   if (text == "") {
-    for (const auto& emojiStr : recentEmojis) {
+    for (const auto& emojiStr : _recentEmojis) {
       if (addEmojiLabel(new EmojiLabel(nullptr, emojiStr), row, col)) {
         break;
       }
@@ -108,10 +124,9 @@ void EmojiPicker::onTextChanged(const QString& textQStr) {
     const std::string& emojiKey = emoji.first;
     const std::string& emojiStr = emoji.second;
 
-    auto it =
-        std::search(emojiKey.begin(), emojiKey.end(), text.begin(), text.end(), [](char c1, char c2) {
-          return std::tolower(c1) == std::tolower(c2);
-        });
+    auto it = std::search(emojiKey.begin(), emojiKey.end(), text.begin(), text.end(), [](char c1, char c2) {
+      return std::tolower(c1) == std::tolower(c2);
+    });
 
     if (it != emojiKey.begin()) {
       continue;
@@ -130,64 +145,59 @@ void EmojiPicker::onReturnPressed() {
 
   const std::string& emojiStr = _selectedEmojiLabel->emojiStr();
 
-  for (auto it = recentEmojis.begin(); it != recentEmojis.end();) {
+  for (auto it = _recentEmojis.begin(); it != _recentEmojis.end();) {
     if (*it == emojiStr) {
-      it = recentEmojis.erase(it);
+      it = _recentEmojis.erase(it);
       break;
     } else {
       ++it;
     }
   }
 
-  recentEmojis.insert(recentEmojis.begin(), emojiStr);
+  _recentEmojis.insert(_recentEmojis.begin(), emojiStr);
 
-  if (recentEmojis.size() > 40) {
-    recentEmojis.resize(40);
+  if (_recentEmojis.size() > 40) {
+    _recentEmojis.resize(40);
   }
 
   emit returnPressed(emojiStr);
 }
 
 void EmojiPicker::onArrowKeyPressed(int key) {
-  if (key == Qt::Key_Up) {
-    EmojiLabel* prevEmojiLabel = nullptr;
+  int rowToSelect = _selectedEmojiLabel->property("row").toInt();
+  int colToSelect = _selectedEmojiLabel->property("col").toInt();
 
-    for (EmojiLabel* emojiLabel : _emojiLayoutWidget.findChildren<EmojiLabel*>()) {
-      if (emojiLabel == _selectedEmojiLabel) {
-        if (prevEmojiLabel != nullptr) {
-          _selectedEmojiLabel->setHighlighted(false);
-          _selectedEmojiLabel = prevEmojiLabel;
-          _selectedEmojiLabel->setHighlighted(true);
-        }
-
-        break;
-      }
-
-      prevEmojiLabel = emojiLabel;
-    }
+  switch (key) {
+    case Qt::Key_Up:
+      rowToSelect -= 1;
+      break;
+    case Qt::Key_Down:
+      rowToSelect += 1;
+      break;
+    case Qt::Key_Left:
+      colToSelect -= 1;
+      break;
+    case Qt::Key_Right:
+      colToSelect += 1;
+      break;
   }
 
-  if (key == Qt::Key_Down) {
-    bool prevWasSelectedEmojiLabel = false;
+  for (EmojiLabel* emojiLabel : _emojiLayoutWidget.findChildren<EmojiLabel*>()) {
+    int row = emojiLabel->property("row").toInt();
+    int col = emojiLabel->property("col").toInt();
 
-    for (EmojiLabel* emojiLabel : _emojiLayoutWidget.findChildren<EmojiLabel*>()) {
-      if (prevWasSelectedEmojiLabel) {
-        _selectedEmojiLabel->setHighlighted(false);
-        _selectedEmojiLabel = emojiLabel;
-        _selectedEmojiLabel->setHighlighted(true);
+    if (row == rowToSelect && col == colToSelect) {
+      _selectedEmojiLabel->setHighlighted(false);
+      _selectedEmojiLabel = emojiLabel;
+      _selectedEmojiLabel->setHighlighted(true);
 
-        break;
-      }
-
-      if (emojiLabel == _selectedEmojiLabel) {
-        prevWasSelectedEmojiLabel = true;
-      }
+      break;
     }
   }
 }
 
 void EmojiPicker::onEscapePressed() {
-  saveRecentEmojis(recentEmojis);
+  writeRecentEmojis(_recentEmojis);
 
   emit escapePressed();
 }

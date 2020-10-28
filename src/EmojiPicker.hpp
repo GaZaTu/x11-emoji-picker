@@ -14,13 +14,15 @@ class EmojiPicker : public QWidget {
 public:
   explicit EmojiPicker(QWidget* parent = nullptr);
 
-Q_SIGNALS:
+signals:
   void returnPressed(const std::string& emojiStr);
   void escapePressed();
 
 private:
   static const int cols = 10;
   static const int rows = 4;
+
+  std::vector<std::string> _recentEmojis;
 
   EmojiLabel* _selectedEmojiLabel = nullptr;
 
@@ -33,6 +35,7 @@ private:
 
   bool addEmojiLabel(EmojiLabel* emojiLabel, int& row, int& col);
 
+private slots:
   void onTextChanged(const QString& text);
   void onReturnPressed();
   void onArrowKeyPressed(int key);

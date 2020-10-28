@@ -11,6 +11,10 @@ int main(int argc, char** argv) {
   Window prevX11Window;
   xdo_get_active_window(xdo, &prevX11Window);
 
+  QApplication::setOrganizationName("GAZATU.XYZ");
+  QApplication::setOrganizationDomain("gazatu.xyz");
+  QApplication::setApplicationName("emoji-picker");
+
   QApplication app(argc, argv);
   QMainWindow window;
   window.resize(358, 192);

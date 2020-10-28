@@ -9,7 +9,7 @@ class EmojiLineEdit : public QLineEdit {
 public:
   explicit EmojiLineEdit(QWidget* parent = nullptr);
 
-Q_SIGNALS:
+signals:
   void arrowKeyPressed(int key);
   void escapePressed();
 
