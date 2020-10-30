@@ -1,23 +1,25 @@
 #pragma once
 
-#include <QLabel>
 #include <QGraphicsDropShadowEffect>
+#include <QLabel>
+#include <QPixmap>
+#include "emojis.hpp"
 
 class EmojiLabel : public QLabel {
   Q_OBJECT
 
 public:
   explicit EmojiLabel(QWidget* parent = nullptr);
-  explicit EmojiLabel(QWidget* parent, const std::string& emojiStr);
+  explicit EmojiLabel(QWidget* parent, const Emoji& emoji);
 
-  const std::string& emojiStr();
-  void setEmojiStr(const std::string& emojiStr);
+  const Emoji& emoji();
+  void setEmoji(const Emoji& emoji);
 
   bool highlighted();
   void setHighlighted(bool highlighted);
 
 private:
-  std::string _emojiStr;
+  Emoji _emoji;
 
-  QGraphicsDropShadowEffect _shadowEffect;
+  QGraphicsDropShadowEffect* _shadowEffect = new QGraphicsDropShadowEffect();
 };

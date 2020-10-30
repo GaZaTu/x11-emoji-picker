@@ -51,7 +51,11 @@
     "qlabel": "cpp",
     "qgridlayout": "cpp",
     "qmainwindow": "cpp",
-    "qgraphicsdropshadoweffect": "cpp"
+    "qgraphicsdropshadoweffect": "cpp",
+    "qstackedlayout": "cpp",
+    "qcompleter": "cpp",
+    "ctime": "cpp",
+    "optional": "cpp"
   },
   "cmake.sourceDirectory": "${workspaceFolder}/."
 }

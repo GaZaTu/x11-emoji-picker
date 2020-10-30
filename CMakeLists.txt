@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(emoji-picker VERSION 0.1.0)
+project(emoji-picker VERSION 0.2.0)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -23,12 +23,16 @@ set_target_properties(XDOTOOL PROPERTIES
 add_executable(emoji-picker
   src/main.cpp
   src/main.qrc
+  src/emojis.cpp
+  src/emojis.hpp
   src/EmojiLineEdit.cpp
   src/EmojiLineEdit.hpp
   src/EmojiLabel.cpp
   src/EmojiLabel.hpp
   src/EmojiPicker.cpp
   src/EmojiPicker.hpp
+  src/EmojiPickerSettings.cpp
+  src/EmojiPickerSettings.hpp
 )
 
 set_target_properties(emoji-picker PROPERTIES
