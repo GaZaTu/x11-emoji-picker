@@ -1,27 +1,56 @@
 #include "EmojiPicker.hpp"
 #include "EmojiPickerSettings.hpp"
-#include <QCompleter>
-#include <QStackedLayout>
 
 EmojiPicker::EmojiPicker(QWidget* parent) : QWidget(parent) {
   setLayout(_mainLayout);
 
   _recentEmojis = EmojiPickerSettings().recentEmojis();
+  _skinTonesDisabled = EmojiPickerSettings().skinTonesDisabled();
+  _gendersDisabled = EmojiPickerSettings().gendersDisabled();
 
   _emojiLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
   _emojiLayoutWidget->setLayout(_emojiLayout);
-  _emojiLayoutWidget->setStyleSheet("EmojiLabel { padding: 2px; }");
+  _emojiLayoutWidget->setStyleSheet("EmojiLabel { padding: 2px; border-radius: 5px; } EmojiLabel:hover { "
+                                    "background-color: rgba(255, 255, 255, 33%); }");
 
   _mainLayout->addWidget(_emojiEdit->containerWidget());
   _mainLayout->addWidget(_emojiLayoutWidget);
 
-  onTextChanged("");
+  fillViewWithRecentEmojis();
 
-  QObject::connect(_emojiEdit, &EmojiLineEdit::textChanged, this, &EmojiPicker::onTextChanged);
+  QObject::connect(_emojiEdit, &EmojiLineEdit::textEdited, this, &EmojiPicker::onTextChanged);
   QObject::connect(_emojiEdit, &EmojiLineEdit::returnPressed, this, &EmojiPicker::onReturnPressed);
   QObject::connect(_emojiEdit, &EmojiLineEdit::arrowKeyPressed, this, &EmojiPicker::onArrowKeyPressed);
   QObject::connect(_emojiEdit, &EmojiLineEdit::escapePressed, this, &EmojiPicker::onEscapePressed);
+  QObject::connect(_emojiEdit, &EmojiLineEdit::functionKeyPressed, this, &EmojiPicker::onFunctionKeyPressed);
+}
+
+void EmojiPicker::wheelEvent(QWheelEvent* event) {
+  event->accept();
+
+  QPoint stepsDelta;
+  QPoint pixelDelta = event->pixelDelta();
+  QPoint degreesDelta = event->angleDelta() / 8;
+
+  if (!pixelDelta.isNull()) {
+    stepsDelta = pixelDelta / 15;
+  } else if (!degreesDelta.isNull()) {
+    stepsDelta = degreesDelta / 15;
+  }
+
+  if (stepsDelta.isNull()) {
+    return;
+  }
+
+  switch (stepsDelta.y()) {
+  case +1:
+    onArrowKeyPressed(Qt::Key_Up);
+    break;
+  case -1:
+    onArrowKeyPressed(Qt::Key_Down);
+    break;
+  }
 }
 
 void EmojiPicker::setSelectedEmojiLabel(EmojiLabel* emojiLabel) {
@@ -32,16 +61,21 @@ void EmojiPicker::setSelectedEmojiLabel(EmojiLabel* emojiLabel) {
   _selectedEmojiLabel = emojiLabel;
   _selectedEmojiLabel->setHighlighted(true);
 
-  const std::string localeKey = EmojiPickerSettings().localeKey();
-  const std::string& emojiKey = emojiLabel->emoji().nameByLocale(localeKey);
-
-  _emojiEdit->setPreviewText(emojiKey);
+  _emojiEdit->setPreviewText(tr(emojiLabel->emoji().name.data()).toStdString());
 }
 
 bool EmojiPicker::addEmojiLabel(EmojiLabel* emojiLabel, int& row, int& col) {
   if (col == 0 && row == 0) {
     setSelectedEmojiLabel(emojiLabel);
   }
+
+  QObject::connect(emojiLabel, &EmojiLabel::mousePressed, [this, emojiLabel]() {
+    EmojiLabel* selectedEmojiLabel = _selectedEmojiLabel;
+
+    _selectedEmojiLabel = emojiLabel;
+    onReturnPressed();
+    _selectedEmojiLabel = selectedEmojiLabel;
+  });
 
   emojiLabel->setProperty("row", row);
   emojiLabel->setProperty("col", col);
@@ -62,7 +96,19 @@ bool EmojiPicker::addEmojiLabel(EmojiLabel* emojiLabel, int& row, int& col) {
   return false;
 }
 
-void EmojiPicker::onTextChanged(const QString& textQStr) {
+bool EmojiPicker::isDisabledEmoji(const Emoji& emoji) {
+  if (_skinTonesDisabled && (emoji.name.find("_skin_tone") != std::string::npos)) {
+    return true;
+  }
+
+  if (_gendersDisabled && (emoji.name.find("man_") == 0 || emoji.name.find("woman_") == 0 || emoji.name.find("men_") == 0 || emoji.name.find("women_") == 0)) {
+    return true;
+  }
+
+  return false;
+}
+
+void EmojiPicker::clearView() {
   _emojiEdit->setPreviewText("");
 
   if (_selectedEmojiLabel != nullptr) {
@@ -74,37 +120,127 @@ void EmojiPicker::onTextChanged(const QString& textQStr) {
     delete w;
   }
 
+  _emojiEdit->favsLabel()->setHighlighted(false);
+  _emojiEdit->helpLabel()->setHighlighted(false);
+}
+
+void EmojiPicker::fillViewWithRecentEmojis() {
+  _emojiEdit->favsLabel()->setHighlighted(true);
+
   int col = 0;
   int row = 0;
 
-  const std::string text = textQStr.toStdString();
-
-  if (text == "") {
-    for (const auto& emoji : _recentEmojis) {
-      if (addEmojiLabel(new EmojiLabel(nullptr, emoji), row, col)) {
-        break;
-      }
+  for (const auto& emoji : _recentEmojis) {
+    if (addEmojiLabel(new EmojiLabel(nullptr, emoji), row, col)) {
+      break;
     }
-
-    return;
   }
+}
 
-  const std::string localeKey = EmojiPickerSettings().localeKey();
+void EmojiPicker::fillViewWithEmojisByText(const std::string& text) {
+  int col = 0;
+  int row = 0;
+
+  _helpEmojiListIdx = -1;
 
   for (const auto& emoji : emojis) {
-    const std::string& emojiKey = emoji.nameByLocale(localeKey);
+    if (isDisabledEmoji(emoji)) {
+      continue;
+    }
 
-    auto it = std::search(emojiKey.begin(), emojiKey.end(), text.begin(), text.end(), [](char c1, char c2) {
+    const std::string& emojiKey = tr(emoji.name.data()).toStdString();
+
+    auto found = std::search(emojiKey.begin(), emojiKey.end(), text.begin(), text.end(), [](char c1, char c2) {
       return std::tolower(c1) == std::tolower(c2);
     });
 
-    if (it != emojiKey.begin()) {
+    if (found != emojiKey.begin()) {
       continue;
     }
 
     if (addEmojiLabel(new EmojiLabel(nullptr, emoji), row, col)) {
       break;
     }
+  }
+}
+
+void EmojiPicker::fillViewWithEmojisByList() {
+  _emojiEdit->helpLabel()->setHighlighted(true);
+
+  int col = 0;
+  int row = 0;
+
+  int idx = 0;
+
+  int startCol = 0;
+  int startRow = 0;
+
+  if (_helpEmojiListIdx != -1) {
+    _helpEmojiListStartEmoji = {"", ""};
+  }
+
+  if (_helpEmojiListStartEmoji.code != "") {
+    for (const auto& emoji : emojis) {
+      if (isDisabledEmoji(emoji)) {
+        continue;
+      }
+
+      if (emoji == _helpEmojiListStartEmoji) {
+        if (startRow % 2 != 0) {
+          startRow -= 1;
+        }
+
+        break;
+      }
+
+      startCol += 1;
+
+      if (startCol == cols) {
+        startCol = 0;
+        startRow += 1;
+      }
+    }
+  }
+
+  for (const auto& emoji : emojis) {
+    if (isDisabledEmoji(emoji)) {
+      continue;
+    }
+
+    idx += 1;
+
+    if (_helpEmojiListStartEmoji.code != "" && (idx - 1) < (startRow * cols)) {
+      continue;
+    }
+
+    if ((idx - 1) < (_helpEmojiListIdx - (_helpEmojiListDir == -1 ? (rows * cols) : 0))) {
+      continue;
+    }
+
+    if (addEmojiLabel(new EmojiLabel(nullptr, emoji), row, col)) {
+      _helpEmojiListIdx = idx - (2 * cols);
+
+      break;
+    }
+  }
+
+  if (_helpEmojiListStartEmoji.code != "") {
+    for (EmojiLabel* emojiLabel : _emojiLayoutWidget->findChildren<EmojiLabel*>()) {
+      if (emojiLabel->emoji() == _helpEmojiListStartEmoji) {
+        setSelectedEmojiLabel(emojiLabel);
+      }
+    }
+  }
+}
+
+
+void EmojiPicker::onTextChanged(const QString& textQStr) {
+  clearView();
+
+  if (textQStr == "") {
+    fillViewWithRecentEmojis();
+  } else {
+    fillViewWithEmojisByText(textQStr.toStdString());
   }
 }
 
@@ -163,7 +299,26 @@ void EmojiPicker::onArrowKeyPressed(int key) {
     if (row == rowToSelect && col == colToSelect) {
       setSelectedEmojiLabel(emojiLabel);
 
-      break;
+      return;
+    }
+  }
+
+  if (_helpEmojiListIdx != -1 && (key == Qt::Key_Up || key == Qt::Key_Down)) {
+    Emoji selectedEmoji = _selectedEmojiLabel->emoji();
+
+    if (key == Qt::Key_Down) {
+      _helpEmojiListDir = +1;
+    } else {
+      _helpEmojiListDir = -1;
+    }
+
+    clearView();
+    fillViewWithEmojisByList();
+
+    for (EmojiLabel* emojiLabel : _emojiLayoutWidget->findChildren<EmojiLabel*>()) {
+      if (emojiLabel->emoji() == selectedEmoji) {
+        setSelectedEmojiLabel(emojiLabel);
+      }
     }
   }
 }
@@ -172,4 +327,34 @@ void EmojiPicker::onEscapePressed() {
   EmojiPickerSettings().setRecentEmojis(_recentEmojis);
 
   emit escapePressed();
+}
+
+void EmojiPicker::onFunctionKeyPressed(int key) {
+  switch (key) {
+  case Qt::Key_F1:
+    _helpEmojiListStartEmoji = {"", ""};
+    _helpEmojiListIdx = -1;
+    _emojiEdit->setText("");
+    clearView();
+    fillViewWithRecentEmojis();
+    break;
+  case Qt::Key_F2:
+    onHelpPressed(nullptr);
+    break;
+  }
+}
+
+void EmojiPicker::onHelpPressed(QMouseEvent* ev) {
+  if (_helpEmojiListIdx != -1) {
+    return;
+  }
+
+  if (_emojiEdit->text() != "" && _selectedEmojiLabel != nullptr) {
+    _helpEmojiListStartEmoji = _selectedEmojiLabel->emoji();
+  }
+
+  _helpEmojiListDir = +1;
+  _emojiEdit->setText("");
+  clearView();
+  fillViewWithEmojisByList();
 }

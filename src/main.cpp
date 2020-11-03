@@ -1,22 +1,31 @@
 #include "EmojiPicker.hpp"
+#include "EmojiPickerSettings.hpp"
+#include "EmojiTranslator.hpp"
+#include "crossdo.hpp"
 #include <QApplication>
 #include <QMainWindow>
+#include <memory>
 
-extern "C" {
-#include "xdo.h"
+void installEmojiTranslator() {
+  EmojiPickerSettings settings;
+  EmojiTranslator* translator = new EmojiTranslator(nullptr, settings.localeKey());
+
+  QApplication::installTranslator(translator);
 }
 
 int main(int argc, char** argv) {
-  xdo_t* xdo = xdo_new(nullptr);
-  Window prevX11Window;
-  xdo_get_active_window(xdo, &prevX11Window);
+  auto crossdo = std::unique_ptr<crossdo_t, decltype(&crossdo_free)>(crossdo_new(), &crossdo_free);
+  window_t prevWindow;
+  crossdo_get_active_window(crossdo.get(), &prevWindow);
 
-  QApplication::setOrganizationName("gazatu.xyz");
-  QApplication::setOrganizationDomain("gazatu.xyz");
-  QApplication::setApplicationName("emoji-picker");
-  QApplication::setApplicationVersion("0.2.0");
+  QApplication::setOrganizationName(PROJECT_ORGANIZATION);
+  QApplication::setOrganizationDomain(PROJECT_ORGANIZATION);
+  QApplication::setApplicationName(PROJECT_NAME);
+  QApplication::setApplicationVersion(PROJECT_VERSION);
 
   QApplication app(argc, argv);
+  installEmojiTranslator();
+
   QMainWindow window;
   window.resize(358, 192);
   window.setWindowOpacity(0.90);
@@ -26,7 +35,7 @@ int main(int argc, char** argv) {
   EmojiPicker* mainWidget = new EmojiPicker();
 
   QObject::connect(mainWidget, &EmojiPicker::returnPressed, [&](const std::string& emojiStr) {
-    xdo_enter_text_window(xdo, prevX11Window, emojiStr.data(), 0);
+    crossdo_enter_text_window(crossdo.get(), prevWindow, emojiStr.data(), 0);
   });
 
   QObject::connect(mainWidget, &EmojiPicker::escapePressed, [&]() {

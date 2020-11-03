@@ -31,6 +31,13 @@ void writeQSettingsArrayFromStdVector(QSettings& settings, const QString& prefix
   settings.endArray();
 }
 
+EmojiPickerSettings::~EmojiPickerSettings() {
+  setRecentEmojis(recentEmojis());
+  setLocaleKey(localeKey());
+  setSkinTonesDisabled(skinTonesDisabled());
+  setGendersDisabled(gendersDisabled());
+}
+
 std::vector<Emoji> EmojiPickerSettings::recentEmojis() {
   return readQSettingsArrayToStdVector<Emoji>(*this, "recentEmojis", [](QSettings& settings) -> Emoji {
     return {
@@ -56,4 +63,18 @@ std::string EmojiPickerSettings::localeKey() {
 }
 void EmojiPickerSettings::setLocaleKey(const std::string& localeKey) {
   setValue("localeKey", QString::fromStdString(localeKey));
+}
+
+bool EmojiPickerSettings::skinTonesDisabled() {
+  return value("skinTonesDisabled", false).toBool();
+}
+void EmojiPickerSettings::setSkinTonesDisabled(bool skinTonesDisabled) {
+  setValue("skinTonesDisabled", skinTonesDisabled);
+}
+
+bool EmojiPickerSettings::gendersDisabled() {
+  return value("gendersDisabled", false).toBool();
+}
+void EmojiPickerSettings::setGendersDisabled(bool gendersDisabled) {
+  setValue("gendersDisabled", gendersDisabled);
 }

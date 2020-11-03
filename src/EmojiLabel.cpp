@@ -54,6 +54,10 @@ void EmojiLabel::setEmoji(const Emoji& emoji) {
 
   setAccessibleName(QString::fromStdString(_emoji.name));
   setPixmap(getPixmapByEmojiStr(_emoji.code).scaled(24, 24, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+
+  if (pixmap()->isNull()) {
+    setText(QString::fromStdString(_emoji.code));
+  }
 }
 
 bool EmojiLabel::highlighted() {
@@ -61,4 +65,8 @@ bool EmojiLabel::highlighted() {
 }
 void EmojiLabel::setHighlighted(bool highlighted) {
   _shadowEffect->setEnabled(highlighted);
+}
+
+void EmojiLabel::mousePressEvent(QMouseEvent* ev) {
+  emit mousePressed(ev);
 }

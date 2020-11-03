@@ -4,17 +4,42 @@ EmojiLineEdit::EmojiLineEdit(QWidget* parent) : QLineEdit(parent) {
 }
 
 QWidget* EmojiLineEdit::containerWidget() {
-  _containerLayout->setStackingMode(QStackedLayout::StackAll);
-  _container->setLayout(_containerLayout);
-  _container->setMaximumHeight(sizeHint().height());
+  if (_container == nullptr) {
+    _containerLayout = new QStackedLayout();
+    _containerLayout->setStackingMode(QStackedLayout::StackAll);
 
-  _previewLabel->setText("");
-  _previewLabel->setStyleSheet("padding-left: 5px; color: rgba(255, 255, 255, 50%);");
+    _container = new QWidget();
+    _container->setLayout(_containerLayout);
+    _container->setMaximumHeight(sizeHint().height());
 
-  _containerLayout->addWidget(_previewLabel);
-  _containerLayout->addWidget(this);
+    _previewLabel = new QLabel();
+    _previewLabel->setText("");
+    _previewLabel->setStyleSheet("padding-left: 5px; color: rgba(255, 255, 255, 50%);");
+
+    _favsLabel = new EmojiLabel();
+    _favsLabel->setEmoji({"", u8"⭐"});
+    _favsLabel->setStyleSheet("margin-left: 285px;");
+
+    _helpLabel = new EmojiLabel();
+    _helpLabel->setEmoji({"", u8"🗃"});
+    _helpLabel->setStyleSheet("margin-left: 315px;");
+
+    _containerLayout->addWidget(_helpLabel);
+    _containerLayout->addWidget(_favsLabel);
+    _containerLayout->addWidget(_previewLabel);
+    _containerLayout->addWidget(this);
+  }
 
   return _container;
+}
+QLabel* EmojiLineEdit::previewLabel() {
+  return _previewLabel;
+}
+EmojiLabel* EmojiLineEdit::favsLabel() {
+  return _favsLabel;
+}
+EmojiLabel* EmojiLineEdit::helpLabel() {
+  return _helpLabel;
 }
 
 std::string EmojiLineEdit::previewText() {
@@ -23,21 +48,29 @@ std::string EmojiLineEdit::previewText() {
 void EmojiLineEdit::setPreviewText(const std::string& previewText) {
   QString previewTextAsQString = QString::fromStdString(previewText);
   previewTextAsQString.replace(0, text().length(), text());
-  if (previewTextAsQString.length() > 45) {
-    previewTextAsQString = previewTextAsQString.left(45) + "...";
+  if (previewTextAsQString.length() > 30) {
+    previewTextAsQString = previewTextAsQString.left(30) + "...";
   }
 
   _previewLabel->setText(previewTextAsQString);
 }
 
 void EmojiLineEdit::keyPressEvent(QKeyEvent* event) {
-  if (event->key() == Qt::Key_Escape) {
+  switch (event->key()) {
+  case Qt::Key_Escape:
     emit escapePressed();
-  } else if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down || event->key() == Qt::Key_Left ||
-      event->key() == Qt::Key_Right) {
+    break;
+  case Qt::Key_Up:
+  case Qt::Key_Down:
+  case Qt::Key_Left:
+  case Qt::Key_Right:
     emit arrowKeyPressed(event->key());
-  } else {
-    // default handler for event
+    break;
+  case Qt::Key_F1:
+  case Qt::Key_F2:
+    emit functionKeyPressed(event->key());
+    break;
+  default:
     QLineEdit::keyPressEvent(event);
   }
 }

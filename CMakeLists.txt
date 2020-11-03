@@ -1,26 +1,36 @@
-cmake_minimum_required(VERSION 3.0.0)
-project(emoji-picker VERSION 0.2.0)
+cmake_minimum_required(VERSION 3.7.2)
+project(emoji-picker VERSION 0.3.0)
+
+cmake_policy(SET CMP0074 NEW)
+
+add_definitions(
+  -DPROJECT_ORGANIZATION="gazatu.xyz"
+  -DPROJECT_NAME="${PROJECT_NAME}"
+  -DPROJECT_VERSION="${PROJECT_VERSION}"
+)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt5 REQUIRED COMPONENTS Widgets Core Gui)
+# if windows
+# set(Qt5_USE_STATIC_LIBS ON)
+# set(Qt5_USE_STATIC_RUNTIME ON)
 
-find_library(ICU_UC_LIB icuuc REQUIRED)
-add_library(ICU_UC SHARED IMPORTED)
-set_target_properties(ICU_UC PROPERTIES
-  IMPORTED_LOCATION ${ICU_UC_LIB}
-)
+find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets)
 
-find_library(XDOTOOL_LIB xdo REQUIRED)
-add_library(XDOTOOL SHARED IMPORTED)
-set_target_properties(XDOTOOL PROPERTIES
-  IMPORTED_LOCATION ${XDOTOOL_LIB}
-)
+find_package(ICU REQUIRED COMPONENTS uc)
 
-add_executable(emoji-picker
+if (UNIX AND NOT APPLE)
+  find_library(XDOTOOL_LIB xdo REQUIRED)
+  add_library(XDOTOOL STATIC SHARED IMPORTED)
+  set_target_properties(XDOTOOL PROPERTIES
+    IMPORTED_LOCATION ${XDOTOOL_LIB}
+  )
+endif ()
+
+add_executable(${PROJECT_NAME}
   src/main.cpp
   src/main.qrc
   src/emojis.cpp
@@ -33,23 +43,25 @@ add_executable(emoji-picker
   src/EmojiPicker.hpp
   src/EmojiPickerSettings.cpp
   src/EmojiPickerSettings.hpp
+  src/EmojiTranslator.cpp
+  src/EmojiTranslator.hpp
 )
 
-set_target_properties(emoji-picker PROPERTIES
+set_target_properties(${PROJECT_NAME} PROPERTIES
   CXX_STANDARD 14
   CXX_STANDARD_REQUIRED ON
   CXX_EXTENSIONS OFF
 )
 
-target_link_libraries(emoji-picker
+target_link_libraries(${PROJECT_NAME}
   Qt5::Core
   Qt5::Gui
   Qt5::Widgets
-  ICU_UC
-  XDOTOOL
+  ICU::uc
 )
 
-set(CPACK_PROJECT_NAME ${PROJECT_NAME})
-set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
-
-include(CPack)
+if (UNIX AND NOT APPLE)
+  target_link_libraries(${PROJECT_NAME}
+    XDOTOOL
+  )
+endif ()

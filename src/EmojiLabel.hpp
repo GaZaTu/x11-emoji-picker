@@ -1,9 +1,9 @@
 #pragma once
 
+#include "emojis.hpp"
 #include <QGraphicsDropShadowEffect>
 #include <QLabel>
 #include <QPixmap>
-#include "emojis.hpp"
 
 class EmojiLabel : public QLabel {
   Q_OBJECT
@@ -17,6 +17,12 @@ public:
 
   bool highlighted();
   void setHighlighted(bool highlighted);
+
+signals:
+  void mousePressed(QMouseEvent* ev);
+
+protected:
+  void mousePressEvent(QMouseEvent* ev) override;
 
 private:
   Emoji _emoji;
