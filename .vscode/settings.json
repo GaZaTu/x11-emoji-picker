@@ -55,7 +55,20 @@
     "qstackedlayout": "cpp",
     "qcompleter": "cpp",
     "ctime": "cpp",
-    "optional": "cpp"
+    "optional": "cpp",
+    "qpixmap": "cpp",
+    "xhash": "cpp",
+    "xtree": "cpp",
+    "xstring": "cpp",
+    "xutility": "cpp"
   },
-  "cmake.sourceDirectory": "${workspaceFolder}/."
+  "cmake.sourceDirectory": "${workspaceFolder}/.",
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "src/emojis.cpp": true
+  }
 }

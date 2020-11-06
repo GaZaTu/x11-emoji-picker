@@ -51,6 +51,10 @@
           // it gets resolved by CMake Tools:
           "name": "PATH",
           "value": "$PATH;${command:cmake.launchTargetDirectory};E:/Programs/Qt/5.15.1/msvc2015_64/bin;E:/Lib/ICU/bin64"
+        },
+        {
+          "name": "QT_QPA_PLATFORM_PLUGIN_PATH",
+          "value": "E:/Programs/Qt/5.15.1/msvc2015_64/plugins/platforms"
         }
       ],
       "externalConsole": false

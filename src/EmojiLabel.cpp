@@ -16,7 +16,7 @@ EmojiLabel::EmojiLabel(QWidget* parent, const Emoji& emoji) : EmojiLabel(parent)
   setEmoji(emoji);
 }
 
-// fdm `:/res/72x72/${[...emojiStr].map(c => c.toString(16)).join('-')}.png`
+// fdm `:/res/72x72/${[...emojiStr].map(c => c.codePointAt(0).toString(16)).join('-')}.png`
 std::string getPixmapPathByEmojiStr(const std::string& emojiStr) {
   std::stringstream emojiHexCodeStream;
 
@@ -26,7 +26,7 @@ std::string getPixmapPathByEmojiStr(const std::string& emojiStr) {
   icu::UnicodeString emojiUStr(emojiStr.data(), emojiStr.length(), "utf-8");
   icu::StringCharacterIterator emojiUStrIterator(emojiUStr);
   while (emojiUStrIterator.hasNext()) {
-    UChar32 codepoint = emojiUStrIterator.next32PostInc();
+    int32_t codepoint = emojiUStrIterator.next32PostInc();
 
     if (firstCodepoint) {
       firstCodepoint = false;
@@ -54,10 +54,6 @@ void EmojiLabel::setEmoji(const Emoji& emoji) {
 
   setAccessibleName(QString::fromStdString(_emoji.name));
   setPixmap(getPixmapByEmojiStr(_emoji.code).scaled(24, 24, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-
-  if (pixmap()->isNull()) {
-    setText(QString::fromStdString(_emoji.code));
-  }
 }
 
 bool EmojiLabel::highlighted() {

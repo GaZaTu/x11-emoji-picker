@@ -1,7 +1,7 @@
 #include "EmojiPicker.hpp"
 #include "EmojiPickerSettings.hpp"
 #include "EmojiTranslator.hpp"
-#include "crossdo.hpp"
+#include "crossdo.h"
 #include <QApplication>
 #include <QMainWindow>
 #include <memory>
@@ -29,7 +29,8 @@ int main(int argc, char** argv) {
   QMainWindow window;
   window.resize(358, 192);
   window.setWindowOpacity(0.90);
-  window.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+  window.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+  // window.setAttribute(Qt::WA_ShowWithoutActivating);
   window.setWindowIcon(QIcon(":/res/72x72/1f0cf.png"));
 
   EmojiPicker* mainWidget = new EmojiPicker();

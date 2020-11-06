@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.7.2)
-project(emoji-picker VERSION 0.3.0)
+cmake_minimum_required(VERSION 3.7.2 FATAL_ERROR)
+project(emoji-picker VERSION 0.3.0 LANGUAGES CXX)
 
 cmake_policy(SET CMP0074 NEW)
 
@@ -22,7 +22,7 @@ find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets)
 
 find_package(ICU REQUIRED COMPONENTS uc)
 
-if (UNIX AND NOT APPLE)
+if (UNIX AND NOT APPLE) # LINUX (X11)
   find_library(XDOTOOL_LIB xdo REQUIRED)
   add_library(XDOTOOL STATIC SHARED IMPORTED)
   set_target_properties(XDOTOOL PROPERTIES
@@ -51,6 +51,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
   CXX_STANDARD 14
   CXX_STANDARD_REQUIRED ON
   CXX_EXTENSIONS OFF
+  WIN32_EXECUTABLE ON # add WinMain(...) if windows
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -60,8 +61,27 @@ target_link_libraries(${PROJECT_NAME}
   ICU::uc
 )
 
-if (UNIX AND NOT APPLE)
+if (UNIX AND NOT APPLE) # LINUX (X11)
   target_link_libraries(${PROJECT_NAME}
     XDOTOOL
   )
 endif ()
+
+set(STACK_SIZE_DEC 4194304) # 4MB
+set(STACK_SIZE_HEX 0x400000) # 4MB
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang") # clang++ / clang-cl
+  if (WIN32) # lld-link
+    set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS /STACK:${STACK_SIZE_DEC})
+  elseif (APPLE) # apple ld
+    set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS -Wl,-stack_size,${STACK_SIZE_HEX})
+  endif ()
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # g++ / mingw g++
+  if (WIN32) # mingw ld
+    set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS -Wl,--stack,${STACK_SIZE_DEC})
+  elseif (APPLE) # apple ld
+    set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS -Wl,-stack_size,${STACK_SIZE_HEX})
+  endif ()
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC") # msvc
+  set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS /STACK:${STACK_SIZE_DEC})
+endif()
