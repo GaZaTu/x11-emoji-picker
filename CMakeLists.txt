@@ -35,6 +35,7 @@ add_executable(${PROJECT_NAME}
   src/main.qrc
   src/emojis.cpp
   src/emojis.hpp
+  src/emojis.qrc
   src/EmojiLineEdit.cpp
   src/EmojiLineEdit.hpp
   src/EmojiLabel.cpp

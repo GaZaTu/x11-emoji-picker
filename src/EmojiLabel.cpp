@@ -5,8 +5,14 @@
 
 EmojiLabel::EmojiLabel(QWidget* parent) : QLabel(parent) {
   setGraphicsEffect(_shadowEffect);
+  setMouseTracking(true);
 
-  _shadowEffect->setColor(QColor(255, 255, 255, 255));
+#ifdef __linux__
+  _shadowEffect->setColor(palette().text().color());
+#elif _WIN32
+  _shadowEffect->setColor(QColor(240, 240, 240));
+#endif
+
   _shadowEffect->setOffset(0);
   _shadowEffect->setBlurRadius(20);
   _shadowEffect->setEnabled(false);
@@ -49,11 +55,11 @@ QPixmap getPixmapByEmojiStr(const std::string& emojiStr) {
 const Emoji& EmojiLabel::emoji() {
   return _emoji;
 }
-void EmojiLabel::setEmoji(const Emoji& emoji) {
+void EmojiLabel::setEmoji(const Emoji& emoji, int w, int h) {
   _emoji = emoji;
 
   setAccessibleName(QString::fromStdString(_emoji.name));
-  setPixmap(getPixmapByEmojiStr(_emoji.code).scaled(24, 24, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+  setPixmap(getPixmapByEmojiStr(_emoji.code).scaled(w, h, Qt::KeepAspectRatio, Qt::SmoothTransformation));
 }
 
 bool EmojiLabel::highlighted() {
@@ -65,4 +71,14 @@ void EmojiLabel::setHighlighted(bool highlighted) {
 
 void EmojiLabel::mousePressEvent(QMouseEvent* ev) {
   emit mousePressed(ev);
+
+  QLabel::mousePressEvent(ev);
+}
+
+void EmojiLabel::mouseMoveEvent(QMouseEvent* ev) {
+  if (toolTip().isNull()) {
+    setToolTip(tr(_emoji.name.data()));
+  }
+
+  QLabel::mouseMoveEvent(ev);
 }

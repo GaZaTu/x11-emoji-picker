@@ -11,8 +11,17 @@ EmojiPicker::EmojiPicker(QWidget* parent) : QWidget(parent) {
   _emojiLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
   _emojiLayoutWidget->setLayout(_emojiLayout);
-  _emojiLayoutWidget->setStyleSheet("EmojiLabel { padding: 2px; border-radius: 5px; } EmojiLabel:hover { "
-                                    "background-color: rgba(255, 255, 255, 33%); }");
+
+#ifdef __linux__
+  QColor emojiLabelHoverBgColor = _emojiLayoutWidget->palette().text().color();
+  emojiLabelHoverBgColor.setAlphaF(0.33);
+  _emojiLayoutWidget->setStyleSheet(QString("EmojiLabel { padding: 2px; border-radius: 5px; } EmojiLabel:hover { "
+                                            "background-color: #%1; }")
+                                        .arg(emojiLabelHoverBgColor.rgba(), 0, 16));
+#elif _WIN32
+  _emojiLayoutWidget->setStyleSheet(QString("EmojiLabel { padding: 2px; border-radius: 5px; } EmojiLabel:hover { "
+                                            "background-color: rgba(240, 240, 240, 0.33); }"));
+#endif
 
   _mainLayout->addWidget(_emojiEdit->containerWidget());
   _mainLayout->addWidget(_emojiLayoutWidget);
@@ -24,6 +33,10 @@ EmojiPicker::EmojiPicker(QWidget* parent) : QWidget(parent) {
   QObject::connect(_emojiEdit, &EmojiLineEdit::arrowKeyPressed, this, &EmojiPicker::onArrowKeyPressed);
   QObject::connect(_emojiEdit, &EmojiLineEdit::escapePressed, this, &EmojiPicker::onEscapePressed);
   QObject::connect(_emojiEdit, &EmojiLineEdit::functionKeyPressed, this, &EmojiPicker::onFunctionKeyPressed);
+  QObject::connect(_emojiEdit, &EmojiLineEdit::tabPressed, this, &EmojiPicker::onTabPressed);
+
+  QObject::connect(_emojiEdit->favsLabel(), &EmojiLabel::mousePressed, this, &EmojiPicker::onFavsPressed);
+  QObject::connect(_emojiEdit->helpLabel(), &EmojiLabel::mousePressed, this, &EmojiPicker::onHelpPressed);
 }
 
 void EmojiPicker::wheelEvent(QWheelEvent* event) {
@@ -101,7 +114,9 @@ bool EmojiPicker::isDisabledEmoji(const Emoji& emoji) {
     return true;
   }
 
-  if (_gendersDisabled && (emoji.name.find("man_") == 0 || emoji.name.find("woman_") == 0 || emoji.name.find("men_") == 0 || emoji.name.find("women_") == 0)) {
+  if (_gendersDisabled &&
+      (emoji.name.find("man_") == 0 || emoji.name.find("woman_") == 0 || emoji.name.find("men_") == 0 ||
+          emoji.name.find("women_") == 0)) {
     return true;
   }
 
@@ -233,7 +248,6 @@ void EmojiPicker::fillViewWithEmojisByList() {
   }
 }
 
-
 void EmojiPicker::onTextChanged(const QString& textQStr) {
   clearView();
 
@@ -332,16 +346,32 @@ void EmojiPicker::onEscapePressed() {
 void EmojiPicker::onFunctionKeyPressed(int key) {
   switch (key) {
   case Qt::Key_F1:
-    _helpEmojiListStartEmoji = {"", ""};
-    _helpEmojiListIdx = -1;
-    _emojiEdit->setText("");
-    clearView();
-    fillViewWithRecentEmojis();
+    onFavsPressed(nullptr);
     break;
   case Qt::Key_F2:
     onHelpPressed(nullptr);
     break;
   }
+}
+
+void EmojiPicker::onTabPressed() {
+  if (_helpEmojiListIdx == -1) {
+    onHelpPressed(nullptr);
+  } else if (_helpEmojiListIdx != -1 || _emojiEdit->text() != "") {
+    onFavsPressed(nullptr);
+  }
+}
+
+void EmojiPicker::onFavsPressed(QMouseEvent* ev) {
+  if (_helpEmojiListIdx == -1 && _emojiEdit->text() == "") {
+    return;
+  }
+
+  _helpEmojiListStartEmoji = {"", ""};
+  _helpEmojiListIdx = -1;
+  _emojiEdit->setText("");
+  clearView();
+  fillViewWithRecentEmojis();
 }
 
 void EmojiPicker::onHelpPressed(QMouseEvent* ev) {

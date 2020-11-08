@@ -2,16 +2,11 @@
 #include "EmojiPickerSettings.hpp"
 #include "EmojiTranslator.hpp"
 #include "crossdo.h"
+#undef Status
 #include <QApplication>
 #include <QMainWindow>
+#include <QTextStream>
 #include <memory>
-
-void installEmojiTranslator() {
-  EmojiPickerSettings settings;
-  EmojiTranslator* translator = new EmojiTranslator(nullptr, settings.localeKey());
-
-  QApplication::installTranslator(translator);
-}
 
 int main(int argc, char** argv) {
   auto crossdo = std::unique_ptr<crossdo_t, decltype(&crossdo_free)>(crossdo_new(), &crossdo_free);
@@ -24,19 +19,42 @@ int main(int argc, char** argv) {
   QApplication::setApplicationVersion(PROJECT_VERSION);
 
   QApplication app(argc, argv);
-  installEmojiTranslator();
+  QApplication::installTranslator(new EmojiTranslator(nullptr, EmojiPickerSettings().localeKey()));
+
+#ifdef _WIN32
+  QFile darkQss(":/main.qss");
+  if (darkQss.exists()) {
+    darkQss.open(QFile::ReadOnly | QFile::Text);
+    QTextStream ts(&darkQss);
+    app.setStyleSheet(ts.readAll());
+  }
+#endif
 
   QMainWindow window;
+
+#ifdef __linux__
   window.resize(358, 192);
+#elif _WIN32
+  window.resize(372, 192);
+#endif
+
   window.setWindowOpacity(0.90);
   window.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
   // window.setAttribute(Qt::WA_ShowWithoutActivating);
   window.setWindowIcon(QIcon(":/res/72x72/1f0cf.png"));
 
+  if (EmojiPickerSettings().openAtMouseLocation()) {
+    int cursorX = 0;
+    int cursorY = 0;
+    crossdo_get_mouse_location2(crossdo.get(), &cursorX, &cursorY, NULL, NULL);
+
+    window.move(cursorX, cursorY);
+  }
+
   EmojiPicker* mainWidget = new EmojiPicker();
 
   QObject::connect(mainWidget, &EmojiPicker::returnPressed, [&](const std::string& emojiStr) {
-    crossdo_enter_text_window(crossdo.get(), prevWindow, emojiStr.data(), 0);
+    crossdo_enter_text_window(crossdo.get(), prevWindow, emojiStr.data(), 12000);
   });
 
   QObject::connect(mainWidget, &EmojiPicker::escapePressed, [&]() {

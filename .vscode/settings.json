@@ -1,5 +1,7 @@
 {
   "files.associations": {
+    "*.qrc": "xml",
+    "*.qss": "css",
     "string": "cpp",
     "cwchar": "cpp",
     "iostream": "cpp",
@@ -60,7 +62,9 @@
     "xhash": "cpp",
     "xtree": "cpp",
     "xstring": "cpp",
-    "xutility": "cpp"
+    "xutility": "cpp",
+    "thread": "cpp",
+    "xlocale": "cpp"
   },
   "cmake.sourceDirectory": "${workspaceFolder}/.",
   "files.exclude": {

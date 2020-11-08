@@ -1,4 +1,5 @@
 #include "EmojiPickerSettings.hpp"
+#include <QApplication>
 #include <functional>
 #include <locale>
 
@@ -31,11 +32,17 @@ void writeQSettingsArrayFromStdVector(QSettings& settings, const QString& prefix
   settings.endArray();
 }
 
+EmojiPickerSettings::EmojiPickerSettings(QObject* parent)
+    : QSettings(QSettings::IniFormat, QSettings::UserScope, QApplication::organizationName(),
+          QApplication::applicationName(), parent) {
+}
+
 EmojiPickerSettings::~EmojiPickerSettings() {
   setRecentEmojis(recentEmojis());
   setLocaleKey(localeKey());
   setSkinTonesDisabled(skinTonesDisabled());
   setGendersDisabled(gendersDisabled());
+  setOpenAtMouseLocation(openAtMouseLocation());
 }
 
 std::vector<Emoji> EmojiPickerSettings::recentEmojis() {
@@ -77,4 +84,11 @@ bool EmojiPickerSettings::gendersDisabled() {
 }
 void EmojiPickerSettings::setGendersDisabled(bool gendersDisabled) {
   setValue("gendersDisabled", gendersDisabled);
+}
+
+bool EmojiPickerSettings::openAtMouseLocation() {
+  return value("openAtMouseLocation", false).toBool();
+}
+void EmojiPickerSettings::setOpenAtMouseLocation(bool openAtMouseLocation) {
+  setValue("openAtMouseLocation", openAtMouseLocation);
 }

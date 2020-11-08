@@ -60,6 +60,8 @@ private slots:
   void onArrowKeyPressed(int key);
   void onEscapePressed();
   void onFunctionKeyPressed(int key);
+  void onTabPressed();
 
+  void onFavsPressed(QMouseEvent* ev);
   void onHelpPressed(QMouseEvent* ev);
 };

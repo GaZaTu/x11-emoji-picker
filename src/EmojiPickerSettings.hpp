@@ -8,6 +8,7 @@ class EmojiPickerSettings : public QSettings {
   Q_OBJECT
 
 public:
+  explicit EmojiPickerSettings(QObject* parent = nullptr);
   ~EmojiPickerSettings();
 
   std::vector<Emoji> recentEmojis();
@@ -21,4 +22,7 @@ public:
 
   bool gendersDisabled();
   void setGendersDisabled(bool gendersDisabled);
+
+  bool openAtMouseLocation();
+  void setOpenAtMouseLocation(bool openAtMouseLocation);
 };

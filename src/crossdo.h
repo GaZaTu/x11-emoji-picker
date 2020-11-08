@@ -52,14 +52,7 @@ extern "C" {
 #endif
 // https://docs.microsoft.com/en-us/windows/win32/winprog/using-the-windows-headers
 #include "windows.h"
-#endif
-
-#ifdef __linux__
-typedef xdo_t crossdo_t;
-#elif _WIN32
-    typedef struct {
-  int x;
-} crossdo_t;
+#include "windowsx.h"
 #endif
 
 #ifdef __linux__
@@ -68,11 +61,19 @@ typedef Window window_t;
 typedef HWND window_t;
 #endif
 
+#ifdef __linux__
+typedef xdo_t crossdo_t;
+#elif _WIN32
+typedef struct {
+  int nothing;
+} crossdo_t;
+#endif
+
 crossdo_t* crossdo_new() {
 #ifdef __linux__
   return xdo_new(NULL);
 #elif _WIN32
-  return new crossdo_t();
+  return (crossdo_t*)malloc(sizeof(crossdo_t));
 #endif
 }
 
@@ -80,69 +81,105 @@ void crossdo_free(crossdo_t* crossdo) {
 #ifdef __linux__
   xdo_free(crossdo);
 #elif _WIN32
-  delete crossdo;
+  free(crossdo);
 #endif
 }
 
-int crossdo_get_active_window(crossdo_t* crossdo, window_t* result) {
+int crossdo_get_mouse_location2(
+    const crossdo_t* crossdo, int* x_ret, int* y_ret, int* screen_num_ret, window_t* window_ret) {
 #ifdef __linux__
-  return xdo_get_active_window(crossdo, result);
+  return xdo_get_mouse_location2(crossdo, x_ret, y_ret, screen_num_ret, window_ret);
 #elif _WIN32
-  *result = GetForegroundWindow();
+  POINT cursor;
+  GetCursorPos(&cursor);
+
+  if (x_ret != NULL)
+    *x_ret = cursor.x;
+
+  if (y_ret != NULL)
+    *y_ret = cursor.y;
+
+  if (screen_num_ret != NULL)
+    *screen_num_ret = NULL;
+
+  if (window_ret != NULL)
+    *window_ret = WindowFromPoint(cursor);
 
   return 0;
 #endif
 }
 
-int crossdo_enter_text_window(crossdo_t* crossdo, window_t window, const char* string, unsigned int delay) {
+int crossdo_get_active_window(const crossdo_t* crossdo, window_t* window_ret) {
+#ifdef __linux__
+  return xdo_get_active_window(crossdo, window_ret);
+#elif _WIN32
+  *window_ret = GetForegroundWindow();
+
+  return 0;
+#endif
+}
+
+int crossdo_enter_text_window(const crossdo_t* crossdo, window_t window, const char* string, unsigned int delay) {
 #ifdef __linux__
   return xdo_enter_text_window(crossdo, window, string, delay);
 #elif _WIN32
-  // SendMessageW(window, WM_SETTEXT, NULL, (LPARAM)string);
+  // string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-  window_t this_window = GetForegroundWindow();
+  size_t input_len = strlen(string) * 2;
+  INPUT* input = (INPUT*)malloc(sizeof(INPUT) * input_len);
 
-  OpenClipboard(this_window);
+  window_t current_window = GetForegroundWindow();
+  unsigned long current_thread = GetWindowThreadProcessId(current_window, NULL);
+  unsigned long window_thread = GetWindowThreadProcessId(window, NULL);
 
-  unsigned int clipboard_formats_count = CountClipboardFormats();
-  unsigned int* clipboard_formats = (unsigned int*)malloc(sizeof(unsigned int) * clipboard_formats_count);
-  unsigned int clipboard_format = 0;
-  for (int i = 0; (clipboard_format = EnumClipboardFormats(clipboard_format)) != 0; i++) {
-    clipboard_formats[i] = clipboard_format;
+  AttachThreadInput(window_thread, current_thread, TRUE);
+
+  // SetActiveWindow(window);
+
+  for (int i = 0; i < (input_len / 2); i++) {
+    INPUT* down = &input[(i * 2) + 0];
+    INPUT* up = &input[(i * 2) + 1];
+
+    down->type = INPUT_KEYBOARD;
+    down->ki.wScan = string[i];
+    down->ki.time = 0;
+    down->ki.dwExtraInfo = NULL;
+    down->ki.wVk = 0;
+    down->ki.dwFlags = KEYEVENTF_UNICODE | 0;
+
+    up->type = INPUT_KEYBOARD;
+    up->ki.wScan = string[i];
+    up->ki.time = 0;
+    up->ki.dwExtraInfo = NULL;
+    up->ki.wVk = 0;
+    up->ki.dwFlags = KEYEVENTF_UNICODE | KEYEVENTF_KEYUP;
+
+    // INPUT input[2];
+
+    // input[0].type = INPUT_KEYBOARD;
+    // input[0].ki.wScan = string[i];
+    // input[0].ki.time = 0;
+    // input[0].ki.dwExtraInfo = NULL;
+    // input[0].ki.wVk = 0;
+    // input[0].ki.dwFlags = KEYEVENTF_UNICODE | 0;
+
+    // input[1].type = INPUT_KEYBOARD;
+    // input[1].ki.wScan = string[i];
+    // input[1].ki.time = 0;
+    // input[1].ki.dwExtraInfo = NULL;
+    // input[1].ki.wVk = 0;
+    // input[1].ki.dwFlags = KEYEVENTF_UNICODE | KEYEVENTF_KEYUP;
+
+    // SendInput(2, input, sizeof(INPUT));
   }
 
-  char** clipboard_data = (char**)malloc(sizeof(char*) * clipboard_formats_count);
-  for (int i = 0; i < clipboard_formats_count; i++) {
-    char* format_data = (char*)GetClipboardData(clipboard_formats[i]);
-    size_t format_data_len = strlen(format_data) + 1;
+  SendInput(input_len, input, sizeof(INPUT));
 
-    clipboard_data[i] = (char*)malloc(sizeof(unsigned char) * format_data_len);
+  SetActiveWindow(current_window);
 
-    strcpy_s(clipboard_data[i], format_data_len, format_data);
-  }
+  AttachThreadInput(window_thread, current_thread, FALSE);
 
-  size_t clipboard_text_len = sizeof(char) * (strlen(string) + 1);
-  void* clipboard_text_ptr = GlobalAlloc(NULL, clipboard_text_len);
-  char* clipboard_text = (char*)GlobalLock(clipboard_text_ptr);
-  wcscpy((wchar_t*)clipboard_text, (wchar_t*)string);
-
-  EmptyClipboard();
-  SetClipboardData(CF_UNICODETEXT, clipboard_text_ptr);
-
-  GlobalUnlock(clipboard_text_ptr);
-
-  CloseClipboard();
-  SendMessageW(window, WM_PASTE, NULL, NULL);
-  OpenClipboard(this_window);
-
-  for (int i = 0; i < clipboard_formats_count; i++) {
-    SetClipboardData(clipboard_formats[i], clipboard_data[i]);
-  }
-
-  free(clipboard_formats);
-  free(clipboard_data);
-
-  CloseClipboard();
+  free(input);
 
   return 0;
 #endif
