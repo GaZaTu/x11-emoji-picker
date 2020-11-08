@@ -1,6 +1,7 @@
 #include "EmojiLineEdit.hpp"
 
 EmojiLineEdit::EmojiLineEdit(QWidget* parent) : QLineEdit(parent) {
+  setStyleSheet("padding-left: 5px; padding-right: 5px;");
 }
 
 QWidget* EmojiLineEdit::containerWidget() {
