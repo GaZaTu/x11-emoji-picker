@@ -1,7 +1,8 @@
 #include "EmojiLineEdit.hpp"
 
 EmojiLineEdit::EmojiLineEdit(QWidget* parent) : QLineEdit(parent) {
-  setStyleSheet("padding-left: 5px; padding-right: 5px; height: 32px; font-size: 16px;");
+  setStyleSheet(
+      "padding-left: 5px; padding-right: 5px; padding-top: 2px; padding-bottom: 2px; height: 32px; font-size: 16px;");
 }
 
 QWidget* EmojiLineEdit::containerWidget() {
@@ -19,9 +20,10 @@ QWidget* EmojiLineEdit::containerWidget() {
 #ifdef __linux__
     QColor previewLabelTextColor = _previewLabel->palette().text().color();
     previewLabelTextColor.setAlphaF(0.6);
-    _previewLabel->setStyleSheet(QString("padding-left: 5px; color: #%1;").arg(previewLabelTextColor.rgba(), 0, 16));
+    _previewLabel->setStyleSheet(
+        QString("padding-left: 5px; font-size: 16px; color: #%1;").arg(previewLabelTextColor.rgba(), 0, 16));
 #elif _WIN32
-    _previewLabel->setStyleSheet(QString("padding-left: 5px; color: rgba(240, 240, 240, 0.60); font-size: 16px;"));
+    _previewLabel->setStyleSheet(QString("padding-left: 5px; font-size: 16px; color: rgba(240, 240, 240, 0.60);"));
 #endif
 
     _iconsLayout = new QGridLayout();
