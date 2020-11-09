@@ -32,17 +32,39 @@ void writeQSettingsArrayFromStdVector(QSettings& settings, const QString& prefix
   settings.endArray();
 }
 
+const EmojiPickerSettings* EmojiPickerSettings::_startupSnapshot = nullptr;
+
+const EmojiPickerSettings& EmojiPickerSettings::startupSnapshot() {
+  if (_startupSnapshot == nullptr) {
+    _startupSnapshot = new EmojiPickerSettings();
+  }
+
+  return *_startupSnapshot;
+}
+
+void EmojiPickerSettings::writeDefaultsToDisk() {
+  EmojiPickerSettings settings;
+
+  settings.setRecentEmojis(settings.recentEmojis());
+  settings.setLocaleKey(settings.localeKey());
+  settings.setSkinTonesDisabled(settings.skinTonesDisabled());
+  settings.setGendersDisabled(settings.gendersDisabled());
+  settings.setOpenAtMouseLocation(settings.openAtMouseLocation());
+  settings.setUseSystemQtTheme(settings.useSystemQtTheme());
+  settings.setMaxEmojiVersion(settings.maxEmojiVersion());
+
+  std::vector<std::pair<std::string, std::string>> aliases = settings.aliases();
+  if (aliases.size() == 0) {
+    aliases.emplace_back("rage", "pouting_face");
+  }
+  settings.setAliases(aliases);
+
+  settings.setCustomQssFilePath(settings.customQssFilePath());
+}
+
 EmojiPickerSettings::EmojiPickerSettings(QObject* parent)
     : QSettings(QSettings::IniFormat, QSettings::UserScope, QApplication::organizationName(),
           QApplication::applicationName(), parent) {
-}
-
-EmojiPickerSettings::~EmojiPickerSettings() {
-  setRecentEmojis(recentEmojis());
-  setLocaleKey(localeKey());
-  setSkinTonesDisabled(skinTonesDisabled());
-  setGendersDisabled(gendersDisabled());
-  setOpenAtMouseLocation(openAtMouseLocation());
 }
 
 std::vector<Emoji> EmojiPickerSettings::recentEmojis() {
@@ -61,7 +83,7 @@ void EmojiPickerSettings::setRecentEmojis(const std::vector<Emoji>& recentEmojis
       });
 }
 
-std::string EmojiPickerSettings::localeKey() {
+std::string EmojiPickerSettings::localeKey() const {
   std::string localeKey = value("localeKey", "").toString().toStdString();
   if (localeKey == "system") {
     localeKey = std::locale("").name().substr(0, 2);
@@ -72,23 +94,67 @@ void EmojiPickerSettings::setLocaleKey(const std::string& localeKey) {
   setValue("localeKey", QString::fromStdString(localeKey));
 }
 
-bool EmojiPickerSettings::skinTonesDisabled() {
+bool EmojiPickerSettings::skinTonesDisabled() const {
   return value("skinTonesDisabled", false).toBool();
 }
 void EmojiPickerSettings::setSkinTonesDisabled(bool skinTonesDisabled) {
   setValue("skinTonesDisabled", skinTonesDisabled);
 }
 
-bool EmojiPickerSettings::gendersDisabled() {
+bool EmojiPickerSettings::gendersDisabled() const {
   return value("gendersDisabled", false).toBool();
 }
 void EmojiPickerSettings::setGendersDisabled(bool gendersDisabled) {
   setValue("gendersDisabled", gendersDisabled);
 }
 
-bool EmojiPickerSettings::openAtMouseLocation() {
+bool EmojiPickerSettings::openAtMouseLocation() const {
   return value("openAtMouseLocation", false).toBool();
 }
 void EmojiPickerSettings::setOpenAtMouseLocation(bool openAtMouseLocation) {
   setValue("openAtMouseLocation", openAtMouseLocation);
+}
+
+bool EmojiPickerSettings::useSystemQtTheme() const {
+#ifdef __linux__
+  return value("useSystemQtTheme", false).toBool();
+#elif _WIN32
+  return false;
+#endif
+}
+void EmojiPickerSettings::setUseSystemQtTheme(bool useSystemQtTheme) {
+#ifdef __linux__
+  setValue("useSystemQtTheme", useSystemQtTheme);
+#endif
+}
+
+int EmojiPickerSettings::maxEmojiVersion() const {
+  return value("maxEmojiVersion", -1).toInt();
+}
+void EmojiPickerSettings::setMaxEmojiVersion(int maxEmojiVersion) {
+  setValue("maxEmojiVersion", maxEmojiVersion);
+}
+
+std::vector<std::pair<std::string, std::string>> EmojiPickerSettings::aliases() {
+  return readQSettingsArrayToStdVector<std::pair<std::string, std::string>>(
+      *this, "aliases", [](QSettings& settings) -> std::pair<std::string, std::string> {
+        return {
+            settings.value("alias").toString().toStdString(),
+            settings.value("emojiKey").toString().toStdString(),
+        };
+      });
+}
+void EmojiPickerSettings::setAliases(const std::vector<std::pair<std::string, std::string>>& aliases) {
+  writeQSettingsArrayFromStdVector<std::pair<std::string, std::string>>(
+      *this, "aliases", aliases, [](QSettings& settings, const std::pair<std::string, std::string>& alias) -> void {
+        settings.setValue("alias", QString::fromStdString(alias.first));
+        settings.setValue("emojiKey", QString::fromStdString(alias.second));
+      });
+}
+
+std::string EmojiPickerSettings::customQssFilePath() const {
+  return value("customQssFilePath", "").toString().toStdString();
+}
+void EmojiPickerSettings::setCustomQssFilePath(const std::string& customQssFilePath) {
+  setValue("customQssFilePath", QString::fromStdString(customQssFilePath));
 }

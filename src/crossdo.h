@@ -100,10 +100,29 @@ int crossdo_get_mouse_location2(
     *y_ret = cursor.y;
 
   if (screen_num_ret != NULL)
-    *screen_num_ret = NULL;
+    *screen_num_ret = 0;
 
   if (window_ret != NULL)
     *window_ret = WindowFromPoint(cursor);
+
+  return 0;
+#endif
+}
+
+int crossdo_get_caret_location2(
+    const crossdo_t* crossdo, int* x_ret, int* y_ret, int* screen_num_ret, window_t* window_ret) {
+#ifdef __linux__
+  *x_ret = 0;
+  *y_ret = 0;
+  *screen_num_ret = 0;
+  *window_ret = 0;
+
+  return 0;
+#elif _WIN32
+  *x_ret = 0;
+  *y_ret = 0;
+  *screen_num_ret = 0;
+  *window_ret = 0;
 
   return 0;
 #endif

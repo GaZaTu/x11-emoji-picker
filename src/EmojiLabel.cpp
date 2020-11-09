@@ -1,4 +1,5 @@
 #include "EmojiLabel.hpp"
+#include "EmojiPickerSettings.hpp"
 #include <sstream>
 #include <unicode/schriter.h>
 #include <unicode/unistr.h>
@@ -7,11 +8,11 @@ EmojiLabel::EmojiLabel(QWidget* parent) : QLabel(parent) {
   setGraphicsEffect(_shadowEffect);
   setMouseTracking(true);
 
-#ifdef __linux__
-  _shadowEffect->setColor(palette().text().color());
-#elif _WIN32
-  _shadowEffect->setColor(QColor(240, 240, 240));
-#endif
+  if (EmojiPickerSettings::startupSnapshot().useSystemQtTheme()) {
+    _shadowEffect->setColor(palette().text().color());
+  } else {
+    _shadowEffect->setColor(QColor(240, 240, 240));
+  }
 
   _shadowEffect->setOffset(0);
   _shadowEffect->setBlurRadius(20);

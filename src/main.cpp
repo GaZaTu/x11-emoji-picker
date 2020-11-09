@@ -8,6 +8,17 @@
 #include <QTextStream>
 #include <memory>
 
+QString readQFileIfExists(const QString& path) {
+  QFile qssFile(path);
+  if (!qssFile.exists()) {
+    return "";
+  }
+
+  qssFile.open(QFile::ReadOnly | QFile::Text);
+  QTextStream ts(&qssFile);
+  return ts.readAll();
+}
+
 int main(int argc, char** argv) {
   auto crossdo = std::unique_ptr<crossdo_t, decltype(&crossdo_free)>(crossdo_new(), &crossdo_free);
   window_t prevWindow;
@@ -19,34 +30,38 @@ int main(int argc, char** argv) {
   QApplication::setApplicationVersion(PROJECT_VERSION);
 
   QApplication app(argc, argv);
-  QApplication::installTranslator(new EmojiTranslator(nullptr, EmojiPickerSettings().localeKey()));
+  QApplication::installTranslator(new EmojiTranslator(nullptr, EmojiPickerSettings::startupSnapshot().localeKey()));
 
-#ifdef _WIN32
-  QFile darkQss(":/main.qss");
-  if (darkQss.exists()) {
-    darkQss.open(QFile::ReadOnly | QFile::Text);
-    QTextStream ts(&darkQss);
-    app.setStyleSheet(ts.readAll());
+  EmojiPickerSettings::writeDefaultsToDisk();
+
+  if (!EmojiPickerSettings::startupSnapshot().useSystemQtTheme()) {
+    app.setStyleSheet(readQFileIfExists(":/main.qss"));
   }
-#endif
 
   QMainWindow window;
 
+  if (EmojiPickerSettings::startupSnapshot().useSystemQtTheme()) {
+    window.resize(358, 192);
+  } else {
 #ifdef __linux__
-  window.resize(358, 192);
+    window.resize(358, 194);
 #elif _WIN32
-  window.resize(372, 192);
+    window.resize(372, 206);
 #endif
+  }
 
   window.setWindowOpacity(0.90);
   window.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
-  // window.setAttribute(Qt::WA_ShowWithoutActivating);
   window.setWindowIcon(QIcon(":/res/72x72/1f0cf.png"));
 
-  if (EmojiPickerSettings().openAtMouseLocation()) {
+  if (!EmojiPickerSettings::startupSnapshot().useSystemQtTheme()) {
+    window.setStyleSheet(readQFileIfExists(QString::fromStdString(EmojiPickerSettings::startupSnapshot().customQssFilePath())));
+  }
+
+  if (EmojiPickerSettings::startupSnapshot().openAtMouseLocation()) {
     int cursorX = 0;
     int cursorY = 0;
-    crossdo_get_mouse_location2(crossdo.get(), &cursorX, &cursorY, NULL, NULL);
+    crossdo_get_mouse_location2(crossdo.get(), &cursorX, &cursorY, nullptr, nullptr);
 
     window.move(cursorX, cursorY);
   }

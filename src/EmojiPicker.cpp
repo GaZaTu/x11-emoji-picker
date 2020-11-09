@@ -5,23 +5,22 @@ EmojiPicker::EmojiPicker(QWidget* parent) : QWidget(parent) {
   setLayout(_mainLayout);
 
   _recentEmojis = EmojiPickerSettings().recentEmojis();
-  _skinTonesDisabled = EmojiPickerSettings().skinTonesDisabled();
-  _gendersDisabled = EmojiPickerSettings().gendersDisabled();
+  _skinTonesDisabled = EmojiPickerSettings::startupSnapshot().skinTonesDisabled();
+  _gendersDisabled = EmojiPickerSettings::startupSnapshot().gendersDisabled();
+  _maxEmojiVersion = EmojiPickerSettings::startupSnapshot().maxEmojiVersion();
+  _aliases = EmojiPickerSettings().aliases();
 
   _emojiLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
   _emojiLayoutWidget->setLayout(_emojiLayout);
 
-#ifdef __linux__
-  QColor emojiLabelHoverBgColor = _emojiLayoutWidget->palette().text().color();
-  emojiLabelHoverBgColor.setAlphaF(0.33);
-  _emojiLayoutWidget->setStyleSheet(QString("EmojiLabel { padding: 2px; border-radius: 5px; } EmojiLabel:hover { "
-                                            "background-color: #%1; }")
-                                        .arg(emojiLabelHoverBgColor.rgba(), 0, 16));
-#elif _WIN32
-  _emojiLayoutWidget->setStyleSheet(QString("EmojiLabel { padding: 2px; border-radius: 5px; } EmojiLabel:hover { "
-                                            "background-color: rgba(240, 240, 240, 0.33); }"));
-#endif
+  if (EmojiPickerSettings::startupSnapshot().useSystemQtTheme()) {
+    QColor emojiLabelHoverBgColor = _emojiLayoutWidget->palette().text().color();
+    emojiLabelHoverBgColor.setAlphaF(0.33);
+    _emojiLayoutWidget->setStyleSheet(QString("EmojiLabel { padding: 2px; border-radius: 5px; } EmojiLabel:hover { "
+                                              "background-color: #%1; }")
+                                          .arg(emojiLabelHoverBgColor.rgba(), 0, 16));
+  }
 
   _mainLayout->addWidget(_emojiEdit->containerWidget());
   _mainLayout->addWidget(_emojiLayoutWidget);
@@ -90,6 +89,8 @@ bool EmojiPicker::addEmojiLabel(EmojiLabel* emojiLabel, int& row, int& col) {
     _selectedEmojiLabel = selectedEmojiLabel;
   });
 
+  emojiLabel->setProperty("class", "EmojiPicker_emojiLabel");
+
   emojiLabel->setProperty("row", row);
   emojiLabel->setProperty("col", col);
 
@@ -110,6 +111,10 @@ bool EmojiPicker::addEmojiLabel(EmojiLabel* emojiLabel, int& row, int& col) {
 }
 
 bool EmojiPicker::isDisabledEmoji(const Emoji& emoji) {
+  if (_maxEmojiVersion != -1 && (emoji.version > _maxEmojiVersion)) {
+    return true;
+  }
+
   if (_skinTonesDisabled && (emoji.name.find("_skin_tone") != std::string::npos)) {
     return true;
   }
@@ -157,6 +162,21 @@ void EmojiPicker::fillViewWithEmojisByText(const std::string& text) {
   int row = 0;
 
   _helpEmojiListIdx = -1;
+
+  for (const auto& alias : _aliases) {
+    if (alias.first == text) {
+      for (const auto& emoji : emojis) {
+        if (emoji.name != alias.second) {
+          continue;
+        }
+
+        addEmojiLabel(new EmojiLabel(nullptr, emoji), row, col);
+        _emojiEdit->setPreviewText("");
+
+        return;
+      }
+    }
+  }
 
   for (const auto& emoji : emojis) {
     if (isDisabledEmoji(emoji)) {

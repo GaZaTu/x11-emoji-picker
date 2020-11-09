@@ -1,12 +1,3 @@
-/* ---------------------------------------------------------------------------
-
-    Created by the qtsass compiler v0.1.1
-
-    The definitions are in the "qdarkstyle.qss._styles.scss" module
-
-    WARNING! All changes made in this file will be lost!
-
---------------------------------------------------------------------------- */
 /* QDarkStyleSheet -----------------------------------------------------------
 
 This is the main style sheet, the palette has nine colors.
@@ -108,20 +99,6 @@ QMainWindow::separator:hover {
   border: 0px solid #148CD2;
 }
 
-/* QMainWindow::separator:horizontal {
-  width: 5px;
-  margin-top: 2px;
-  margin-bottom: 2px;
-  image: url(":/qss_icons/rc/toolbar_separator_vertical.png");
-} */
-
-/* QMainWindow::separator:vertical {
-  height: 5px;
-  margin-left: 2px;
-  margin-right: 2px;
-  image: url(":/qss_icons/rc/toolbar_separator_horizontal.png");
-} */
-
 /* QToolTip ---------------------------------------------------------------
 
 https://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qtooltip
@@ -141,9 +118,6 @@ QToolTip {
 
 /* ... */
 
-/* ------------------------------------------------------------------------ */
-/* DISPLAYS --------------------------------------------------------------- */
-/* ------------------------------------------------------------------------ */
 /* QLabel -----------------------------------------------------------------
 
 https://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qframe
@@ -171,7 +145,7 @@ https://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qlineedit
 
 --------------------------------------------------------------------------- */
 QLineEdit {
-  background-color: #151d25;
+  background-color: #131c24;
   padding-top: 2px;
   /* This QLineEdit fix  103, 111 */
   padding-bottom: 2px;
@@ -183,8 +157,8 @@ QLineEdit {
   border-radius: 5px;
   color: #f0f0f0;
 
-  height: 32px;
-  font-size: 16px;
+  height: 28px;
+  font-size: 14px;
 }
 
 QLineEdit:disabled {
@@ -204,4 +178,38 @@ QLineEdit:focus {
 QLineEdit:selected {
   background-color: #1464A0;
   color: #32414B;
+}
+
+/* APPLICATION SPECIFIC CSS */
+
+.EmojiLineEdit {
+  padding: 2px 5px 2px 5px;
+  height: 28px;
+  font-size: 14px;
+}
+
+.EmojiLineEdit_previewLabel {
+  padding-left: 5px;
+  font-size: 14px;
+  color: rgba(240, 240, 240, 0.60);
+}
+
+.EmojiLineEdit_favsLabel,
+.EmojiLineEdit_helpLabel {
+  padding: 1px 2px 1px 2px;
+  border-radius: 5px;
+}
+
+.EmojiLineEdit_favsLabel:hover,
+.EmojiLineEdit_helpLabel:hover {
+  background-color: rgba(240, 240, 240, 0.33);
+}
+
+.EmojiPicker_emojiLabel {
+  padding: 2px;
+  border-radius: 5px;
+}
+
+.EmojiPicker_emojiLabel:hover {
+  background-color: rgba(240, 240, 240, 0.33);
 }

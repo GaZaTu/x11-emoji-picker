@@ -29,6 +29,8 @@ private:
   std::vector<Emoji> _recentEmojis;
   bool _skinTonesDisabled = false;
   bool _gendersDisabled = false;
+  int _maxEmojiVersion = -1;
+  std::vector<std::pair<std::string, std::string>> _aliases;
 
   EmojiLabel* _selectedEmojiLabel = nullptr;
 
@@ -54,7 +56,7 @@ private:
   void fillViewWithEmojisByText(const std::string& text);
   void fillViewWithEmojisByList();
 
-private slots:
+private:
   void onTextChanged(const QString& text);
   void onReturnPressed();
   void onArrowKeyPressed(int key);

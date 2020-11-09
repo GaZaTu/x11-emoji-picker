@@ -2,11 +2,11 @@ const { promises: { writeFile }, existsSync } = require('fs')
 const { default: fetch } = require('node-fetch')
 const ProxyAgent = require('proxy-agent')
 
-const UNICODE_EMOJI_LIST_URL = 'https://unicode.org/Public/emoji/12.0/emoji-test.txt'
+const UNICODE_EMOJI_LIST_URL = 'https://unicode.org/Public/emoji/13.0/emoji-test.txt'
 const UNICODE_EMOJI_ANNOTATIONS_BASE_URL = 'https://raw.githubusercontent.com/unicode-org/cldr/release-38/common/annotations'
 
-const HTTP_PROXY_URL = process.env.HTTP_PROXY_URL
-const httpProxyAgent = HTTP_PROXY_URL && new ProxyAgent(HTTP_PROXY_URL)
+const HTTP_PROXY = process.env.HTTP_PROXY
+const httpProxyAgent = HTTP_PROXY && new ProxyAgent(HTTP_PROXY)
 
 const supportedLocales = [
   'en',
@@ -27,13 +27,13 @@ const supportedLocales = [
 ]
 
 /**
- * @returns {Promise<{ name: string, code: string, str: string }[]>}
+ * @returns {Promise<{ name: string, code: string, str: string, version: number }[]>}
  */
 const fetchEmojis = async () => {
   const emojis = []
 
   const emojiTestResponse = await fetch(UNICODE_EMOJI_LIST_URL, { agent: httpProxyAgent })
-  const emojiTestRegex = /^(.*);\s*(unqualified|fully-qualified)\s*#\s*(\S*)\s*(.*)$/gm
+  const emojiTestRegex = /^(.*);\s*(unqualified|fully-qualified)\s*#\s*(\S*)\s*(E\d+\.\d+|)\s*(.*)$/gm
   const emojiTestTxt = await emojiTestResponse.text()
 
   let match
@@ -47,9 +47,10 @@ const fetchEmojis = async () => {
 
     if (existsSync(filename)) {
       emojis.push({
-        name: match[4].toLowerCase().replace(/['.:,()“”]/g, '').replace(/[ \-]/g, '_').replace(/(___|__)/g, '_'),
+        name: match[5].toLowerCase().replace(/['.:,()“”]/g, '').replace(/[ \-]/g, '_').replace(/(___|__)/g, '_'),
         code: match[1].trim(),
         str: match[3],
+        version: parseFloat((match[4] || 'E0.0').slice(1)),
       })
     }
   }
@@ -107,9 +108,11 @@ const fetchEmojisByLocales = async (locales) => {
 
 (async () => {
   const NO_CLDR = process.argv.includes('NO_CLDR')
+  const SKIP_HPP = process.argv.includes('SKIP_HPP')
+  const SKIP_CPP = process.argv.includes('SKIP_CPP')
 
-  const emojis = await fetchEmojis()
-  const emojisHpp =
+  if (!SKIP_HPP) {
+    const emojisHpp =
 `
 #pragma once
 
@@ -121,6 +124,7 @@ struct Emoji {
 public:
   std::string name;
   std::string code;
+  short version = 0;
 
   ${NO_CLDR ? '// NO_CLDR' : 'std::string nameByLocale(const std::string& localeKey = std::locale("").name().substr(0, 2)) const;'}
 
@@ -131,10 +135,15 @@ public:
 
 // generated from ${UNICODE_EMOJI_LIST_URL}
 const std::vector<Emoji> emojis = {
-  ${emojis.map(emoji => `{"${emoji.name}", u8"${emoji.code.split(' ').map(codepoint => `\\U${codepoint.padStart(8, '0')}`).join('')}"}`).join(',\n  ')}
+  ${(await fetchEmojis()).map(emoji => `{"${emoji.name}", u8"${emoji.code.split(' ').map(codepoint => `\\U${codepoint.padStart(8, '0')}`).join('')}", ${Math.trunc(emoji.version)}}`).join(',\n  ')}
 };
 `
-  const emojisCpp =
+
+    await writeFile(`${__dirname}/../src/emojis.hpp`, emojisHpp.trimLeft())
+  }
+
+  if (!SKIP_CPP && !NO_CLDR) {
+    const emojisCpp =
 `
 #include "emojis.hpp"
 #include <unordered_map>
@@ -163,9 +172,6 @@ std::string Emoji::nameByLocale(const std::string& localeKey) const {
 }
 `
 
-  await writeFile(`${__dirname}/../src/emojis.hpp`, emojisHpp.trimLeft())
-
-  if (!NO_CLDR) {
     await writeFile(`${__dirname}/../src/emojis.cpp`, emojisCpp.trimLeft())
   }
 })().catch(console.error)

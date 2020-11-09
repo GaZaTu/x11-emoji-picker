@@ -1,8 +1,8 @@
 #include "EmojiLineEdit.hpp"
+#include "EmojiPickerSettings.hpp"
 
 EmojiLineEdit::EmojiLineEdit(QWidget* parent) : QLineEdit(parent) {
-  setStyleSheet(
-      "padding-left: 5px; padding-right: 5px; padding-top: 2px; padding-bottom: 2px; height: 32px; font-size: 16px;");
+  setProperty("class", "EmojiLineEdit");
 }
 
 QWidget* EmojiLineEdit::containerWidget() {
@@ -15,16 +15,16 @@ QWidget* EmojiLineEdit::containerWidget() {
     _container->setMaximumHeight(sizeHint().height());
 
     _previewLabel = new QLabel();
+    _previewLabel->setProperty("class", "EmojiLineEdit_previewLabel");
     _previewLabel->setText("");
 
-#ifdef __linux__
-    QColor previewLabelTextColor = _previewLabel->palette().text().color();
-    previewLabelTextColor.setAlphaF(0.6);
-    _previewLabel->setStyleSheet(
-        QString("padding-left: 5px; font-size: 16px; color: #%1;").arg(previewLabelTextColor.rgba(), 0, 16));
-#elif _WIN32
-    _previewLabel->setStyleSheet(QString("padding-left: 5px; font-size: 16px; color: rgba(240, 240, 240, 0.60);"));
-#endif
+    if (EmojiPickerSettings::startupSnapshot().useSystemQtTheme()) {
+      _previewLabel->setIndent(fontMetrics().averageCharWidth());
+
+      QColor previewLabelTextColor = _previewLabel->palette().text().color();
+      previewLabelTextColor.setAlphaF(0.6);
+      _previewLabel->setStyleSheet(QString("color: #%1;").arg(previewLabelTextColor.rgba(), 0, 16));
+    }
 
     _iconsLayout = new QGridLayout();
     _iconsLayout->setAlignment(Qt::AlignRight);
@@ -32,22 +32,21 @@ QWidget* EmojiLineEdit::containerWidget() {
     _iconsLayoutWidget = new QWidget();
     _iconsLayoutWidget->setLayout(_iconsLayout);
 
-#ifdef __linux__
-    QColor emojiLabelHoverBgColor = _iconsLayoutWidget->palette().text().color();
-    emojiLabelHoverBgColor.setAlphaF(0.33);
-    _iconsLayoutWidget->setStyleSheet(QString("EmojiLabel { padding: 1px; border-radius: 5px; } EmojiLabel:hover { "
-                                              "background-color: #%1; }")
-                                          .arg(emojiLabelHoverBgColor.rgba(), 0, 16));
-#elif _WIN32
-    _iconsLayoutWidget->setStyleSheet(QString("EmojiLabel { padding: 1px; border-radius: 5px; } EmojiLabel:hover { "
-                                              "background-color: rgba(240, 240, 240, 0.33); }"));
-#endif
+    if (EmojiPickerSettings::startupSnapshot().useSystemQtTheme()) {
+      QColor emojiLabelHoverBgColor = _iconsLayoutWidget->palette().text().color();
+      emojiLabelHoverBgColor.setAlphaF(0.33);
+      _iconsLayoutWidget->setStyleSheet(QString("EmojiLabel { padding: 1px 2px 1px 2px; border-radius: 5px; } EmojiLabel:hover { "
+                                                "background-color: #%1; }")
+                                            .arg(emojiLabelHoverBgColor.rgba(), 0, 16));
+    }
 
     _favsLabel = new EmojiLabel();
-    _favsLabel->setEmoji({"", u8"⭐"}, 20, 20);
+    _favsLabel->setProperty("class", "EmojiLineEdit_favsLabel");
+    _favsLabel->setEmoji({"", u8"⭐"}, 16, 16);
 
     _helpLabel = new EmojiLabel();
-    _helpLabel->setEmoji({"", u8"🗃"}, 20, 20);
+    _helpLabel->setProperty("class", "EmojiLineEdit_helpLabel");
+    _helpLabel->setEmoji({"", u8"🗃"}, 16, 16);
 
     _iconsLayout->addWidget(_favsLabel, 0, 0);
     _iconsLayout->addWidget(_helpLabel, 0, 1);

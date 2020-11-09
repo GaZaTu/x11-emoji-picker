@@ -2,30 +2,30 @@
 
 const std::string skinToneSuffix = "_skin_tone";
 const std::vector<std::string> skinToneSuffixes = {
-  "_medium" + skinToneSuffix,
-  "_medium_light" + skinToneSuffix,
-  "_medium_dark" + skinToneSuffix,
-  "_light" + skinToneSuffix,
-  "_dark" + skinToneSuffix,
+    "_medium" + skinToneSuffix,
+    "_medium_light" + skinToneSuffix,
+    "_medium_dark" + skinToneSuffix,
+    "_light" + skinToneSuffix,
+    "_dark" + skinToneSuffix,
 };
 
 const std::string personPrefix = "person_";
 const std::vector<std::string> personPrefixes = {
-  "man_",
-  "woman_",
+    "man_",
+    "woman_",
 };
 
 const std::string peoplePrefix = "people_";
 const std::vector<std::string> peoplePrefixes = {
-  "men_",
-  "women_",
+    "men_",
+    "women_",
 };
 
 const std::vector<std::string> personSuffixes = {
-  "_man",
-  "_woman",
-  "_boy",
-  "_girl",
+    "_man",
+    "_woman",
+    "_boy",
+    "_girl",
 };
 
 EmojiTranslator::EmojiTranslator(QObject* parent, const std::string& localeKey)
@@ -52,7 +52,8 @@ void EmojiTranslator::fillEmojisMap() {
         int idx = 0;
 
         while ((idx = nameWithoutSkinTone.find(skinToneSuffix)) != std::string::npos) {
-          nameWithoutSkinTone = QString::fromStdString(nameWithoutSkinTone).replace(idx, skinToneSuffix.length(), "").toStdString();
+          nameWithoutSkinTone =
+              QString::fromStdString(nameWithoutSkinTone).replace(idx, skinToneSuffix.length(), "").toStdString();
         }
       }
 
@@ -108,7 +109,8 @@ void EmojiTranslator::fillEmojisMap() {
       int idx = 0;
 
       while ((idx = nameWithoutPersonSuffixes.find(personSuffix)) != std::string::npos) {
-        nameWithoutPersonSuffixes = QString::fromStdString(nameWithoutPersonSuffixes).replace(idx, personSuffix.length(), "").toStdString();
+        nameWithoutPersonSuffixes =
+            QString::fromStdString(nameWithoutPersonSuffixes).replace(idx, personSuffix.length(), "").toStdString();
       }
     }
 
