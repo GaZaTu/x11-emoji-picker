@@ -35,6 +35,7 @@ int main(int argc, char** argv) {
   EmojiPickerSettings::writeDefaultsToDisk();
 
   if (!EmojiPickerSettings::startupSnapshot().useSystemQtTheme()) {
+    app.setStyle("fusion");
     app.setStyleSheet(readQFileIfExists(":/main.qss"));
   }
 
@@ -43,11 +44,7 @@ int main(int argc, char** argv) {
   if (EmojiPickerSettings::startupSnapshot().useSystemQtTheme()) {
     window.resize(358, 192);
   } else {
-#ifdef __linux__
-    window.resize(358, 194);
-#elif _WIN32
-    window.resize(372, 206);
-#endif
+    window.resize(370, 206);
   }
 
   window.setWindowOpacity(0.90);
