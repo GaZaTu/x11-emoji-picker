@@ -7,6 +7,8 @@ add_definitions(
   -DPROJECT_ORGANIZATION="gazatu.xyz"
   -DPROJECT_NAME="${PROJECT_NAME}"
   -DPROJECT_VERSION="${PROJECT_VERSION}"
+  # -DUSE_UINPUT=true
+  # -DUSE_XDO=true
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -30,23 +32,34 @@ if (UNIX AND NOT APPLE) # LINUX (X11)
   )
 endif ()
 
-add_executable(${PROJECT_NAME}
+include_directories(${PROJECT_SOURCE_DIR}/src)
+
+set(COMMON_SRC_FILES
   src/main.cpp
   src/main.qrc
   src/emojis.cpp
-  src/emojis.hpp
   src/emojis.qrc
   src/EmojiLineEdit.cpp
-  src/EmojiLineEdit.hpp
   src/EmojiLabel.cpp
-  src/EmojiLabel.hpp
   src/EmojiPicker.cpp
-  src/EmojiPicker.hpp
   src/EmojiPickerSettings.cpp
-  src/EmojiPickerSettings.hpp
   src/EmojiTranslator.cpp
-  src/EmojiTranslator.hpp
 )
+
+if (UNIX AND NOT APPLE) # LINUX
+  set(PLATFORM_SRC_FILES
+  )
+elseif (WIN32)
+  set(PLATFORM_SRC_FILES
+  )
+endif ()
+
+set(SRC_FILES
+  ${COMMON_SRC_FILES}
+  ${PLATFORM_SRC_FILES}
+)
+
+add_executable(${PROJECT_NAME} ${SRC_FILES})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
   CXX_STANDARD 14

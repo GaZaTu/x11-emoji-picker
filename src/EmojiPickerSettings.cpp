@@ -32,9 +32,9 @@ void writeQSettingsArrayFromStdVector(QSettings& settings, const QString& prefix
   settings.endArray();
 }
 
-const EmojiPickerSettings* EmojiPickerSettings::_startupSnapshot = nullptr;
+EmojiPickerSettings* EmojiPickerSettings::_startupSnapshot = nullptr;
 
-const EmojiPickerSettings& EmojiPickerSettings::startupSnapshot() {
+EmojiPickerSettings& EmojiPickerSettings::startupSnapshot() {
   if (_startupSnapshot == nullptr) {
     _startupSnapshot = new EmojiPickerSettings();
   }
@@ -52,14 +52,34 @@ void EmojiPickerSettings::writeDefaultsToDisk() {
   settings.setOpenAtMouseLocation(settings.openAtMouseLocation());
   settings.setUseSystemQtTheme(settings.useSystemQtTheme());
   settings.setMaxEmojiVersion(settings.maxEmojiVersion());
-
-  std::vector<std::pair<std::string, std::string>> aliases = settings.aliases();
-  if (aliases.size() == 0) {
-    aliases.emplace_back("rage", "pouting_face");
-  }
-  settings.setAliases(aliases);
-
+  settings.setEmojiAliasesIniFilePath(settings.emojiAliasesIniFilePath());
   settings.setCustomQssFilePath(settings.customQssFilePath());
+
+  settings.setActivateWindowBeforeWritingByDefault(settings.activateWindowBeforeWritingByDefault());
+  std::vector<std::string> activateWindowBeforeWritingExceptions = settings.activateWindowBeforeWritingExceptions();
+  if (activateWindowBeforeWritingExceptions.size() == 0) {
+#ifdef __linux__
+    activateWindowBeforeWritingExceptions.push_back("code");
+    activateWindowBeforeWritingExceptions.push_back("chromium");
+#elif _WIN32
+    activateWindowBeforeWritingExceptions.push_back("code.exe");
+    activateWindowBeforeWritingExceptions.push_back("chrome.exe");
+#endif
+  }
+  settings.setActivateWindowBeforeWritingExceptions(activateWindowBeforeWritingExceptions);
+
+  settings.setCopyEmojiToClipboardAswellByDefault(settings.copyEmojiToClipboardAswellByDefault());
+  std::vector<std::string> copyEmojiToClipboardAswellExceptions = settings.copyEmojiToClipboardAswellExceptions();
+  if (copyEmojiToClipboardAswellExceptions.size() == 0) {
+#ifdef __linux__
+    copyEmojiToClipboardAswellExceptions.push_back("example");
+#elif _WIN32
+    copyEmojiToClipboardAswellExceptions.push_back("example.exe");
+#endif
+  }
+  settings.setCopyEmojiToClipboardAswellExceptions(copyEmojiToClipboardAswellExceptions);
+
+  settings.setAliasExactMatching(settings.aliasExactMatching());
 }
 
 EmojiPickerSettings::EmojiPickerSettings(QObject* parent)
@@ -135,21 +155,28 @@ void EmojiPickerSettings::setMaxEmojiVersion(int maxEmojiVersion) {
   setValue("maxEmojiVersion", maxEmojiVersion);
 }
 
-std::vector<std::pair<std::string, std::string>> EmojiPickerSettings::aliases() {
-  return readQSettingsArrayToStdVector<std::pair<std::string, std::string>>(
-      *this, "aliases", [](QSettings& settings) -> std::pair<std::string, std::string> {
-        return {
-            settings.value("alias").toString().toStdString(),
-            settings.value("emojiKey").toString().toStdString(),
-        };
-      });
+std::string EmojiPickerSettings::emojiAliasesIniFilePath() const {
+  return value("emojiAliasesIniFilePath", ":/aliases/github-emojis.ini").toString().toStdString();
 }
-void EmojiPickerSettings::setAliases(const std::vector<std::pair<std::string, std::string>>& aliases) {
-  writeQSettingsArrayFromStdVector<std::pair<std::string, std::string>>(
-      *this, "aliases", aliases, [](QSettings& settings, const std::pair<std::string, std::string>& alias) -> void {
-        settings.setValue("alias", QString::fromStdString(alias.first));
-        settings.setValue("emojiKey", QString::fromStdString(alias.second));
-      });
+void EmojiPickerSettings::setEmojiAliasesIniFilePath(const std::string& emojiAliasesIniFilePath) {
+  setValue("emojiAliasesIniFilePath", QString::fromStdString(emojiAliasesIniFilePath));
+}
+std::vector<Emoji> EmojiPickerSettings::aliasedEmojis() {
+  std::vector<Emoji> result;
+
+  if (emojiAliasesIniFilePath() == "") {
+    return result;
+  }
+
+  QSettings emojiAliasesIni{QString::fromStdString(emojiAliasesIniFilePath()), QSettings::IniFormat};
+
+  emojiAliasesIni.beginGroup("Aliases");
+  for (const auto& alias : emojiAliasesIni.allKeys()) {
+    result.push_back({alias.toStdString(), emojiAliasesIni.value(alias).toString().toStdString()});
+  }
+  emojiAliasesIni.endGroup();
+
+  return result;
 }
 
 std::string EmojiPickerSettings::customQssFilePath() const {
@@ -157,4 +184,65 @@ std::string EmojiPickerSettings::customQssFilePath() const {
 }
 void EmojiPickerSettings::setCustomQssFilePath(const std::string& customQssFilePath) {
   setValue("customQssFilePath", QString::fromStdString(customQssFilePath));
+}
+
+bool EmojiPickerSettings::activateWindowBeforeWritingByDefault() const {
+#ifdef __linux__
+  return value("activateWindowBeforeWritingByDefault", false).toBool();
+#elif _WIN32
+  return true;
+#endif
+}
+void EmojiPickerSettings::setActivateWindowBeforeWritingByDefault(bool activateWindowBeforeWritingByDefault) {
+#ifdef __linux__
+  setValue("activateWindowBeforeWritingByDefault", activateWindowBeforeWritingByDefault);
+#endif
+}
+
+std::vector<std::string> EmojiPickerSettings::activateWindowBeforeWritingExceptions() {
+#ifdef __linux__
+  return readQSettingsArrayToStdVector<std::string>(
+      *this, "activateWindowBeforeWritingExceptions", [](QSettings& settings) -> std::string {
+        return settings.value("processName").toString().toStdString();
+      });
+#elif _WIN32
+  return {};
+#endif
+}
+void EmojiPickerSettings::setActivateWindowBeforeWritingExceptions(
+    const std::vector<std::string>& activateWindowBeforeWritingExceptions) {
+#ifdef __linux__
+  writeQSettingsArrayFromStdVector<std::string>(*this, "activateWindowBeforeWritingExceptions",
+      activateWindowBeforeWritingExceptions, [](QSettings& settings, const std::string& exception) -> void {
+        settings.setValue("processName", QString::fromStdString(exception));
+      });
+#endif
+}
+
+bool EmojiPickerSettings::copyEmojiToClipboardAswellByDefault() const {
+  return value("copyEmojiToClipboardAswellByDefault", false).toBool();
+}
+void EmojiPickerSettings::setCopyEmojiToClipboardAswellByDefault(bool copyEmojiToClipboardAswellByDefault) {
+  setValue("copyEmojiToClipboardAswellByDefault", copyEmojiToClipboardAswellByDefault);
+}
+
+std::vector<std::string> EmojiPickerSettings::copyEmojiToClipboardAswellExceptions() {
+  return readQSettingsArrayToStdVector<std::string>(
+      *this, "copyEmojiToClipboardAswellExceptions", [](QSettings& settings) -> std::string {
+        return settings.value("processName").toString().toStdString();
+      });
+}
+void EmojiPickerSettings::setCopyEmojiToClipboardAswellExceptions(
+    const std::vector<std::string>& copyEmojiToClipboardAswellExceptions) {
+  writeQSettingsArrayFromStdVector<std::string>(*this, "copyEmojiToClipboardAswellExceptions",
+      copyEmojiToClipboardAswellExceptions, [](QSettings& settings, const std::string& exception) -> void {
+        settings.setValue("processName", QString::fromStdString(exception));
+      });
+}
+
+bool EmojiPickerSettings::aliasExactMatching() const {
+  return value("aliasExactMatching", false).toBool();
+}
+void EmojiPickerSettings::setAliasExactMatching(bool aliasExactMatching) {
+  setValue("aliasExactMatching", aliasExactMatching);
 }

@@ -83,21 +83,24 @@ void EmojiLineEdit::setPreviewText(const std::string& previewText) {
 
 void EmojiLineEdit::keyPressEvent(QKeyEvent* event) {
   switch (event->key()) {
+  case Qt::Key_Return:
+    emit returnPressed(*event);
+    break;
   case Qt::Key_Escape:
-    emit escapePressed();
+    emit escapePressed(*event);
     break;
   case Qt::Key_Up:
   case Qt::Key_Down:
   case Qt::Key_Left:
   case Qt::Key_Right:
-    emit arrowKeyPressed(event->key());
+    emit arrowKeyPressed(*event);
     break;
   case Qt::Key_F1:
   case Qt::Key_F2:
-    emit functionKeyPressed(event->key());
+    emit functionKeyPressed(*event);
     break;
   case Qt::Key_Tab:
-    emit tabPressed();
+    emit tabPressed(*event);
     break;
   default:
     QLineEdit::keyPressEvent(event);

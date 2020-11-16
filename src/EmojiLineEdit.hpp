@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QStackedLayout>
+#include <QStyleOptionFrame>
 
 class EmojiLineEdit : public QLineEdit {
   Q_OBJECT
@@ -22,10 +23,11 @@ public:
   void setPreviewText(const std::string& previewText);
 
 signals:
-  void arrowKeyPressed(int key);
-  void escapePressed();
-  void functionKeyPressed(int key);
-  void tabPressed();
+  void returnPressed(const QKeyEvent& event);
+  void arrowKeyPressed(const QKeyEvent& event);
+  void escapePressed(const QKeyEvent& event);
+  void functionKeyPressed(const QKeyEvent& event);
+  void tabPressed(const QKeyEvent& event);
 
 protected:
   void keyPressEvent(QKeyEvent* event) override;

@@ -128,11 +128,56 @@ int crossdo_get_caret_location2(
 #endif
 }
 
+int crossdo_get_pid_window(const crossdo_t* crossdo, window_t window) {
+#ifdef __linux__
+  return xdo_get_pid_window(crossdo, window);
+#elif _WIN32
+  unsigned long pid = 0;
+  GetWindowThreadProcessId(window, &pid);
+
+  return pid;
+#endif
+}
+
 int crossdo_get_active_window(const crossdo_t* crossdo, window_t* window_ret) {
 #ifdef __linux__
   return xdo_get_active_window(crossdo, window_ret);
 #elif _WIN32
   *window_ret = GetForegroundWindow();
+
+  return 0;
+#endif
+}
+
+int crossdo_activate_window(const crossdo_t* crossdo, window_t window) {
+#ifdef __linux__
+  return xdo_activate_window(crossdo, window);
+#elif _WIN32
+  window_t current_window = GetForegroundWindow();
+
+  unsigned long process_thread = GetProcessId();
+  unsigned long current_thread = GetWindowThreadProcessId(current_window, NULL);
+  unsigned long window_thread = GetWindowThreadProcessId(window, NULL);
+
+  if (process_thread == current_thread && process_thread != window_thread) {
+    AttachThreadInput(window_thread, process_thread, TRUE);
+  }
+
+  SetActiveWindow(window);
+
+  if (process_thread == window_thread && process_thread != current_thread) {
+    AttachThreadInput(current_thread, process_thread, FALSE);
+  }
+
+  return 0;
+#endif
+}
+
+int crossdo_wait_for_window_active(const crossdo_t* crossdo, window_t window, int active) {
+#ifdef __linux__
+  return xdo_wait_for_window_active(crossdo, window, active);
+#elif _WIN32
+  Sleep(25);
 
   return 0;
 #endif

@@ -2,7 +2,6 @@
 
 #include <locale>
 #include <string>
-#include <vector>
 
 struct Emoji {
 public:
@@ -18,7 +17,7 @@ public:
 };
 
 // generated from https://unicode.org/Public/emoji/13.0/emoji-test.txt
-const std::vector<Emoji> emojis = {
+const Emoji emojis[] = {
   {"grinning_face", u8"\U0001F600", 1},
   {"grinning_face_with_big_eyes", u8"\U0001F603", 0},
   {"grinning_face_with_smiling_eyes", u8"\U0001F604", 0},

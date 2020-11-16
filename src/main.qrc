@@ -2,5 +2,6 @@
 <RCC version="1.0">
   <qresource>
     <file>main.qss</file>
+    <file>aliases/github-emojis.ini</file>
   </qresource>
 </RCC>

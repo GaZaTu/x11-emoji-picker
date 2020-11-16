@@ -4,9 +4,29 @@
 #include "crossdo.h"
 #undef Status
 #include <QApplication>
+#include <QClipboard>
 #include <QMainWindow>
 #include <QTextStream>
 #include <memory>
+
+std::string getProcessNameFromPID(int pid) {
+  if (pid == 0) {
+    return "";
+  }
+
+#ifdef __linux__
+  QFile qssFile(QString("/proc/%1/status").arg(pid));
+  if (!qssFile.exists()) {
+    return "";
+  }
+
+  qssFile.open(QFile::ReadOnly | QFile::Text);
+  QTextStream ts(&qssFile);
+  return ts.readLine().remove(0, 6).toStdString();
+#elif _WIN32
+  return "";
+#endif
+}
 
 QString readQFileIfExists(const QString& path) {
   QFile qssFile(path);
@@ -20,10 +40,6 @@ QString readQFileIfExists(const QString& path) {
 }
 
 int main(int argc, char** argv) {
-  auto crossdo = std::unique_ptr<crossdo_t, decltype(&crossdo_free)>(crossdo_new(), &crossdo_free);
-  window_t prevWindow;
-  crossdo_get_active_window(crossdo.get(), &prevWindow);
-
   QApplication::setOrganizationName(PROJECT_ORGANIZATION);
   QApplication::setOrganizationDomain(PROJECT_ORGANIZATION);
   QApplication::setApplicationName(PROJECT_NAME);
@@ -32,7 +48,37 @@ int main(int argc, char** argv) {
   QApplication app(argc, argv);
   QApplication::installTranslator(new EmojiTranslator(nullptr, EmojiPickerSettings::startupSnapshot().localeKey()));
 
-  EmojiPickerSettings::writeDefaultsToDisk();
+  auto crossdo = std::unique_ptr<crossdo_t, decltype(&crossdo_free)>(crossdo_new(), &crossdo_free);
+  window_t prevWindow;
+  crossdo_get_active_window(crossdo.get(), &prevWindow);
+  int prevWindowPID = crossdo_get_pid_window(crossdo.get(), prevWindow);
+  std::string prevWindowProcessName = getProcessNameFromPID(prevWindowPID);
+
+  bool isActivateWindowBeforeWritingException = false;
+  for (const auto& exception : EmojiPickerSettings::startupSnapshot().activateWindowBeforeWritingExceptions()) {
+    if (exception == prevWindowProcessName) {
+      isActivateWindowBeforeWritingException = true;
+      break;
+    }
+  }
+  bool activateWindowBeforeWriting =
+      ((EmojiPickerSettings::startupSnapshot().activateWindowBeforeWritingByDefault() == true &&
+           isActivateWindowBeforeWritingException == false) ||
+          (EmojiPickerSettings::startupSnapshot().activateWindowBeforeWritingByDefault() == false &&
+              isActivateWindowBeforeWritingException == true));
+
+  bool isCopyEmojiToClipboardAswellException = false;
+  for (const auto& exception : EmojiPickerSettings::startupSnapshot().copyEmojiToClipboardAswellExceptions()) {
+    if (exception == prevWindowProcessName) {
+      isCopyEmojiToClipboardAswellException = true;
+      break;
+    }
+  }
+  bool copyEmojiToClipboardAswell =
+      ((EmojiPickerSettings::startupSnapshot().copyEmojiToClipboardAswellByDefault() == true &&
+           isCopyEmojiToClipboardAswellException == false) ||
+          (EmojiPickerSettings::startupSnapshot().copyEmojiToClipboardAswellByDefault() == false &&
+              isCopyEmojiToClipboardAswellException == true));
 
   if (!EmojiPickerSettings::startupSnapshot().useSystemQtTheme()) {
     app.setStyle("fusion");
@@ -52,7 +98,8 @@ int main(int argc, char** argv) {
   window.setWindowIcon(QIcon(":/res/72x72/1f0cf.png"));
 
   if (!EmojiPickerSettings::startupSnapshot().useSystemQtTheme()) {
-    window.setStyleSheet(readQFileIfExists(QString::fromStdString(EmojiPickerSettings::startupSnapshot().customQssFilePath())));
+    window.setStyleSheet(
+        readQFileIfExists(QString::fromStdString(EmojiPickerSettings::startupSnapshot().customQssFilePath())));
   }
 
   if (EmojiPickerSettings::startupSnapshot().openAtMouseLocation()) {
@@ -60,16 +107,46 @@ int main(int argc, char** argv) {
     int cursorY = 0;
     crossdo_get_mouse_location2(crossdo.get(), &cursorX, &cursorY, nullptr, nullptr);
 
-    window.move(cursorX, cursorY);
+    if (cursorX != 0 && cursorY != 0) {
+      window.move(cursorX, cursorY);
+    }
   }
 
   EmojiPicker* mainWidget = new EmojiPicker();
 
-  QObject::connect(mainWidget, &EmojiPicker::returnPressed, [&](const std::string& emojiStr) {
+  QObject::connect(mainWidget, &EmojiPicker::returnPressed, [&](const std::string& emojiStr, bool closeAfter) {
+    window_t currentWindow = 0;
+    if (activateWindowBeforeWriting || closeAfter) {
+      crossdo_get_active_window(crossdo.get(), &currentWindow);
+    }
+
+    if (currentWindow != 0) {
+      crossdo_activate_window(crossdo.get(), prevWindow);
+      crossdo_wait_for_window_active(crossdo.get(), prevWindow, 1);
+    }
+
     crossdo_enter_text_window(crossdo.get(), prevWindow, emojiStr.data(), 12000);
+
+    if (currentWindow != 0 && !closeAfter) {
+      crossdo_activate_window(crossdo.get(), currentWindow);
+      crossdo_wait_for_window_active(crossdo.get(), currentWindow, 1);
+    }
+
+    if (copyEmojiToClipboardAswell) {
+      QApplication::clipboard()->clear();
+      QApplication::clipboard()->setText(QString::fromStdString(emojiStr));
+    }
+
+    if (closeAfter) {
+      EmojiPickerSettings::writeDefaultsToDisk();
+
+      app.exit();
+    }
   });
 
   QObject::connect(mainWidget, &EmojiPicker::escapePressed, [&]() {
+    EmojiPickerSettings::writeDefaultsToDisk();
+
     app.exit();
   });
 

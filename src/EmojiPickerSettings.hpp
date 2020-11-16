@@ -9,7 +9,7 @@ class EmojiPickerSettings : public QSettings {
   Q_OBJECT
 
 public:
-  static const EmojiPickerSettings& startupSnapshot();
+  static EmojiPickerSettings& startupSnapshot();
 
   static void writeDefaultsToDisk();
 
@@ -36,12 +36,28 @@ public:
   int maxEmojiVersion() const;
   void setMaxEmojiVersion(int maxEmojiVersion);
 
-  std::vector<std::pair<std::string, std::string>> aliases();
-  void setAliases(const std::vector<std::pair<std::string, std::string>>& aliases);
+  std::string emojiAliasesIniFilePath() const;
+  void setEmojiAliasesIniFilePath(const std::string& emojiAliasesIniFilePath);
+  std::vector<Emoji> aliasedEmojis();
 
   std::string customQssFilePath() const;
   void setCustomQssFilePath(const std::string& customQssFilePath);
 
+  bool activateWindowBeforeWritingByDefault() const;
+  void setActivateWindowBeforeWritingByDefault(bool activateWindowBeforeWritingByDefault);
+
+  std::vector<std::string> activateWindowBeforeWritingExceptions();
+  void setActivateWindowBeforeWritingExceptions(const std::vector<std::string>& activateWindowBeforeWritingExceptions);
+
+  bool copyEmojiToClipboardAswellByDefault() const;
+  void setCopyEmojiToClipboardAswellByDefault(bool copyEmojiToClipboardAswellByDefault);
+
+  std::vector<std::string> copyEmojiToClipboardAswellExceptions();
+  void setCopyEmojiToClipboardAswellExceptions(const std::vector<std::string>& copyEmojiToClipboardAswellExceptions);
+
+  bool aliasExactMatching() const;
+  void setAliasExactMatching(bool aliasExactMatching);
+
 private:
-  static const EmojiPickerSettings* _startupSnapshot;
+  static EmojiPickerSettings* _startupSnapshot;
 };

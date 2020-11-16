@@ -1,7 +1,7 @@
 #include "EmojiTranslator.hpp"
 
 const std::string skinToneSuffix = "_skin_tone";
-const std::vector<std::string> skinToneSuffixes = {
+const std::string skinToneSuffixes[] = {
     "_medium" + skinToneSuffix,
     "_medium_light" + skinToneSuffix,
     "_medium_dark" + skinToneSuffix,
@@ -10,18 +10,18 @@ const std::vector<std::string> skinToneSuffixes = {
 };
 
 const std::string personPrefix = "person_";
-const std::vector<std::string> personPrefixes = {
+const std::string personPrefixes[] = {
     "man_",
     "woman_",
 };
 
 const std::string peoplePrefix = "people_";
-const std::vector<std::string> peoplePrefixes = {
+const std::string peoplePrefixes[] = {
     "men_",
     "women_",
 };
 
-const std::vector<std::string> personSuffixes = {
+const std::string personSuffixes[] = {
     "_man",
     "_woman",
     "_boy",

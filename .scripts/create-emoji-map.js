@@ -1,4 +1,5 @@
 const { promises: { writeFile }, existsSync } = require('fs')
+const { execFile } = require('child_process')
 const { default: fetch } = require('node-fetch')
 const ProxyAgent = require('proxy-agent')
 
@@ -110,6 +111,7 @@ const fetchEmojisByLocales = async (locales) => {
   const NO_CLDR = process.argv.includes('NO_CLDR')
   const SKIP_HPP = process.argv.includes('SKIP_HPP')
   const SKIP_CPP = process.argv.includes('SKIP_CPP')
+  const USE_GPERF = process.argv.includes('USE_GPERF')
 
   if (!SKIP_HPP) {
     const emojisHpp =
@@ -118,7 +120,6 @@ const fetchEmojisByLocales = async (locales) => {
 
 #include <locale>
 #include <string>
-#include <vector>
 
 struct Emoji {
 public:
@@ -134,7 +135,7 @@ public:
 };
 
 // generated from ${UNICODE_EMOJI_LIST_URL}
-const std::vector<Emoji> emojis = {
+const Emoji emojis[] = {
   ${(await fetchEmojis()).map(emoji => `{"${emoji.name}", u8"${emoji.code.split(' ').map(codepoint => `\\U${codepoint.padStart(8, '0')}`).join('')}", ${Math.trunc(emoji.version)}}`).join(',\n  ')}
 };
 `
@@ -143,7 +144,57 @@ const std::vector<Emoji> emojis = {
   }
 
   if (!SKIP_CPP && !NO_CLDR) {
-    const emojisCpp =
+    if (USE_GPERF) {
+      const emojisGPerf =
+`
+%{
+#include "emojis.hpp"
+
+%}
+%language=C++
+%readonly-tables
+%enum
+%global-table
+%compare-lengths
+%includes
+%struct-type
+%define slot-name emoji
+%define lookup-function-name find
+%define class-name EmojiTranslations
+%define word-array-name emoji_translations
+struct EmojiTranslation {
+  const char* emoji;
+  const char* value;
+};
+%%
+${(await fetchEmojisByLocales(supportedLocales))
+  .map(({ locale, emojis }) => emojis.map(emoji => `${locale}/${emoji.str}, "${emoji.name}"`))
+  .flat()
+  .join('\n')}
+%%
+std::string Emoji::nameByLocale(const std::string& localeKey) const {
+  const std::string emojiCodeWithLocaleKey = localeKey + "/" + code;
+  const EmojiTranslation* translation = EmojiTranslations::find(emojiCodeWithLocaleKey.data(), emojiCodeWithLocaleKey.length());
+  if (translation == nullptr) {
+    return name;
+  }
+
+  return translation->value;
+}
+`
+
+      const gperf = execFile('gperf', [`--output-file=${__dirname}/../src/emojis.cpp`])
+
+      gperf.stderr.pipe(process.stderr)
+      gperf.stdout.pipe(process.stdout)
+      gperf.stdin.end(emojisGPerf)
+
+      await new Promise((resolve, reject) => {
+        gperf.on('error', reject)
+        gperf.on('exit', resolve)
+      })
+    } else {
+      const emojisCpp =
 `
 #include "emojis.hpp"
 #include <unordered_map>
@@ -172,6 +223,7 @@ std::string Emoji::nameByLocale(const std::string& localeKey) const {
 }
 `
 
-    await writeFile(`${__dirname}/../src/emojis.cpp`, emojisCpp.trimLeft())
+      await writeFile(`${__dirname}/../src/emojis.cpp`, emojisCpp.trimLeft())
+    }
   }
 })().catch(console.error)

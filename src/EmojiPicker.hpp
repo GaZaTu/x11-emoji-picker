@@ -16,7 +16,7 @@ public:
   explicit EmojiPicker(QWidget* parent = nullptr);
 
 signals:
-  void returnPressed(const std::string& emojiStr);
+  void returnPressed(const std::string& emojiStr, bool closeAfter);
   void escapePressed();
 
 protected:
@@ -30,7 +30,7 @@ private:
   bool _skinTonesDisabled = false;
   bool _gendersDisabled = false;
   int _maxEmojiVersion = -1;
-  std::vector<std::pair<std::string, std::string>> _aliases;
+  std::vector<Emoji> _aliasedEmojis;
 
   EmojiLabel* _selectedEmojiLabel = nullptr;
 
@@ -58,11 +58,11 @@ private:
 
 private:
   void onTextChanged(const QString& text);
-  void onReturnPressed();
-  void onArrowKeyPressed(int key);
-  void onEscapePressed();
-  void onFunctionKeyPressed(int key);
-  void onTabPressed();
+  void onReturnPressed(const QKeyEvent& event);
+  void onArrowKeyPressed(const QKeyEvent& event);
+  void onEscapePressed(const QKeyEvent& event);
+  void onFunctionKeyPressed(const QKeyEvent& event);
+  void onTabPressed(const QKeyEvent& event);
 
   void onFavsPressed(QMouseEvent* ev);
   void onHelpPressed(QMouseEvent* ev);
