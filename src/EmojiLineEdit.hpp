@@ -6,7 +6,6 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QStackedLayout>
-#include <QStyleOptionFrame>
 
 class EmojiLineEdit : public QLineEdit {
   Q_OBJECT

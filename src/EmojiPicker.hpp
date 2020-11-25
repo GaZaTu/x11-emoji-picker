@@ -31,6 +31,7 @@ private:
   bool _gendersDisabled = false;
   int _maxEmojiVersion = -1;
   std::vector<Emoji> _aliasedEmojis;
+  std::string _settingsPath;
 
   EmojiLabel* _selectedEmojiLabel = nullptr;
 

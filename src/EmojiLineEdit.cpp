@@ -97,6 +97,8 @@ void EmojiLineEdit::keyPressEvent(QKeyEvent* event) {
     break;
   case Qt::Key_F1:
   case Qt::Key_F2:
+  case Qt::Key_F3:
+  case Qt::Key_F4:
     emit functionKeyPressed(*event);
     break;
   case Qt::Key_Tab:

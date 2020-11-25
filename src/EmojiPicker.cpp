@@ -1,5 +1,6 @@
 #include "EmojiPicker.hpp"
 #include "EmojiPickerSettings.hpp"
+#include <QDesktopServices>
 
 EmojiPicker::EmojiPicker(QWidget* parent) : QWidget(parent) {
   setLayout(_mainLayout);
@@ -9,6 +10,7 @@ EmojiPicker::EmojiPicker(QWidget* parent) : QWidget(parent) {
   _gendersDisabled = EmojiPickerSettings::startupSnapshot().gendersDisabled();
   _maxEmojiVersion = EmojiPickerSettings::startupSnapshot().maxEmojiVersion();
   _aliasedEmojis = EmojiPickerSettings::startupSnapshot().aliasedEmojis();
+  _settingsPath = EmojiPickerSettings::startupSnapshot().fileName().toStdString();
 
   _emojiLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
@@ -124,13 +126,11 @@ bool EmojiPicker::isDisabledEmoji(const Emoji& emoji) {
     return true;
   }
 
-  if (_skinTonesDisabled && (emoji.name.find("_skin_tone") != std::string::npos)) {
+  if (_skinTonesDisabled && emoji.isSkinToneVariation()) {
     return true;
   }
 
-  if (_gendersDisabled &&
-      (emoji.name.find("man_") == 0 || emoji.name.find("woman_") == 0 || emoji.name.find("men_") == 0 ||
-          emoji.name.find("women_") == 0)) {
+  if (_gendersDisabled && emoji.isGenderVariation()) {
     return true;
   }
 
@@ -189,17 +189,22 @@ void EmojiPicker::fillViewWithEmojisByText(const std::string& text) {
       }
     }
 
+    EmojiLabel* emojiLabel = nullptr;
     for (const auto& emoji : emojis) {
-      if (emoji.code != alias.code) {
-        continue;
-      }
-
-      EmojiLabel* emojiLabel = new EmojiLabel(nullptr, emoji);
-      emojiLabel->setProperty("alias", QString::fromStdString(alias.name));
-
-      if (addEmojiLabel(emojiLabel, row, col)) {
+      if (emoji.code == alias.code) {
+        emojiLabel = new EmojiLabel(nullptr, emoji);
         break;
       }
+    }
+
+    if (emojiLabel == nullptr) {
+      emojiLabel = new EmojiLabel(nullptr, alias);
+    }
+
+    emojiLabel->setProperty("alias", QString::fromStdString(alias.name));
+
+    if (addEmojiLabel(emojiLabel, row, col)) {
+      break;
     }
 
     if (aliasExactMatching) {
@@ -249,7 +254,7 @@ void EmojiPicker::fillViewWithEmojisByList() {
     _helpEmojiListStartEmoji = {"", ""};
   }
 
-  if (_helpEmojiListStartEmoji.code != "") {
+  if (_helpEmojiListStartEmoji) {
     for (const auto& emoji : emojis) {
       if (isDisabledEmoji(emoji)) {
         continue;
@@ -279,7 +284,7 @@ void EmojiPicker::fillViewWithEmojisByList() {
 
     idx += 1;
 
-    if (_helpEmojiListStartEmoji.code != "" && (idx - 1) < (startRow * cols)) {
+    if (_helpEmojiListStartEmoji && (idx - 1) < (startRow * cols)) {
       continue;
     }
 
@@ -294,7 +299,7 @@ void EmojiPicker::fillViewWithEmojisByList() {
     }
   }
 
-  if (_helpEmojiListStartEmoji.code != "") {
+  if (_helpEmojiListStartEmoji) {
     for (EmojiLabel* emojiLabel : _emojiLayoutWidget->findChildren<EmojiLabel*>()) {
       if (emojiLabel->emoji() == _helpEmojiListStartEmoji) {
         setSelectedEmojiLabel(emojiLabel);
@@ -405,6 +410,10 @@ void EmojiPicker::onFunctionKeyPressed(const QKeyEvent& event) {
     break;
   case Qt::Key_F2:
     onHelpPressed(nullptr);
+    break;
+  case Qt::Key_F4:
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromStdString(_settingsPath)));
+    emit escapePressed();
     break;
   }
 }

@@ -11,8 +11,67 @@ public:
 
   std::string nameByLocale(const std::string& localeKey = std::locale("").name().substr(0, 2)) const;
 
+  bool isGenderVariation() const {
+    const char* MALE_SIGN   = u8"\U00002642";
+    const char* FEMALE_SIGN = u8"\U00002640";
+    const char* BOY         = u8"\U0001F466";
+    const char* GIRL        = u8"\U0001F467";
+    const char* MAN         = u8"\U0001F468";
+    const char* WOMAN       = u8"\U0001F469";
+
+    if (
+      code == MALE_SIGN   ||
+      code == FEMALE_SIGN ||
+      code == BOY         ||
+      code == GIRL        ||
+      code == MAN         ||
+      code == WOMAN
+    ) {
+      return false;
+    }
+
+    return (
+      code.find(MALE_SIGN) != std::string::npos   ||
+      code.find(FEMALE_SIGN) != std::string::npos ||
+      code.find(BOY) != std::string::npos         ||
+      code.find(GIRL) != std::string::npos        ||
+      code.find(MAN) != std::string::npos         ||
+      code.find(WOMAN) != std::string::npos
+    );
+  }
+
+  bool isSkinToneVariation() const {
+    const char* LIGHT        = u8"\U0001F3FB";
+    const char* LIGHT_MEDIUM = u8"\U0001F3FC";
+    const char* MEDIUM       = u8"\U0001F3FD";
+    const char* DARK_MEDIUM  = u8"\U0001F3FE";
+    const char* DARK         = u8"\U0001F3FF";
+
+    if (
+      code == LIGHT        ||
+      code == LIGHT_MEDIUM ||
+      code == MEDIUM       ||
+      code == DARK_MEDIUM  ||
+      code == DARK
+    ) {
+      return false;
+    }
+
+    return (
+      code.find(LIGHT) != std::string::npos        ||
+      code.find(LIGHT_MEDIUM) != std::string::npos ||
+      code.find(MEDIUM) != std::string::npos       ||
+      code.find(DARK_MEDIUM) != std::string::npos  ||
+      code.find(DARK) != std::string::npos
+    );
+  }
+
   bool operator==(const Emoji& other) const {
     return code == other.code;
+  }
+
+  operator bool() const {
+    return code != "";
   }
 };
 

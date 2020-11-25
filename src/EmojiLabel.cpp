@@ -60,7 +60,14 @@ void EmojiLabel::setEmoji(const Emoji& emoji, int w, int h) {
   _emoji = emoji;
 
   setAccessibleName(QString::fromStdString(_emoji.name));
-  setPixmap(getPixmapByEmojiStr(_emoji.code).scaled(w, h, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+
+  QPixmap emojiPixmap = getPixmapByEmojiStr(_emoji.code).scaled(w, h, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+  if (emojiPixmap.isNull()) {
+    setText(QString::fromStdString(_emoji.code));
+  } else {
+    setPixmap(emojiPixmap);
+  }
 }
 
 bool EmojiLabel::highlighted() {
