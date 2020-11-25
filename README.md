@@ -2,7 +2,7 @@
 
 A dialog / emoji picker inspired by the Windows 10 emoji picker written for Linux systems using Xorg.
 
-Works for my use case most of the time. 😅 😂👌🔥💯
+Works for my use case most of the time. 😅
 
 ## Motivation 🤔
 
@@ -119,7 +119,7 @@ size=1
 size=0
 ```
 
-## Credits 🤗
+## Contributors 🤗
 
 - [zneix](https://github.com/zneix) 😊👌
 
