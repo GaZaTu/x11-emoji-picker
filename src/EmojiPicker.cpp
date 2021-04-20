@@ -59,10 +59,10 @@ void EmojiPicker::wheelEvent(QWheelEvent* event) {
 
   switch (stepsDelta.y()) {
   case +1:
-    onArrowKeyPressed(QKeyEvent(QEvent::KeyPress, Qt::Key_Up, 0));
+    onArrowKeyPressed(QKeyEvent(QEvent::KeyPress, Qt::Key_Up, {}));
     break;
   case -1:
-    onArrowKeyPressed(QKeyEvent(QEvent::KeyPress, Qt::Key_Down, 0));
+    onArrowKeyPressed(QKeyEvent(QEvent::KeyPress, Qt::Key_Down, {}));
     break;
   }
 }
@@ -96,7 +96,7 @@ bool EmojiPicker::addEmojiLabel(EmojiLabel* emojiLabel, int& row, int& col) {
     EmojiLabel* selectedEmojiLabel = _selectedEmojiLabel;
 
     _selectedEmojiLabel = emojiLabel;
-    onReturnPressed(QKeyEvent(QEvent::KeyPress, Qt::Key_Return, 0));
+    onReturnPressed(QKeyEvent(QEvent::KeyPress, Qt::Key_Return, {}));
     _selectedEmojiLabel = selectedEmojiLabel;
   });
 
