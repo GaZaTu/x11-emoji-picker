@@ -3,10 +3,14 @@
 #include "EmojiTranslator.hpp"
 #include "crossdo.h"
 #undef Status
+#undef KeyPress
+#undef KeyRelease
 #include <QApplication>
 #include <QClipboard>
 #include <QMainWindow>
 #include <QTextStream>
+#include <QEvent>
+#include <QTimer>
 #include <memory>
 
 std::string getProcessNameFromPID(int pid) {
@@ -80,6 +84,19 @@ int main(int argc, char** argv) {
           (EmojiPickerSettings::startupSnapshot().copyEmojiToClipboardAswellByDefault() == false &&
               isCopyEmojiToClipboardAswellException == true));
 
+  bool isUseClipboardHackException = false;
+  for (const auto& exception : EmojiPickerSettings::startupSnapshot().useClipboardHackExceptions()) {
+    if (exception == prevWindowProcessName) {
+      isUseClipboardHackException = true;
+      break;
+    }
+  }
+  bool useClipboardHack =
+      ((EmojiPickerSettings::startupSnapshot().useClipboardHackByDefault() == true &&
+           isUseClipboardHackException == false) ||
+          (EmojiPickerSettings::startupSnapshot().useClipboardHackByDefault() == false &&
+              isUseClipboardHackException == true));
+
   if (!EmojiPickerSettings::startupSnapshot().useSystemQtTheme()) {
     app.setStyle("fusion");
     app.setStyleSheet(readQFileIfExists(":/main.qss"));
@@ -112,6 +129,26 @@ int main(int argc, char** argv) {
     }
   }
 
+  QString prevClipboardText;
+  auto closeApp = [&]() {
+    EmojiPickerSettings::writeDefaultsToDisk();
+
+    if (useClipboardHack && !prevClipboardText.isNull()) {
+      window.hide();
+
+      QTimer::singleShot(250, [&]() {
+        QApplication::clipboard()->clear();
+        QApplication::clipboard()->setText(prevClipboardText);
+      });
+
+      QTimer::singleShot(500, [&]() {
+        app.exit();
+      });
+    } else {
+      app.exit();
+    }
+  };
+
   EmojiPicker* mainWidget = new EmojiPicker();
 
   QObject::connect(mainWidget, &EmojiPicker::returnPressed, [&](const std::string& emojiStr, bool closeAfter) {
@@ -125,7 +162,28 @@ int main(int argc, char** argv) {
       crossdo_wait_for_window_active(crossdo.get(), prevWindow, 1);
     }
 
-    crossdo_enter_text_window(crossdo.get(), prevWindow, emojiStr.data(), 12000);
+    if (useClipboardHack) {
+      if (prevClipboardText.isNull()) {
+        prevClipboardText = QApplication::clipboard()->text();
+      }
+
+      QApplication::clipboard()->clear();
+      QApplication::clipboard()->setText(QString::fromStdString(emojiStr));
+
+      if (closeAfter) {
+#ifdef __linux__
+        charcodemap_t* keys;
+        int keysLen;
+
+        xdo_get_active_modifiers(crossdo.get(), &keys, &keysLen);
+        xdo_clear_active_modifiers(crossdo.get(), prevWindow, keys, keysLen);
+#endif
+      }
+
+      crossdo_send_keysequence_window(crossdo.get(), prevWindow, "ctrl+v", 12000);
+    } else {
+      crossdo_enter_text_window(crossdo.get(), prevWindow, emojiStr.data(), 12000);
+    }
 
     if (currentWindow != 0 && !closeAfter) {
       crossdo_activate_window(crossdo.get(), currentWindow);
@@ -138,17 +196,11 @@ int main(int argc, char** argv) {
     }
 
     if (closeAfter) {
-      EmojiPickerSettings::writeDefaultsToDisk();
-
-      app.exit();
+      closeApp();
     }
   });
 
-  QObject::connect(mainWidget, &EmojiPicker::escapePressed, [&]() {
-    EmojiPickerSettings::writeDefaultsToDisk();
-
-    app.exit();
-  });
+  QObject::connect(mainWidget, &EmojiPicker::escapePressed, closeApp);
 
   window.setCentralWidget(mainWidget);
   window.show();

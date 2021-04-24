@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.7.2 FATAL_ERROR)
-project(emoji-picker VERSION 0.5.0 LANGUAGES CXX)
+project(emoji-picker VERSION 0.6.0 LANGUAGES CXX)
 
 cmake_policy(SET CMP0074 NEW)
 

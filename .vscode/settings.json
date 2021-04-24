@@ -87,7 +87,8 @@
     "xloctime": "cpp",
     "xmemory": "cpp",
     "xstddef": "cpp",
-    "xtr1common": "cpp"
+    "xtr1common": "cpp",
+    "qevent": "cpp"
   },
   "cmake.sourceDirectory": "${workspaceFolder}/.",
   "files.exclude": {

@@ -80,6 +80,17 @@ void EmojiPickerSettings::writeDefaultsToDisk() {
   settings.setCopyEmojiToClipboardAswellExceptions(copyEmojiToClipboardAswellExceptions);
 
   settings.setAliasExactMatching(settings.aliasExactMatching());
+
+  settings.setUseClipboardHackByDefault(settings.useClipboardHackByDefault());
+  std::vector<std::string> useClipboardHackExceptions = settings.useClipboardHackExceptions();
+  if (useClipboardHackExceptions.size() == 0) {
+#ifdef __linux__
+    useClipboardHackExceptions.push_back("chatterino");
+#elif _WIN32
+    useClipboardHackExceptions.push_back("chatterino.exe");
+#endif
+  }
+  settings.setUseClipboardHackExceptions(useClipboardHackExceptions);
 }
 
 EmojiPickerSettings::EmojiPickerSettings(QObject* parent)
@@ -245,4 +256,24 @@ bool EmojiPickerSettings::aliasExactMatching() const {
 }
 void EmojiPickerSettings::setAliasExactMatching(bool aliasExactMatching) {
   setValue("aliasExactMatching", aliasExactMatching);
+}
+
+bool EmojiPickerSettings::useClipboardHackByDefault() const {
+  return value("useClipboardHackByDefault", false).toBool();
+}
+void EmojiPickerSettings::setUseClipboardHackByDefault(bool useClipboardHackByDefault) {
+  setValue("useClipboardHackByDefault", useClipboardHackByDefault);
+}
+
+std::vector<std::string> EmojiPickerSettings::useClipboardHackExceptions() {
+  return readQSettingsArrayToStdVector<std::string>(
+      *this, "useClipboardHackExceptions", [](QSettings& settings) -> std::string {
+        return settings.value("processName").toString().toStdString();
+      });
+}
+void EmojiPickerSettings::setUseClipboardHackExceptions(const std::vector<std::string>& useClipboardHackExceptions) {
+  writeQSettingsArrayFromStdVector<std::string>(*this, "useClipboardHackExceptions",
+      useClipboardHackExceptions, [](QSettings& settings, const std::string& exception) -> void {
+        settings.setValue("processName", QString::fromStdString(exception));
+      });
 }

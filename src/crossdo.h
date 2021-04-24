@@ -249,6 +249,14 @@ int crossdo_enter_text_window(const crossdo_t* crossdo, window_t window, const c
 #endif
 }
 
+int crossdo_send_keysequence_window(const crossdo_t* crossdo, window_t window, const char* keysequence, unsigned int delay) {
+#ifdef __linux__
+  return xdo_send_keysequence_window(crossdo, window, keysequence, delay);
+#elif _WIN32
+  return 0;
+#endif
+}
+
 #ifdef __cplusplus
 }
 #endif

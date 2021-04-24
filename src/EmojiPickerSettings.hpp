@@ -58,6 +58,12 @@ public:
   bool aliasExactMatching() const;
   void setAliasExactMatching(bool aliasExactMatching);
 
+  bool useClipboardHackByDefault() const;
+  void setUseClipboardHackByDefault(bool useClipboardHackByDefault);
+
+  std::vector<std::string> useClipboardHackExceptions();
+  void setUseClipboardHackExceptions(const std::vector<std::string>& useClipboardHackExceptions);
+
 private:
   static EmojiPickerSettings* _startupSnapshot;
 };
