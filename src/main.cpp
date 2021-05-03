@@ -11,6 +11,7 @@
 #include <QTextStream>
 #include <QEvent>
 #include <QTimer>
+#include <QMimeData>
 #include <memory>
 
 std::string getProcessNameFromPID(int pid) {
@@ -30,6 +31,16 @@ std::string getProcessNameFromPID(int pid) {
 #elif _WIN32
   return "";
 #endif
+}
+
+QMimeData* copyQMimeData(const QMimeData* source) {
+  QMimeData* target = new QMimeData();
+
+  for (QString format : source->formats()) {
+    target->setData(format, source->data(format));
+  }
+
+  return target;
 }
 
 QString readQFileIfExists(const QString& path) {
@@ -129,16 +140,16 @@ int main(int argc, char** argv) {
     }
   }
 
-  QString prevClipboardText;
+  QMimeData* prevClipboardMimeData = nullptr;
   auto closeApp = [&]() {
     EmojiPickerSettings::writeDefaultsToDisk();
 
-    if (useClipboardHack && !prevClipboardText.isNull()) {
+    if (useClipboardHack && prevClipboardMimeData != nullptr) {
       window.hide();
 
       QTimer::singleShot(250, [&]() {
         QApplication::clipboard()->clear();
-        QApplication::clipboard()->setText(prevClipboardText);
+        QApplication::clipboard()->setMimeData(prevClipboardMimeData);
       });
 
       QTimer::singleShot(500, [&]() {
@@ -163,8 +174,8 @@ int main(int argc, char** argv) {
     }
 
     if (useClipboardHack) {
-      if (prevClipboardText.isNull()) {
-        prevClipboardText = QApplication::clipboard()->text();
+      if (prevClipboardMimeData == nullptr) {
+        prevClipboardMimeData = copyQMimeData(QApplication::clipboard()->mimeData());
       }
 
       QApplication::clipboard()->clear();
