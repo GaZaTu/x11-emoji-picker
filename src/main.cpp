@@ -7,11 +7,11 @@
 #undef KeyRelease
 #include <QApplication>
 #include <QClipboard>
-#include <QMainWindow>
-#include <QTextStream>
 #include <QEvent>
-#include <QTimer>
+#include <QMainWindow>
 #include <QMimeData>
+#include <QTextStream>
+#include <QTimer>
 #include <memory>
 
 std::string getProcessNameFromPID(int pid) {
@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
   QApplication::setApplicationVersion(PROJECT_VERSION);
 
   QApplication app(argc, argv);
-  QApplication::installTranslator(new EmojiTranslator(nullptr, EmojiPickerSettings::startupSnapshot().localeKey()));
+  QApplication::installTranslator(new EmojiTranslator(nullptr, EmojiPickerSettings::snapshot().localeKey()));
 
   auto crossdo = std::unique_ptr<crossdo_t, decltype(&crossdo_free)>(crossdo_new(), &crossdo_free);
   window_t prevWindow;
@@ -70,52 +70,48 @@ int main(int argc, char** argv) {
   std::string prevWindowProcessName = getProcessNameFromPID(prevWindowPID);
 
   bool isActivateWindowBeforeWritingException = false;
-  for (const auto& exception : EmojiPickerSettings::startupSnapshot().activateWindowBeforeWritingExceptions()) {
+  for (const auto& exception : EmojiPickerSettings::snapshot().activateWindowBeforeWritingExceptions()) {
     if (exception == prevWindowProcessName) {
       isActivateWindowBeforeWritingException = true;
       break;
     }
   }
-  bool activateWindowBeforeWriting =
-      ((EmojiPickerSettings::startupSnapshot().activateWindowBeforeWritingByDefault() == true &&
-           isActivateWindowBeforeWritingException == false) ||
-          (EmojiPickerSettings::startupSnapshot().activateWindowBeforeWritingByDefault() == false &&
-              isActivateWindowBeforeWritingException == true));
+  bool activateWindowBeforeWriting = ((EmojiPickerSettings::snapshot().activateWindowBeforeWritingByDefault() == true &&
+                                          isActivateWindowBeforeWritingException == false) ||
+      (EmojiPickerSettings::snapshot().activateWindowBeforeWritingByDefault() == false &&
+          isActivateWindowBeforeWritingException == true));
 
   bool isCopyEmojiToClipboardAswellException = false;
-  for (const auto& exception : EmojiPickerSettings::startupSnapshot().copyEmojiToClipboardAswellExceptions()) {
+  for (const auto& exception : EmojiPickerSettings::snapshot().copyEmojiToClipboardAswellExceptions()) {
     if (exception == prevWindowProcessName) {
       isCopyEmojiToClipboardAswellException = true;
       break;
     }
   }
-  bool copyEmojiToClipboardAswell =
-      ((EmojiPickerSettings::startupSnapshot().copyEmojiToClipboardAswellByDefault() == true &&
-           isCopyEmojiToClipboardAswellException == false) ||
-          (EmojiPickerSettings::startupSnapshot().copyEmojiToClipboardAswellByDefault() == false &&
-              isCopyEmojiToClipboardAswellException == true));
+  bool copyEmojiToClipboardAswell = ((EmojiPickerSettings::snapshot().copyEmojiToClipboardAswellByDefault() == true &&
+                                         isCopyEmojiToClipboardAswellException == false) ||
+      (EmojiPickerSettings::snapshot().copyEmojiToClipboardAswellByDefault() == false &&
+          isCopyEmojiToClipboardAswellException == true));
 
   bool isUseClipboardHackException = false;
-  for (const auto& exception : EmojiPickerSettings::startupSnapshot().useClipboardHackExceptions()) {
+  for (const auto& exception : EmojiPickerSettings::snapshot().useClipboardHackExceptions()) {
     if (exception == prevWindowProcessName) {
       isUseClipboardHackException = true;
       break;
     }
   }
-  bool useClipboardHack =
-      ((EmojiPickerSettings::startupSnapshot().useClipboardHackByDefault() == true &&
-           isUseClipboardHackException == false) ||
-          (EmojiPickerSettings::startupSnapshot().useClipboardHackByDefault() == false &&
-              isUseClipboardHackException == true));
+  bool useClipboardHack = ((EmojiPickerSettings::snapshot().useClipboardHackByDefault() == true &&
+                               isUseClipboardHackException == false) ||
+      (EmojiPickerSettings::snapshot().useClipboardHackByDefault() == false && isUseClipboardHackException == true));
 
-  if (!EmojiPickerSettings::startupSnapshot().useSystemQtTheme()) {
+  if (!EmojiPickerSettings::snapshot().useSystemQtTheme()) {
     app.setStyle("fusion");
     app.setStyleSheet(readQFileIfExists(":/main.qss"));
   }
 
   QMainWindow window;
 
-  if (EmojiPickerSettings::startupSnapshot().useSystemQtTheme()) {
+  if (EmojiPickerSettings::snapshot().useSystemQtTheme()) {
     window.resize(358, 192);
   } else {
     window.resize(370, 206);
@@ -125,12 +121,12 @@ int main(int argc, char** argv) {
   window.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
   window.setWindowIcon(QIcon(":/res/72x72/1f0cf.png"));
 
-  if (!EmojiPickerSettings::startupSnapshot().useSystemQtTheme()) {
+  if (!EmojiPickerSettings::snapshot().useSystemQtTheme()) {
     window.setStyleSheet(
-        readQFileIfExists(QString::fromStdString(EmojiPickerSettings::startupSnapshot().customQssFilePath())));
+        readQFileIfExists(QString::fromStdString(EmojiPickerSettings::snapshot().customQssFilePath())));
   }
 
-  if (EmojiPickerSettings::startupSnapshot().openAtMouseLocation()) {
+  if (EmojiPickerSettings::snapshot().openAtMouseLocation()) {
     int cursorX = 0;
     int cursorY = 0;
     crossdo_get_mouse_location2(crossdo.get(), &cursorX, &cursorY, nullptr, nullptr);

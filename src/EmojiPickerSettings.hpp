@@ -9,7 +9,7 @@ class EmojiPickerSettings : public QSettings {
   Q_OBJECT
 
 public:
-  static EmojiPickerSettings& startupSnapshot();
+  static EmojiPickerSettings& snapshot();
 
   static void writeDefaultsToDisk();
 
@@ -65,5 +65,5 @@ public:
   void setUseClipboardHackExceptions(const std::vector<std::string>& useClipboardHackExceptions);
 
 private:
-  static EmojiPickerSettings* _startupSnapshot;
+  static EmojiPickerSettings* _snapshot;
 };

@@ -5,18 +5,18 @@
 EmojiPicker::EmojiPicker(QWidget* parent) : QWidget(parent) {
   setLayout(_mainLayout);
 
-  _recentEmojis = EmojiPickerSettings::startupSnapshot().recentEmojis();
-  _skinTonesDisabled = EmojiPickerSettings::startupSnapshot().skinTonesDisabled();
-  _gendersDisabled = EmojiPickerSettings::startupSnapshot().gendersDisabled();
-  _maxEmojiVersion = EmojiPickerSettings::startupSnapshot().maxEmojiVersion();
-  _aliasedEmojis = EmojiPickerSettings::startupSnapshot().aliasedEmojis();
-  _settingsPath = EmojiPickerSettings::startupSnapshot().fileName().toStdString();
+  _recentEmojis = EmojiPickerSettings::snapshot().recentEmojis();
+  _skinTonesDisabled = EmojiPickerSettings::snapshot().skinTonesDisabled();
+  _gendersDisabled = EmojiPickerSettings::snapshot().gendersDisabled();
+  _maxEmojiVersion = EmojiPickerSettings::snapshot().maxEmojiVersion();
+  _aliasedEmojis = EmojiPickerSettings::snapshot().aliasedEmojis();
+  _settingsPath = EmojiPickerSettings::snapshot().fileName().toStdString();
 
   _emojiLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
   _emojiLayoutWidget->setLayout(_emojiLayout);
 
-  if (EmojiPickerSettings::startupSnapshot().useSystemQtTheme()) {
+  if (EmojiPickerSettings::snapshot().useSystemQtTheme()) {
     QColor emojiLabelHoverBgColor = _emojiLayoutWidget->palette().text().color();
     emojiLabelHoverBgColor.setAlphaF(0.33);
     _emojiLayoutWidget->setStyleSheet(QString("EmojiLabel { padding: 2px; border-radius: 5px; } EmojiLabel:hover { "
@@ -172,7 +172,7 @@ void EmojiPicker::fillViewWithEmojisByText(const std::string& text) {
 
   _helpEmojiListIdx = -1;
 
-  bool aliasExactMatching = EmojiPickerSettings::startupSnapshot().aliasExactMatching();
+  bool aliasExactMatching = EmojiPickerSettings::snapshot().aliasExactMatching();
 
   for (const auto& alias : _aliasedEmojis) {
     if (aliasExactMatching) {

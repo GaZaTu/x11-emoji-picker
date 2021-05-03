@@ -18,7 +18,7 @@ QWidget* EmojiLineEdit::containerWidget() {
     _previewLabel->setProperty("class", "EmojiLineEdit_previewLabel");
     _previewLabel->setText("");
 
-    if (EmojiPickerSettings::startupSnapshot().useSystemQtTheme()) {
+    if (EmojiPickerSettings::snapshot().useSystemQtTheme()) {
       _previewLabel->setIndent(fontMetrics().averageCharWidth());
 
       QColor previewLabelTextColor = _previewLabel->palette().text().color();
@@ -32,7 +32,7 @@ QWidget* EmojiLineEdit::containerWidget() {
     _iconsLayoutWidget = new QWidget();
     _iconsLayoutWidget->setLayout(_iconsLayout);
 
-    if (EmojiPickerSettings::startupSnapshot().useSystemQtTheme()) {
+    if (EmojiPickerSettings::snapshot().useSystemQtTheme()) {
       QColor emojiLabelHoverBgColor = _iconsLayoutWidget->palette().text().color();
       emojiLabelHoverBgColor.setAlphaF(0.33);
       _iconsLayoutWidget->setStyleSheet(QString("EmojiLabel { padding: 1px 2px 1px 2px; border-radius: 5px; } EmojiLabel:hover { "

@@ -32,14 +32,14 @@ void writeQSettingsArrayFromStdVector(QSettings& settings, const QString& prefix
   settings.endArray();
 }
 
-EmojiPickerSettings* EmojiPickerSettings::_startupSnapshot = nullptr;
+EmojiPickerSettings* EmojiPickerSettings::_snapshot = nullptr;
 
-EmojiPickerSettings& EmojiPickerSettings::startupSnapshot() {
-  if (_startupSnapshot == nullptr) {
-    _startupSnapshot = new EmojiPickerSettings();
+EmojiPickerSettings& EmojiPickerSettings::snapshot() {
+  if (_snapshot == nullptr) {
+    _snapshot = new EmojiPickerSettings();
   }
 
-  return *_startupSnapshot;
+  return *_snapshot;
 }
 
 void EmojiPickerSettings::writeDefaultsToDisk() {

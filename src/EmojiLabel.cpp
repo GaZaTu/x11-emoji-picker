@@ -8,7 +8,7 @@ EmojiLabel::EmojiLabel(QWidget* parent) : QLabel(parent) {
   setGraphicsEffect(_shadowEffect);
   setMouseTracking(true);
 
-  if (EmojiPickerSettings::startupSnapshot().useSystemQtTheme()) {
+  if (EmojiPickerSettings::snapshot().useSystemQtTheme()) {
     _shadowEffect->setColor(palette().text().color());
   } else {
     _shadowEffect->setColor(QColor(240, 240, 240));
