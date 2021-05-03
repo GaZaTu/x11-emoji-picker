@@ -146,11 +146,15 @@ int main(int argc, char** argv) {
       QTimer::singleShot(250, [&]() {
         QApplication::clipboard()->clear();
         QApplication::clipboard()->setMimeData(prevClipboardMimeData);
+        
+        QObject::connect(QApplication::clipboard(), &QClipboard::dataChanged, [&]() {
+          app.exit();
+        });
       });
 
-      QTimer::singleShot(500, [&]() {
-        app.exit();
-      });
+      // QTimer::singleShot(500, [&]() {
+      //   app.exit();
+      // });
     } else {
       app.exit();
     }
