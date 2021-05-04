@@ -36,9 +36,12 @@ public:
   int maxEmojiVersion() const;
   void setMaxEmojiVersion(int maxEmojiVersion);
 
-  std::string emojiAliasesIniFilePath() const;
-  void setEmojiAliasesIniFilePath(const std::string& emojiAliasesIniFilePath);
+  std::vector<std::string> emojiAliasesIniFilePaths();
+  void setEmojiAliasesIniFilePaths(const std::vector<std::string>& emojiAliasesIniFilePaths);
   std::vector<Emoji> aliasedEmojis();
+
+  bool aliasExactMatching() const;
+  void setAliasExactMatching(bool aliasExactMatching);
 
   std::string customQssFilePath() const;
   void setCustomQssFilePath(const std::string& customQssFilePath);
@@ -49,20 +52,15 @@ public:
   std::vector<std::string> activateWindowBeforeWritingExceptions();
   void setActivateWindowBeforeWritingExceptions(const std::vector<std::string>& activateWindowBeforeWritingExceptions);
 
-  bool copyEmojiToClipboardAswellByDefault() const;
-  void setCopyEmojiToClipboardAswellByDefault(bool copyEmojiToClipboardAswellByDefault);
-
-  std::vector<std::string> copyEmojiToClipboardAswellExceptions();
-  void setCopyEmojiToClipboardAswellExceptions(const std::vector<std::string>& copyEmojiToClipboardAswellExceptions);
-
-  bool aliasExactMatching() const;
-  void setAliasExactMatching(bool aliasExactMatching);
+  bool activateWindowBeforeWriting(const std::string& processName);
 
   bool useClipboardHackByDefault() const;
   void setUseClipboardHackByDefault(bool useClipboardHackByDefault);
 
   std::vector<std::string> useClipboardHackExceptions();
   void setUseClipboardHackExceptions(const std::vector<std::string>& useClipboardHackExceptions);
+
+  bool useClipboardHack(const std::string& processName);
 
 private:
   static EmojiPickerSettings* _snapshot;
