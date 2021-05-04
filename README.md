@@ -131,7 +131,7 @@ size=0
 size=2
 ```
 
-## Notes
+## Notes 📝
 
 ### Tested on:
 
