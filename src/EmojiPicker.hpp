@@ -64,6 +64,7 @@ private:
   void onEscapePressed(const QKeyEvent& event);
   void onFunctionKeyPressed(const QKeyEvent& event);
   void onTabPressed(const QKeyEvent& event);
+  void onCopyPressed(const QKeyEvent& event);
 
   void onFavsPressed(QMouseEvent* ev);
   void onHelpPressed(QMouseEvent* ev);

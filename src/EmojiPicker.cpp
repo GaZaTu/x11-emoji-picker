@@ -1,5 +1,7 @@
 #include "EmojiPicker.hpp"
 #include "EmojiPickerSettings.hpp"
+#include <QApplication>
+#include <QClipboard>
 #include <QDesktopServices>
 
 EmojiPicker::EmojiPicker(QWidget* parent) : QWidget(parent) {
@@ -35,6 +37,7 @@ EmojiPicker::EmojiPicker(QWidget* parent) : QWidget(parent) {
   QObject::connect(_emojiEdit, &EmojiLineEdit::escapePressed, this, &EmojiPicker::onEscapePressed);
   QObject::connect(_emojiEdit, &EmojiLineEdit::functionKeyPressed, this, &EmojiPicker::onFunctionKeyPressed);
   QObject::connect(_emojiEdit, &EmojiLineEdit::tabPressed, this, &EmojiPicker::onTabPressed);
+  QObject::connect(_emojiEdit, &EmojiLineEdit::copyPressed, this, &EmojiPicker::onCopyPressed);
 
   QObject::connect(_emojiEdit->favsLabel(), &EmojiLabel::mousePressed, this, &EmojiPicker::onFavsPressed);
   QObject::connect(_emojiEdit->helpLabel(), &EmojiLabel::mousePressed, this, &EmojiPicker::onHelpPressed);
@@ -218,6 +221,10 @@ void EmojiPicker::fillViewWithEmojisByText(const std::string& text) {
     }
   }
 
+  if (row == rows) {
+    return;
+  }
+
   for (const auto& emoji : emojis) {
     if (isDisabledEmoji(emoji)) {
       continue;
@@ -340,7 +347,13 @@ void EmojiPicker::onReturnPressed(const QKeyEvent& event) {
     _recentEmojis.resize(40);
   }
 
-  emit returnPressed(emoji.code, event.modifiers() & Qt::ShiftModifier);
+  bool closeAfter = event.modifiers() & Qt::ShiftModifier;
+
+  emit returnPressed(emoji.code, closeAfter);
+
+  if (closeAfter) {
+    emit escapePressed();
+  }
 }
 
 void EmojiPicker::onArrowKeyPressed(const QKeyEvent& event) {
@@ -424,6 +437,17 @@ void EmojiPicker::onTabPressed(const QKeyEvent& event) {
   } else if (_helpEmojiListIdx != -1 || _emojiEdit->text() != "") {
     onFavsPressed(nullptr);
   }
+}
+
+void EmojiPicker::onCopyPressed(const QKeyEvent& event) {
+  if (_selectedEmojiLabel == nullptr) {
+    return;
+  }
+
+  const Emoji& emoji = _selectedEmojiLabel->emoji();
+
+  QApplication::clipboard()->clear();
+  QApplication::clipboard()->setText(QString::fromStdString(emoji.code));
 }
 
 void EmojiPicker::onFavsPressed(QMouseEvent* ev) {

@@ -23,12 +23,8 @@ EmojiLabel::EmojiLabel(QWidget* parent, const Emoji& emoji) : EmojiLabel(parent)
   setEmoji(emoji);
 }
 
-// fdm `:/res/72x72/${[...emojiStr].map(c => c.codePointAt(0).toString(16)).join('-')}.png`
-std::string getPixmapPathByEmojiStr(const std::string& emojiStr) {
-  std::stringstream emojiHexCodeStream;
-
-  emojiHexCodeStream << ":/res/72x72/";
-
+void getCodepointsByEmojiStr(
+    const std::string& emojiStr, const std::string& separator, std::stringstream& emojiHexCodeStream) {
   bool firstCodepoint = true;
   icu::UnicodeString emojiUStr(emojiStr.data(), emojiStr.length(), "utf-8");
   icu::StringCharacterIterator emojiUStrIterator(emojiUStr);
@@ -38,12 +34,24 @@ std::string getPixmapPathByEmojiStr(const std::string& emojiStr) {
     if (firstCodepoint) {
       firstCodepoint = false;
     } else {
-      emojiHexCodeStream << "-";
+      emojiHexCodeStream << separator;
     }
 
     emojiHexCodeStream << std::hex << codepoint;
   }
+}
+std::string getCodepointsByEmojiStr(const std::string& emojiStr, const std::string& separator) {
+  std::stringstream emojiHexCodeStream;
+  getCodepointsByEmojiStr(emojiStr, separator, emojiHexCodeStream);
+  return emojiHexCodeStream.str();
+}
 
+// fdm `:/res/72x72/${[...emojiStr].map(c => c.codePointAt(0).toString(16)).join('-')}.png`
+std::string getPixmapPathByEmojiStr(const std::string& emojiStr) {
+  std::stringstream emojiHexCodeStream;
+
+  emojiHexCodeStream << ":/res/72x72/";
+  getCodepointsByEmojiStr(emojiStr, "-", emojiHexCodeStream);
   emojiHexCodeStream << ".png";
 
   return emojiHexCodeStream.str();

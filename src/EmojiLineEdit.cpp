@@ -35,9 +35,10 @@ QWidget* EmojiLineEdit::containerWidget() {
     if (EmojiPickerSettings::snapshot().useSystemQtTheme()) {
       QColor emojiLabelHoverBgColor = _iconsLayoutWidget->palette().text().color();
       emojiLabelHoverBgColor.setAlphaF(0.33);
-      _iconsLayoutWidget->setStyleSheet(QString("EmojiLabel { padding: 1px 2px 1px 2px; border-radius: 5px; } EmojiLabel:hover { "
-                                                "background-color: #%1; }")
-                                            .arg(emojiLabelHoverBgColor.rgba(), 0, 16));
+      _iconsLayoutWidget->setStyleSheet(
+          QString("EmojiLabel { padding: 1px 2px 1px 2px; border-radius: 5px; } EmojiLabel:hover { "
+                  "background-color: #%1; }")
+              .arg(emojiLabelHoverBgColor.rgba(), 0, 16));
     }
 
     _favsLabel = new EmojiLabel();
@@ -104,6 +105,11 @@ void EmojiLineEdit::keyPressEvent(QKeyEvent* event) {
   case Qt::Key_Tab:
     emit tabPressed(*event);
     break;
+  case Qt::Key_C:
+    if ((event->modifiers() & Qt::ControlModifier) != 0 && !hasSelectedText()) {
+      emit copyPressed(*event);
+      break;
+    }
   default:
     QLineEdit::keyPressEvent(event);
   }

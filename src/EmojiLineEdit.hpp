@@ -27,6 +27,7 @@ signals:
   void escapePressed(const QKeyEvent& event);
   void functionKeyPressed(const QKeyEvent& event);
   void tabPressed(const QKeyEvent& event);
+  void copyPressed(const QKeyEvent& event);
 
 protected:
   void keyPressEvent(QKeyEvent* event) override;
