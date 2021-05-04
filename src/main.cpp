@@ -69,40 +69,8 @@ int main(int argc, char** argv) {
   int prevWindowPID = crossdo_get_pid_window(crossdo.get(), prevWindow);
   std::string prevWindowProcessName = getProcessNameFromPID(prevWindowPID);
 
-  bool isActivateWindowBeforeWritingException = false;
-  for (const auto& exception : EmojiPickerSettings::snapshot().activateWindowBeforeWritingExceptions()) {
-    if (exception == prevWindowProcessName) {
-      isActivateWindowBeforeWritingException = true;
-      break;
-    }
-  }
-  bool activateWindowBeforeWriting = ((EmojiPickerSettings::snapshot().activateWindowBeforeWritingByDefault() == true &&
-                                          isActivateWindowBeforeWritingException == false) ||
-      (EmojiPickerSettings::snapshot().activateWindowBeforeWritingByDefault() == false &&
-          isActivateWindowBeforeWritingException == true));
-
-  bool isCopyEmojiToClipboardAswellException = false;
-  for (const auto& exception : EmojiPickerSettings::snapshot().copyEmojiToClipboardAswellExceptions()) {
-    if (exception == prevWindowProcessName) {
-      isCopyEmojiToClipboardAswellException = true;
-      break;
-    }
-  }
-  bool copyEmojiToClipboardAswell = ((EmojiPickerSettings::snapshot().copyEmojiToClipboardAswellByDefault() == true &&
-                                         isCopyEmojiToClipboardAswellException == false) ||
-      (EmojiPickerSettings::snapshot().copyEmojiToClipboardAswellByDefault() == false &&
-          isCopyEmojiToClipboardAswellException == true));
-
-  bool isUseClipboardHackException = false;
-  for (const auto& exception : EmojiPickerSettings::snapshot().useClipboardHackExceptions()) {
-    if (exception == prevWindowProcessName) {
-      isUseClipboardHackException = true;
-      break;
-    }
-  }
-  bool useClipboardHack = ((EmojiPickerSettings::snapshot().useClipboardHackByDefault() == true &&
-                               isUseClipboardHackException == false) ||
-      (EmojiPickerSettings::snapshot().useClipboardHackByDefault() == false && isUseClipboardHackException == true));
+  bool activateWindowBeforeWriting = EmojiPickerSettings::snapshot().activateWindowBeforeWriting(prevWindowProcessName);
+  bool useClipboardHack = EmojiPickerSettings::snapshot().useClipboardHack(prevWindowProcessName);
 
   if (!EmojiPickerSettings::snapshot().useSystemQtTheme()) {
     app.setStyle("fusion");
@@ -137,29 +105,6 @@ int main(int argc, char** argv) {
   }
 
   QMimeData* prevClipboardMimeData = nullptr;
-  auto closeApp = [&]() {
-    EmojiPickerSettings::writeDefaultsToDisk();
-
-    if (useClipboardHack && prevClipboardMimeData != nullptr) {
-      window.hide();
-
-      QTimer::singleShot(250, [&]() {
-        QApplication::clipboard()->clear();
-        QApplication::clipboard()->setMimeData(prevClipboardMimeData);
-        
-        QObject::connect(QApplication::clipboard(), &QClipboard::dataChanged, [&]() {
-          app.exit();
-        });
-      });
-
-      // QTimer::singleShot(500, [&]() {
-      //   app.exit();
-      // });
-    } else {
-      app.exit();
-    }
-  };
-
   EmojiPicker* mainWidget = new EmojiPicker();
 
   QObject::connect(mainWidget, &EmojiPicker::returnPressed, [&](const std::string& emojiStr, bool closeAfter) {
@@ -200,18 +145,26 @@ int main(int argc, char** argv) {
       crossdo_activate_window(crossdo.get(), currentWindow);
       crossdo_wait_for_window_active(crossdo.get(), currentWindow, 1);
     }
-
-    if (copyEmojiToClipboardAswell) {
-      QApplication::clipboard()->clear();
-      QApplication::clipboard()->setText(QString::fromStdString(emojiStr));
-    }
-
-    if (closeAfter) {
-      closeApp();
-    }
   });
 
-  QObject::connect(mainWidget, &EmojiPicker::escapePressed, closeApp);
+  QObject::connect(mainWidget, &EmojiPicker::escapePressed, [&]() {
+    EmojiPickerSettings::writeDefaultsToDisk();
+
+    if (useClipboardHack && prevClipboardMimeData != nullptr) {
+      window.hide();
+
+      QTimer::singleShot(100, [&]() {
+        QApplication::clipboard()->clear();
+        QApplication::clipboard()->setMimeData(prevClipboardMimeData);
+
+        QObject::connect(QApplication::clipboard(), &QClipboard::dataChanged, [&]() {
+          app.exit();
+        });
+      });
+    } else {
+      app.exit();
+    }
+  });
 
   window.setCentralWidget(mainWidget);
   window.show();
