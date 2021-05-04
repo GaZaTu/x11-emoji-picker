@@ -3,5 +3,6 @@
   <qresource>
     <file>main.qss</file>
     <file>aliases/github-emojis.ini</file>
+    <file>aliases/gitmoji-emojis.ini</file>
   </qresource>
 </RCC>
