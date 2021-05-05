@@ -27,11 +27,9 @@ Just build it yourself loooool 4head
 
 ## Building 🤓
 
-This is a CMake project so you need cmake and some c++ compiler.
-I think it uses g++ by default but tbh i have no idea how cmake actually works. 
-Actually i got it to work with clang+msvc on windows aswell so clang should work.
+This is a CMake project so you need `cmake`, `make` and some c++ compiler like `gcc`.
 
-### Required Libs
+### Dependencies
 
 - Qt5 (`apt install qtbase5-dev` ?)
 - ICU (`apt install libicu-dev`)
@@ -39,10 +37,10 @@ Actually i got it to work with clang+msvc on windows aswell so clang should work
 
 ### CMake
 
-- `mkdir build`
+- `mkdir -p build`
 - `cd build`
-- `cmake ..`
-- `make .`
+- `cmake -DCMAKE_BUILD_TYPE=Release ..`
+- `make`
 
 ### Codegen
 
@@ -69,21 +67,25 @@ When you've selected your emoji you can press the **return key** to write it.
 - `F1` => show recently used emojis (default view)
 - `F2` => show list of all emojis (if you press this while searching, the view will jump to the currently selected emoji aswell)
 - `F4` => close emoji picker and open settings file
+- `Tab` => toggle between `F1` and `F2`
 
 ### Settings
 
 The settings file should be located at `/home/<user>/.config/gazatu.xyz/emoji-picker.ini`.
 
-- `[General] | activateWindowBeforeWritingByDefault` => enable this to activate windows by default before writing to them
-- `[General] | aliasExactMatching` => enable this to only show aliased emojis when the search matches completely
+- `[General] | activateWindowBeforeWritingByDefault` => `true` to activate windows by default before writing to them
+- `[General] | aliasExactMatching` => `true` to only show aliased emojis when the search matches completely
 - `[General] | customQssFilePath` => custom styling (colors and shit) for the emoji picker (refer to [src/main.qss](src/main.qss) for examples); useful if you don't like the dark theme
 - `[General] | gendersDisabled` => `true` if you only want to see gender neutral emojis (jobs or family or w/e)
 - `[General] | localeKey` => the emoji translation you want to use (en, de, fr, nl, da, it, pt, es, sv, pl, hr, cs, fi, el, hu) or empty if you want to use english with underscores
 - `[General] | maxEmojiVersion` => set this to for example 12 to exclude emojis released after that or -1 to show all emojis
-- `[General] | openAtMouseLocation` => enable this if you want to open the emoji picker dialog at the current mouse cursor
+- `[General] | openAtMouseLocation` => `true` if you want to open the emoji picker dialog at the current mouse cursor
 - `[General] | skinTonesDisabled` => `true` if you only want to see skin-tone neutral emojis (hands or jobs or family or w/e)
-- `[General] | useClipboardHackByDefault` => enable this to write emojis using `ctrl+v` by default (qt5 apps for example)
-- `[General] | useSystemQtTheme` => enable this if you want to use the system qt theme (not recommended, usually only works with kde i think)
+- `[General] | surroundAliasesWithColons` => `true` if you want emoji aliases to be in colons (:joy: for example)
+- `[General] | swapEnterAndShiftEnter` => `true` if you want `Return` to close the window
+- `[General] | useClipboardHackByDefault` => `true` to write emojis using `ctrl+v` by default (qt5 apps for example)
+- `[General] | useSystemQtTheme` => `true` if you want to use the system qt theme (not recommended, usually only works with kde i think)
+- `[General] | windowOpacity` => how seethrough the emoji picker is supposed to be (0 = invisible)
 - `[activateWindowBeforeWritingExceptions]` => list of executables that should be an exception to the `[General] | activateWindowBeforeWritingByDefault` setting
 - `[emojiAliasesIniFilePaths]` => list of custom emoji codes (refer to [src/aliases/github-emojis.ini](src/aliases/github-emojis.ini) for examples); points to the builtin list of github emojis by default ([https://github.com/ikatyang/emoji-cheat-sheet](https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)); also points to the builtin list of gitmoji emojis by default ([https://gitmoji.dev/](https://gitmoji.dev/))
 - `[recentEmojis]` => list of recently used emojis (edited by the application itself)
@@ -105,8 +107,11 @@ localeKey=
 maxEmojiVersion=-1
 openAtMouseLocation=false
 skinTonesDisabled=false
+surroundAliasesWithColons=true
+swapEnterAndShiftEnter=false
 useClipboardHackByDefault=false
 useSystemQtTheme=false
+windowOpacity=0.9
 
 [activateWindowBeforeWritingExceptions]
 1\processName=code
