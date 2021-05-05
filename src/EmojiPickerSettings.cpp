@@ -65,6 +65,7 @@ void EmojiPickerSettings::writeDefaultsToDisk() {
   settings.setUseClipboardHackExceptions(settings.useClipboardHackExceptions());
   settings.setWindowOpacity(settings.windowOpacity());
   settings.setSwapEnterAndShiftEnter(settings.swapEnterAndShiftEnter());
+  settings.setSurroundAliasesWithColons(settings.surroundAliasesWithColons());
 }
 
 EmojiPickerSettings::EmojiPickerSettings(QObject* parent)
@@ -171,6 +172,10 @@ std::vector<Emoji> EmojiPickerSettings::aliasedEmojis() {
       auto key = alias.toStdString();
       auto str = emojiAliasesIni.value(alias).toString().toStdString();
 
+      if (surroundAliasesWithColons()) {
+        key = ":" + key + ":";
+      }
+
       result.push_back({key, str});
     }
     emojiAliasesIni.endGroup();
@@ -181,6 +186,10 @@ std::vector<Emoji> EmojiPickerSettings::aliasedEmojis() {
 
       auto key = emojiAliasesIni.value("emojiKey").toString().toStdString();
       auto str = emojiAliasesIni.value("emojiStr").toString().toStdString();
+
+      if (surroundAliasesWithColons()) {
+        key = ":" + key + ":";
+      }
 
       result.push_back({key, str});
     }
@@ -303,4 +312,11 @@ bool EmojiPickerSettings::swapEnterAndShiftEnter() const {
 }
 void EmojiPickerSettings::setSwapEnterAndShiftEnter(bool swapEnterAndShiftEnter) {
   setValue("swapEnterAndShiftEnter", swapEnterAndShiftEnter);
+}
+
+bool EmojiPickerSettings::surroundAliasesWithColons() const {
+  return value("surroundAliasesWithColons", true).toBool();
+}
+void EmojiPickerSettings::setSurroundAliasesWithColons(bool surroundAliasesWithColons) {
+  setValue("surroundAliasesWithColons", surroundAliasesWithColons);
 }

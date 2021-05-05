@@ -68,6 +68,9 @@ public:
   bool swapEnterAndShiftEnter() const;
   void setSwapEnterAndShiftEnter(bool swapEnterAndShiftEnter);
 
+  bool surroundAliasesWithColons() const;
+  void setSurroundAliasesWithColons(bool surroundAliasesWithColons);
+
 private:
   static EmojiPickerSettings* _snapshot;
 };
