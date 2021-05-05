@@ -65,6 +65,9 @@ public:
   double windowOpacity() const;
   void setWindowOpacity(double windowOpacity);
 
+  bool swapEnterAndShiftEnter() const;
+  void setSwapEnterAndShiftEnter(bool swapEnterAndShiftEnter);
+
 private:
   static EmojiPickerSettings* _snapshot;
 };

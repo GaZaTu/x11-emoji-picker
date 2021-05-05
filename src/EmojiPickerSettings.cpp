@@ -64,6 +64,7 @@ void EmojiPickerSettings::writeDefaultsToDisk() {
   settings.setUseClipboardHackByDefault(settings.useClipboardHackByDefault());
   settings.setUseClipboardHackExceptions(settings.useClipboardHackExceptions());
   settings.setWindowOpacity(settings.windowOpacity());
+  settings.setSwapEnterAndShiftEnter(settings.swapEnterAndShiftEnter());
 }
 
 EmojiPickerSettings::EmojiPickerSettings(QObject* parent)
@@ -295,4 +296,11 @@ double EmojiPickerSettings::windowOpacity() const {
 }
 void EmojiPickerSettings::setWindowOpacity(double windowOpacity) {
   setValue("windowOpacity", windowOpacity);
+}
+
+bool EmojiPickerSettings::swapEnterAndShiftEnter() const {
+  return value("swapEnterAndShiftEnter", false).toBool();
+}
+void EmojiPickerSettings::setSwapEnterAndShiftEnter(bool swapEnterAndShiftEnter) {
+  setValue("swapEnterAndShiftEnter", swapEnterAndShiftEnter);
 }

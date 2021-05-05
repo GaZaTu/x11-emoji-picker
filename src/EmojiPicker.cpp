@@ -348,6 +348,9 @@ void EmojiPicker::onReturnPressed(const QKeyEvent& event) {
   }
 
   bool closeAfter = event.modifiers() & Qt::ShiftModifier;
+  if (EmojiPickerSettings::snapshot().swapEnterAndShiftEnter()) {
+    closeAfter = !closeAfter;
+  }
 
   emit returnPressed(emoji.code, closeAfter);
 
