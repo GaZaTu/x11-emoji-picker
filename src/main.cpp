@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
     window.resize(370, 206);
   }
 
-  window.setWindowOpacity(0.90);
+  window.setWindowOpacity(EmojiPickerSettings::snapshot().windowOpacity());
   window.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
   window.setWindowIcon(QIcon(":/res/72x72/1f0cf.png"));
 

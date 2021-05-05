@@ -62,6 +62,9 @@ public:
 
   bool useClipboardHack(const std::string& processName);
 
+  double windowOpacity() const;
+  void setWindowOpacity(double windowOpacity);
+
 private:
   static EmojiPickerSettings* _snapshot;
 };

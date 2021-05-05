@@ -63,6 +63,7 @@ void EmojiPickerSettings::writeDefaultsToDisk() {
   settings.setActivateWindowBeforeWritingExceptions(settings.activateWindowBeforeWritingExceptions());
   settings.setUseClipboardHackByDefault(settings.useClipboardHackByDefault());
   settings.setUseClipboardHackExceptions(settings.useClipboardHackExceptions());
+  settings.setWindowOpacity(settings.windowOpacity());
 }
 
 EmojiPickerSettings::EmojiPickerSettings(QObject* parent)
@@ -287,4 +288,11 @@ bool EmojiPickerSettings::useClipboardHack(const std::string& processName) {
   bool isException = std::find(exceptions.begin(), exceptions.end(), processName) != exceptions.end();
 
   return ((isDefault && !isException) || (!isDefault && isException));
+}
+
+double EmojiPickerSettings::windowOpacity() const {
+  return value("windowOpacity", 0.90).toDouble();
+}
+void EmojiPickerSettings::setWindowOpacity(double windowOpacity) {
+  setValue("windowOpacity", windowOpacity);
 }
