@@ -27,6 +27,7 @@ protected:
 
 private:
   Emoji _emoji;
+  double _devicePixelRatio;
 
   QGraphicsDropShadowEffect* _shadowEffect = new QGraphicsDropShadowEffect();
 };

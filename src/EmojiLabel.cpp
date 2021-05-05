@@ -1,5 +1,8 @@
 #include "EmojiLabel.hpp"
 #include "EmojiPickerSettings.hpp"
+#include <QApplication>
+#include <QScreen>
+#include <QWindow>
 #include <sstream>
 #include <unicode/schriter.h>
 #include <unicode/unistr.h>
@@ -17,6 +20,8 @@ EmojiLabel::EmojiLabel(QWidget* parent) : QLabel(parent) {
   _shadowEffect->setOffset(0);
   _shadowEffect->setBlurRadius(20);
   _shadowEffect->setEnabled(false);
+
+  _devicePixelRatio = QApplication::primaryScreen()->devicePixelRatio();
 }
 
 EmojiLabel::EmojiLabel(QWidget* parent, const Emoji& emoji) : EmojiLabel(parent) {
@@ -67,9 +72,13 @@ const Emoji& EmojiLabel::emoji() {
 void EmojiLabel::setEmoji(const Emoji& emoji, int w, int h) {
   _emoji = emoji;
 
+  w = w * _devicePixelRatio;
+  h = h * _devicePixelRatio;
+
   setAccessibleName(QString::fromStdString(_emoji.name));
 
   QPixmap emojiPixmap = getPixmapByEmojiStr(_emoji.code).scaled(w, h, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+  emojiPixmap.setDevicePixelRatio(_devicePixelRatio);
 
   if (emojiPixmap.isNull()) {
     setText(QString::fromStdString(_emoji.code));
@@ -79,9 +88,27 @@ void EmojiLabel::setEmoji(const Emoji& emoji, int w, int h) {
 }
 
 bool EmojiLabel::highlighted() {
+  if (_devicePixelRatio != 1) {
+    return styleSheet().isNull();
+  }
+
   return _shadowEffect->isEnabled();
 }
 void EmojiLabel::setHighlighted(bool highlighted) {
+  // QGraphicsDropShadowEffect breaks QPixmap::setDevicePixelRatio
+  // https://bugreports.qt.io/browse/QTBUG-65035
+  if (_devicePixelRatio != 1) {
+    if (highlighted) {
+      QColor emojiLabelHoverBgColor = palette().text().color();
+      emojiLabelHoverBgColor.setAlphaF(0.33);
+      setStyleSheet(QString("background-color: #%1").arg(emojiLabelHoverBgColor.rgba(), 0, 16));
+    } else {
+      setStyleSheet(QString());
+    }
+
+    return;
+  }
+
   _shadowEffect->setEnabled(highlighted);
 }
 
