@@ -99,3 +99,8 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # g++ / mingw g++
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC") # msvc
   set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS /STACK:${STACK_SIZE_DEC})
 endif()
+
+set(CMAKE_INSTALL_PREFIX /usr)
+
+install(TARGETS ${PROJECT_NAME})
+install(FILES /usr/lib/qt/plugins/platforms/libqxcb.so DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/qt/plugins/platforms)

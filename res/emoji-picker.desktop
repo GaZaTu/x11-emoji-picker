@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Categories=Network
+Comment=emoji-picker
+Terminal=false
+Name=emoji-picker
+Icon=emoji-picker
+Exec=emoji-picker
