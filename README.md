@@ -23,7 +23,10 @@ I switched from Windows 10 to Linux at work and missed filling my emails with em
 
 ## Installation 😉
 
-Just build it yourself loooool 4head
+Just build it yourself loooool 4head.
+
+There should also be an AppImage at [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases).
+Just download it, add executable permission (`chmod +x path/to/emoji-picker-*.AppImage`) and [run it](#appimage) (Read the usage instructions below).
 
 ## Building 🤓
 
@@ -68,6 +71,16 @@ When you've selected your emoji you can press the **return key** to write it.
 - `F2` => show list of all emojis (if you press this while searching, the view will jump to the currently selected emoji aswell)
 - `F4` => close emoji picker and open settings file
 - `Tab` => toggle between `F1` and `F2`
+
+### AppImage
+
+*Disclaimer: Running the AppImage directly is slow AF (about 1 sec on my machine instead of 0.1 sec).*
+
+I recommend running it (in the keybind) using the following command instead:
+
+`NO_CLEANUP=true path/to/emoji-picker-*.AppImage --appimage-extract-and-run`
+
+*Note: This is much faster because it extracts itself to `/tmp` which makes subsequent runs have almost the same performance as if you ran the executable directly.*
 
 ### Settings
 
@@ -138,12 +151,18 @@ size=2
 
 ## Notes 📝
 
-### Tested on:
+### Executable tested on:
 
 - Manjaro KDE with KDE clipboard manager
 - OpenSUSE KDE with KDE clipboard manager
 - Debian i3 with parcellite
 - Arch i3 with parcellite
+
+### AppImage tested on:
+
+- Manjaro KDE
+- OpenSUSE KDE (built on this)
+- Arch i3
 
 ## Contributors 🤗
 
