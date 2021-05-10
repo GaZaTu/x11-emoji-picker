@@ -103,4 +103,5 @@ endif()
 set(CMAKE_INSTALL_PREFIX /usr)
 
 install(TARGETS ${PROJECT_NAME})
-install(FILES /usr/lib/qt/plugins/platforms/libqxcb.so DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/qt/plugins/platforms)
+install(FILES ${PROJECT_SOURCE_DIR}/res/${PROJECT_NAME}.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications)
+install(FILES ${PROJECT_SOURCE_DIR}/res/${PROJECT_NAME}.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/72x72/apps)
