@@ -25,8 +25,20 @@ I switched from Windows 10 to Linux at work and missed filling my emails with em
 
 Just build it yourself loooool 4head.
 
-There should also be an AppImage at [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases).
-Just download it, add executable permission (`chmod +x path/to/emoji-picker-*.AppImage`) and [run it](#appimage) (Read the usage instructions below).
+**"I use Arch btw"**:
+run `yay -S x11-emoji-picker-git`.
+- repo: [https://aur.archlinux.org/packages/x11-emoji-picker-git](https://aur.archlinux.org/packages/x11-emoji-picker-git)
+- yay: [https://github.com/Jguer/yay#installation](https://github.com/Jguer/yay#installation)
+- manjaro: [https://wiki.manjaro.org/index.php/Arch_User_Repository](https://wiki.manjaro.org/index.php/Arch_User_Repository)
+
+**Debian**:
+Download the `.deb` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases) and run `sudo apt install ./x11-emoji-picker-*.deb`.
+
+**openSUSE**:
+Download the `.rpm` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases) and run `sudo zypper install ./x11-emoji-picker-*.rpm`.
+
+**Other**:
+Download the `.AppImage` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases), add executable permission (`chmod +x x11-emoji-picker-*.AppImage`) and [run it](#appimage) (Read the usage instructions below).
 
 ## Building 🤓
 
@@ -34,9 +46,18 @@ This is a CMake project so you need `cmake`, `make` and some c++ compiler like `
 
 ### Dependencies
 
-- Qt5 (`apt install qtbase5-dev` ?)
-- ICU (`apt install libicu-dev`)
-- xdo (`apt install libxdo-dev`)
+- Qt5
+- ICU
+- xdotool
+
+**Arch**:
+`sudo pacman -S qt5-base icu xdotool`
+
+**Debian**:
+`sudo apt install qtbase5-dev libicu-dev libxdo-dev`
+
+**openSUSE**:
+`sudo zypper install libqt5-qtbase-devel libicu-devel xdotool-devel`
 
 ### CMake
 
@@ -54,7 +75,15 @@ I committed the generated code so you won't have to run any scripts.
 
 ## Usage 🧐
 
-First you should add the emoji-picker executable as a keybind (however you do that in your window manager); I use `meta+.` just like the windows keybind.
+First you should add the `emoji-picker` executable as a keybind (however you do that in your window manager); I use `meta+.` just like the windows keybind.
+
+*Note: The executable path should be `/usr/bin/emoji-picker` if installed with `AUR`/`.deb`/`.rpm`/`make install`.*
+
+**KDE**:
+[https://userbase.kde.org/Tutorials/hotkeys](https://userbase.kde.org/Tutorials/hotkeys)
+
+**i3**:
+[https://i3wm.org/docs/userguide.html#keybindings](https://i3wm.org/docs/userguide.html#keybindings)
 
 The emoji picker will always write to the window that was active **before** starting the application. You have to restart it if you want to write to a different window.
 
@@ -74,11 +103,11 @@ When you've selected your emoji you can press the **return key** to write it.
 
 ### AppImage
 
-*Disclaimer: Running the AppImage directly is slow AF (about 1 sec on my machine instead of 0.1 sec).*
+*Disclaimer: Running the `.AppImage` directly can be slow AF (about 1 sec on my machine instead of 0.1 sec).*
 
 I recommend running it (in the keybind) using the following command instead:
 
-`NO_CLEANUP=true path/to/emoji-picker-*.AppImage --appimage-extract-and-run`
+`NO_CLEANUP=true path/to/x11-emoji-picker-*.AppImage --appimage-extract-and-run`
 
 *Note: This is much faster because it extracts itself to `/tmp` which makes subsequent runs have almost the same performance as if you ran the executable directly.*
 
@@ -154,14 +183,15 @@ size=2
 ### Executable tested on:
 
 - Manjaro KDE with KDE clipboard manager
-- OpenSUSE KDE with KDE clipboard manager
+- openSUSE KDE with KDE clipboard manager
 - Debian i3 with parcellite
 - Arch i3 with parcellite
 
 ### AppImage tested on:
 
 - Manjaro KDE
-- OpenSUSE KDE (built on this)
+- openSUSE KDE (built on this)
+- Debian i3
 - Arch i3
 
 ## Contributors 🤗
