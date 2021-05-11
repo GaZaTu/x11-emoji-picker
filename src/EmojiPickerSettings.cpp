@@ -231,7 +231,6 @@ std::vector<std::string> defaultActivateWindowBeforeWritingExceptions = {
     "code-oss",
     "chrome",
     "chromium",
-    "chatterino",
     "kate",
 };
 
