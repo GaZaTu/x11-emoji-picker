@@ -19,6 +19,7 @@ QWidget* EmojiLineEdit::containerWidget() {
     _previewLabel->setText("");
 
     if (EmojiPickerSettings::snapshot().useSystemQtTheme()) {
+      this->setTextMargins(1, 0, 0, 0);
       _previewLabel->setIndent(fontMetrics().averageCharWidth());
 
       QColor previewLabelTextColor = _previewLabel->palette().text().color();
