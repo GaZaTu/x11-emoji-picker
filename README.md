@@ -137,6 +137,8 @@ The settings file should be located at `/home/<user>/.config/gazatu.xyz/emoji-pi
 
 If emojis do not get written into your window: try adding that executable to the `[activateWindowBeforeWritingExceptions]` array or to the `[useClipboardHackExceptions]` array.
 
+If the dialog is too smol for you: put `QT_SCALE_FACTOR=float` in front of the command. (example: `QT_SCALE_FACTOR=1.25 emoji-picker`)
+
 #### Defaults
 
 ```ini
@@ -160,7 +162,6 @@ windowOpacity=0.9
 2\processName=code-oss
 3\processName=chrome
 4\processName=chromium
-5\processName=chatterino
 6\processName=kate
 size=6
 
