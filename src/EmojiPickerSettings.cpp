@@ -5,6 +5,16 @@
 #include <locale>
 
 template <typename T>
+bool vectorIncludes(const std::vector<T>& vector, const T& value) {
+  return std::find(vector.begin(), vector.end(), value) != vector.end();
+}
+
+template <typename T>
+void vectorRemove(std::vector<T>& vector, const T& value) {
+  vector.erase(std::remove(vector.begin(), vector.end(), value), vector.end());
+}
+
+template <typename T>
 std::vector<T> readQSettingsArrayToStdVector(QSettings& settings, const QString& prefix,
     std::function<T(QSettings&)> readValue, const std::vector<T>& defaultValue = {}) {
   std::vector<T> data;
@@ -257,9 +267,9 @@ void EmojiPickerSettings::setActivateWindowBeforeWritingExceptions(
 }
 
 bool EmojiPickerSettings::activateWindowBeforeWriting(const std::string& processName) {
-  bool isDefault = EmojiPickerSettings::snapshot().activateWindowBeforeWritingByDefault();
-  auto exceptions = EmojiPickerSettings::snapshot().activateWindowBeforeWritingExceptions();
-  bool isException = std::find(exceptions.begin(), exceptions.end(), processName) != exceptions.end();
+  bool isDefault = activateWindowBeforeWritingByDefault();
+  auto exceptions = activateWindowBeforeWritingExceptions();
+  bool isException = vectorIncludes(exceptions, processName);
 
   return ((isDefault && !isException) || (!isDefault && isException));
 }
@@ -292,9 +302,9 @@ void EmojiPickerSettings::setUseClipboardHackExceptions(const std::vector<std::s
 }
 
 bool EmojiPickerSettings::useClipboardHack(const std::string& processName) {
-  bool isDefault = EmojiPickerSettings::snapshot().useClipboardHackByDefault();
-  auto exceptions = EmojiPickerSettings::snapshot().useClipboardHackExceptions();
-  bool isException = std::find(exceptions.begin(), exceptions.end(), processName) != exceptions.end();
+  bool isDefault = useClipboardHackByDefault();
+  auto exceptions = useClipboardHackExceptions();
+  bool isException = vectorIncludes(exceptions, processName);
 
   return ((isDefault && !isException) || (!isDefault && isException));
 }
@@ -318,4 +328,30 @@ bool EmojiPickerSettings::surroundAliasesWithColons() const {
 }
 void EmojiPickerSettings::setSurroundAliasesWithColons(bool surroundAliasesWithColons) {
   setValue("surroundAliasesWithColons", surroundAliasesWithColons);
+}
+
+void EmojiPickerSettings::toggleInputMethod(const std::string& processName) {
+  auto activateWindowBeforeWritingExceptions = this->activateWindowBeforeWritingExceptions();
+  auto useClipboardHackExceptions = this->useClipboardHackExceptions();
+
+  bool isActivateWindowBeforeWritingException = vectorIncludes(activateWindowBeforeWritingExceptions, processName);
+  bool isUseClipboardHackException = vectorIncludes(useClipboardHackExceptions, processName);
+
+  if (!isActivateWindowBeforeWritingException && !isUseClipboardHackException) {
+    useClipboardHackExceptions.push_back(processName);
+    this->setUseClipboardHackExceptions(useClipboardHackExceptions);
+  } else if (!isActivateWindowBeforeWritingException && isUseClipboardHackException) {
+    activateWindowBeforeWritingExceptions.push_back(processName);
+    this->setActivateWindowBeforeWritingExceptions(activateWindowBeforeWritingExceptions);
+  } else if (isActivateWindowBeforeWritingException && !isUseClipboardHackException) {
+    useClipboardHackExceptions.push_back(processName);
+    this->setUseClipboardHackExceptions(useClipboardHackExceptions);
+    activateWindowBeforeWritingExceptions.push_back(processName);
+    this->setActivateWindowBeforeWritingExceptions(activateWindowBeforeWritingExceptions);
+  } else {
+    vectorRemove(useClipboardHackExceptions, processName);
+    this->setUseClipboardHackExceptions(useClipboardHackExceptions);
+    vectorRemove(activateWindowBeforeWritingExceptions, processName);
+    this->setActivateWindowBeforeWritingExceptions(activateWindowBeforeWritingExceptions);
+  }
 }

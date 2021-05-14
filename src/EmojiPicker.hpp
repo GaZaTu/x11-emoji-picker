@@ -18,6 +18,7 @@ public:
 signals:
   void returnPressed(const std::string& emojiStr, bool closeAfter);
   void escapePressed();
+  void toggleInputMethod();
 
 protected:
   void wheelEvent(QWheelEvent* event) override;

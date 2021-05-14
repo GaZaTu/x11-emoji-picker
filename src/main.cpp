@@ -166,6 +166,14 @@ int main(int argc, char** argv) {
     }
   });
 
+  QObject::connect(mainWidget, &EmojiPicker::toggleInputMethod, [&]() {
+    EmojiPickerSettings settings;
+    settings.toggleInputMethod(prevWindowProcessName);
+
+    activateWindowBeforeWriting = settings.activateWindowBeforeWriting(prevWindowProcessName);
+    useClipboardHack = settings.useClipboardHack(prevWindowProcessName);
+  });
+
   window.setCentralWidget(mainWidget);
   window.show();
 

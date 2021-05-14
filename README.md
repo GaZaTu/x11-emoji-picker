@@ -99,6 +99,7 @@ When you've selected your emoji you can press the **return key** to write it.
 - `F1` => show recently used emojis (default view)
 - `F2` => show list of all emojis (if you press this while searching, the view will jump to the currently selected emoji aswell)
 - `F4` => close emoji picker and open settings file
+- `F5` => toggle input method for current process (press [`F5` and then `Return`] a few times if emojis don't get written into the window; there are 4 different modes)
 - `Tab` => toggle between `F1` and `F2`
 
 ### AppImage
@@ -135,7 +136,7 @@ The settings file should be located at `/home/<user>/.config/gazatu.xyz/emoji-pi
 
 #### Notes
 
-If emojis do not get written into your window: try adding that executable to the `[activateWindowBeforeWritingExceptions]` array or to the `[useClipboardHackExceptions]` array.
+If emojis do not get written into your window: try adding that executable to the `[activateWindowBeforeWritingExceptions]` array or to the `[useClipboardHackExceptions]` array. (at runtime also possible using `F5`)
 
 If the dialog is too smol for you: put `QT_SCALE_FACTOR=float` in front of the command. (example: `QT_SCALE_FACTOR=1.25 emoji-picker`)
 
@@ -162,8 +163,8 @@ windowOpacity=0.9
 2\processName=code-oss
 3\processName=chrome
 4\processName=chromium
-6\processName=kate
-size=6
+5\processName=kate
+size=5
 
 [emojiAliasesIniFilePaths]
 1\path=:/aliases/github-emojis.ini

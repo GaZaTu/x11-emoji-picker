@@ -431,6 +431,9 @@ void EmojiPicker::onFunctionKeyPressed(const QKeyEvent& event) {
     QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromStdString(_settingsPath)));
     emit escapePressed();
     break;
+  case Qt::Key_F5:
+    emit toggleInputMethod();
+    break;
   }
 }
 

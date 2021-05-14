@@ -71,6 +71,8 @@ public:
   bool surroundAliasesWithColons() const;
   void setSurroundAliasesWithColons(bool surroundAliasesWithColons);
 
+  void toggleInputMethod(const std::string& processName);
+
 private:
   static EmojiPickerSettings* _snapshot;
 };
