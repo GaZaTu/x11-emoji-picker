@@ -341,13 +341,13 @@ void EmojiPickerSettings::toggleInputMethod(const std::string& processName) {
     useClipboardHackExceptions.push_back(processName);
     this->setUseClipboardHackExceptions(useClipboardHackExceptions);
   } else if (!isActivateWindowBeforeWritingException && isUseClipboardHackException) {
+    vectorRemove(useClipboardHackExceptions, processName);
+    this->setUseClipboardHackExceptions(useClipboardHackExceptions);
     activateWindowBeforeWritingExceptions.push_back(processName);
     this->setActivateWindowBeforeWritingExceptions(activateWindowBeforeWritingExceptions);
   } else if (isActivateWindowBeforeWritingException && !isUseClipboardHackException) {
     useClipboardHackExceptions.push_back(processName);
     this->setUseClipboardHackExceptions(useClipboardHackExceptions);
-    activateWindowBeforeWritingExceptions.push_back(processName);
-    this->setActivateWindowBeforeWritingExceptions(activateWindowBeforeWritingExceptions);
   } else {
     vectorRemove(useClipboardHackExceptions, processName);
     this->setUseClipboardHackExceptions(useClipboardHackExceptions);
