@@ -4,7 +4,8 @@
 #include <QClipboard>
 #include <QDesktopServices>
 
-EmojiPicker::EmojiPicker(QWidget* parent) : QWidget(parent) {
+EmojiPicker::EmojiPicker(QWidget* parent)
+    : QWidget(parent) {
   setLayout(_mainLayout);
 
   _recentEmojis = EmojiPickerSettings::snapshot().recentEmojis();
@@ -29,6 +30,13 @@ EmojiPicker::EmojiPicker(QWidget* parent) : QWidget(parent) {
   _mainLayout->addWidget(_emojiEdit->containerWidget());
   _mainLayout->addWidget(_emojiLayoutWidget);
 
+  _inputMethodLabel->setStyleSheet("font-size: 11px;");
+  setInputMethod("unknown");
+
+  if (!EmojiPickerSettings::snapshot().hideInputMethod()) {
+    _mainLayout->addWidget(_inputMethodLabel, 0, Qt::AlignBottom);
+  }
+
   fillViewWithRecentEmojis();
 
   QObject::connect(_emojiEdit, &EmojiLineEdit::textEdited, this, &EmojiPicker::onTextChanged);
@@ -41,6 +49,10 @@ EmojiPicker::EmojiPicker(QWidget* parent) : QWidget(parent) {
 
   QObject::connect(_emojiEdit->favsLabel(), &EmojiLabel::mousePressed, this, &EmojiPicker::onFavsPressed);
   QObject::connect(_emojiEdit->helpLabel(), &EmojiLabel::mousePressed, this, &EmojiPicker::onHelpPressed);
+}
+
+void EmojiPicker::setInputMethod(const std::string& InputMethod) {
+  _inputMethodLabel->setText(QString("InputMethod: ") + QString::fromStdString(InputMethod));
 }
 
 void EmojiPicker::wheelEvent(QWheelEvent* event) {

@@ -71,6 +71,9 @@ public:
   bool surroundAliasesWithColons() const;
   void setSurroundAliasesWithColons(bool surroundAliasesWithColons);
 
+  bool hideInputMethod() const;
+  void setHideInputMethod(bool hideInputMethod);
+
   void toggleInputMethod(const std::string& processName);
 
 private:

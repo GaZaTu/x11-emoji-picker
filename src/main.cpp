@@ -54,6 +54,21 @@ QString readQFileIfExists(const QString& path) {
   return ts.readAll();
 }
 
+std::string getInputMethod(const std::string& prevWindowProcessName, EmojiPickerSettings& settings) {
+  bool activateWindowBeforeWriting = settings.activateWindowBeforeWriting(prevWindowProcessName);
+  bool useClipboardHack = settings.useClipboardHack(prevWindowProcessName);
+
+  if (!activateWindowBeforeWriting && !useClipboardHack) {
+    return "default";
+  } else if (!activateWindowBeforeWriting && useClipboardHack) {
+    return "ctrl+v";
+  } else if (activateWindowBeforeWriting && !useClipboardHack) {
+    return "activate window & default";
+  } else {
+    return "activate window & ctrl+v";
+  }
+}
+
 int main(int argc, char** argv) {
   QApplication::setOrganizationName(PROJECT_ORGANIZATION);
   QApplication::setOrganizationDomain(PROJECT_ORGANIZATION);
@@ -78,12 +93,24 @@ int main(int argc, char** argv) {
   }
 
   QMainWindow window;
+  int w = 370;
+  int h = 236;
 
   if (EmojiPickerSettings::snapshot().useSystemQtTheme()) {
-    window.resize(358, 192);
+    w = 358;
+
+    if (EmojiPickerSettings::snapshot().hideInputMethod()) {
+      h = 196;
+    } else {
+      h = 218;
+    }
   } else {
-    window.resize(370, 206);
+    if (EmojiPickerSettings::snapshot().hideInputMethod()) {
+      h = 210;
+    }
   }
+
+  window.resize(w, h);
 
   window.setWindowOpacity(EmojiPickerSettings::snapshot().windowOpacity());
   window.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
@@ -106,6 +133,7 @@ int main(int argc, char** argv) {
 
   QMimeData* prevClipboardMimeData = nullptr;
   EmojiPicker* mainWidget = new EmojiPicker();
+  mainWidget->setInputMethod(getInputMethod(prevWindowProcessName, EmojiPickerSettings::snapshot()));
 
   QObject::connect(mainWidget, &EmojiPicker::returnPressed, [&](const std::string& emojiStr, bool closeAfter) {
     window_t currentWindow = 0;
@@ -172,6 +200,8 @@ int main(int argc, char** argv) {
 
     activateWindowBeforeWriting = settings.activateWindowBeforeWriting(prevWindowProcessName);
     useClipboardHack = settings.useClipboardHack(prevWindowProcessName);
+
+    mainWidget->setInputMethod(getInputMethod(prevWindowProcessName, settings));
   });
 
   window.setCentralWidget(mainWidget);

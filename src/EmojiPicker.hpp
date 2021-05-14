@@ -15,6 +15,8 @@ class EmojiPicker : public QWidget {
 public:
   explicit EmojiPicker(QWidget* parent = nullptr);
 
+  void setInputMethod(const std::string& InputMethod);
+
 signals:
   void returnPressed(const std::string& emojiStr, bool closeAfter);
   void escapePressed();
@@ -40,6 +42,8 @@ private:
 
   QWidget* _emojiLayoutWidget = new QWidget();
   QGridLayout* _emojiLayout = new QGridLayout();
+
+  QLabel* _inputMethodLabel = new QLabel();
 
   EmojiLineEdit* _emojiEdit = new EmojiLineEdit();
 
