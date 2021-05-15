@@ -77,6 +77,7 @@ void EmojiPickerSettings::writeDefaultsToDisk() {
   settings.setSwapEnterAndShiftEnter(settings.swapEnterAndShiftEnter());
   settings.setSurroundAliasesWithColons(settings.surroundAliasesWithColons());
   settings.setHideInputMethod(settings.hideInputMethod());
+  settings.setEnableEmojiIncludesSearch(settings.enableEmojiIncludesSearch());
 }
 
 EmojiPickerSettings::EmojiPickerSettings(QObject* parent)
@@ -336,6 +337,13 @@ bool EmojiPickerSettings::hideInputMethod() const {
 }
 void EmojiPickerSettings::setHideInputMethod(bool hideInputMethod) {
   setValue("hideInputMethod", hideInputMethod);
+}
+
+bool EmojiPickerSettings::enableEmojiIncludesSearch() const {
+  return value("enableEmojiIncludesSearch", true).toBool();
+}
+void EmojiPickerSettings::setEnableEmojiIncludesSearch(bool enableEmojiIncludesSearch) {
+  setValue("enableEmojiIncludesSearch", enableEmojiIncludesSearch);
 }
 
 void EmojiPickerSettings::toggleInputMethod(const std::string& processName) {

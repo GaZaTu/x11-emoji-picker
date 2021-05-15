@@ -103,6 +103,12 @@ void EmojiPicker::setSelectedEmojiLabel(EmojiLabel* emojiLabel) {
 }
 
 bool EmojiPicker::addEmojiLabel(EmojiLabel* emojiLabel, int& row, int& col) {
+  for (EmojiLabel* other : _emojiLayoutWidget->findChildren<EmojiLabel*>()) {
+    if (other->emoji() == emojiLabel->emoji()) {
+      return false;
+    }
+  }
+
   if (col == 0 && row == 0) {
     setSelectedEmojiLabel(emojiLabel);
   }
@@ -181,6 +187,18 @@ void EmojiPicker::fillViewWithRecentEmojis() {
   }
 }
 
+bool textMatchesEmojiName(const std::string& text, const std::string& emojiKey, bool mustStartWith) {
+  auto found = std::search(emojiKey.begin(), emojiKey.end(), text.begin(), text.end(), [](char c1, char c2) {
+    return std::tolower(c1) == std::tolower(c2);
+  });
+
+  if (EmojiPickerSettings::snapshot().enableEmojiIncludesSearch() && text.length() >= 4 && !mustStartWith) {
+    return found != emojiKey.end();
+  } else {
+    return found == emojiKey.begin();
+  }
+}
+
 void EmojiPicker::fillViewWithEmojisByText(const std::string& text) {
   int col = 0;
   int row = 0;
@@ -195,11 +213,7 @@ void EmojiPicker::fillViewWithEmojisByText(const std::string& text) {
         continue;
       }
     } else {
-      auto found = std::search(alias.name.begin(), alias.name.end(), text.begin(), text.end(), [](char c1, char c2) {
-        return std::tolower(c1) == std::tolower(c2);
-      });
-
-      if (found != alias.name.begin()) {
+      if (!textMatchesEmojiName(text, alias.name, true)) {
         continue;
       }
     }
@@ -242,13 +256,7 @@ void EmojiPicker::fillViewWithEmojisByText(const std::string& text) {
       continue;
     }
 
-    const std::string& emojiKey = tr(emoji.name.data()).toStdString();
-
-    auto found = std::search(emojiKey.begin(), emojiKey.end(), text.begin(), text.end(), [](char c1, char c2) {
-      return std::tolower(c1) == std::tolower(c2);
-    });
-
-    if (found != emojiKey.begin()) {
+    if (!textMatchesEmojiName(text, tr(emoji.name.data()).toStdString(), false)) {
       continue;
     }
 

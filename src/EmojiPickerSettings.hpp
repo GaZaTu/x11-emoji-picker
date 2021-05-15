@@ -74,6 +74,9 @@ public:
   bool hideInputMethod() const;
   void setHideInputMethod(bool hideInputMethod);
 
+  bool enableEmojiIncludesSearch() const;
+  void setEnableEmojiIncludesSearch(bool enableEmojiIncludesSearch);
+
   void toggleInputMethod(const std::string& processName);
 
 private:

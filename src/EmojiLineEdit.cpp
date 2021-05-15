@@ -19,7 +19,8 @@ QWidget* EmojiLineEdit::containerWidget() {
     _previewLabel->setText("");
 
     if (EmojiPickerSettings::snapshot().useSystemQtTheme()) {
-      this->setTextMargins(1, 0, 0, 0);
+      setTextMargins(1, 0, 0, 0);
+
       _previewLabel->setIndent(fontMetrics().averageCharWidth());
 
       QColor previewLabelTextColor = _previewLabel->palette().text().color();
@@ -75,10 +76,25 @@ std::string EmojiLineEdit::previewText() {
 }
 void EmojiLineEdit::setPreviewText(const std::string& previewText) {
   QString previewTextAsQString = QString::fromStdString(previewText);
-  previewTextAsQString.replace(0, text().length(), text());
+
+  int indexOfText = std::max(previewTextAsQString.indexOf(text(), 0, Qt::CaseInsensitive), 0);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+  int textWidth = fontMetrics().horizontalAdvance(previewTextAsQString.left(indexOfText));
+#else
+  int textWidth = fontMetrics().width(previewTextAsQString.left(indexOfText));
+#endif
+
+  previewTextAsQString.replace(indexOfText, text().length(), text());
   if (previewTextAsQString.length() > 36) {
     previewTextAsQString = previewTextAsQString.left(36) + "...";
   }
+
+  int defaultMarginLeft = 0;
+  if (EmojiPickerSettings::snapshot().useSystemQtTheme()) {
+    defaultMarginLeft = 1;
+  }
+
+  setTextMargins(textWidth + defaultMarginLeft, 0, 0, 0);
 
   _previewLabel->setText(previewTextAsQString);
 }
