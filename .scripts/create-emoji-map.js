@@ -1,10 +1,10 @@
-const { promises: { writeFile }, existsSync } = require('fs')
+const { promises: { writeFile, readdir }, existsSync } = require('fs')
 const { execFile } = require('child_process')
 const { default: fetch } = require('node-fetch')
 const ProxyAgent = require('proxy-agent')
 
-const UNICODE_EMOJI_LIST_URL = 'https://unicode.org/Public/emoji/13.0/emoji-test.txt'
-const UNICODE_EMOJI_ANNOTATIONS_BASE_URL = 'https://raw.githubusercontent.com/unicode-org/cldr/release-38/common/annotations'
+const UNICODE_EMOJI_LIST_URL = 'https://unicode.org/Public/emoji/13.1/emoji-test.txt'
+const UNICODE_EMOJI_ANNOTATIONS_BASE_URL = 'https://raw.githubusercontent.com/unicode-org/cldr/release-39/common/annotations'
 
 const HTTP_PROXY = process.env.HTTP_PROXY
 const httpProxyAgent = HTTP_PROXY && new ProxyAgent(HTTP_PROXY)
@@ -112,6 +112,7 @@ const fetchEmojisByLocales = async (locales) => {
   const SKIP_HPP = process.argv.includes('SKIP_HPP')
   const SKIP_CPP = process.argv.includes('SKIP_CPP')
   const USE_GPERF = process.argv.includes('USE_GPERF')
+  const SKIP_QRC = process.argv.includes('SKIP_QRC')
 
   if (!SKIP_HPP) {
     const emojisHpp =
@@ -130,12 +131,12 @@ public:
   ${NO_CLDR ? '// NO_CLDR' : 'std::string nameByLocale(const std::string& localeKey = std::locale("").name().substr(0, 2)) const;'}
 
   bool isGenderVariation() const {
-    const char* MALE_SIGN   = u8"\U00002642";
-    const char* FEMALE_SIGN = u8"\U00002640";
-    const char* BOY         = u8"\U0001F466";
-    const char* GIRL        = u8"\U0001F467";
-    const char* MAN         = u8"\U0001F468";
-    const char* WOMAN       = u8"\U0001F469";
+    const char* MALE_SIGN   = u8"\\U00002642";
+    const char* FEMALE_SIGN = u8"\\U00002640";
+    const char* BOY         = u8"\\U0001F466";
+    const char* GIRL        = u8"\\U0001F467";
+    const char* MAN         = u8"\\U0001F468";
+    const char* WOMAN       = u8"\\U0001F469";
 
     if (
       code == MALE_SIGN   ||
@@ -159,11 +160,11 @@ public:
   }
 
   bool isSkinToneVariation() const {
-    const char* LIGHT        = u8"\U0001F3FB";
-    const char* LIGHT_MEDIUM = u8"\U0001F3FC";
-    const char* MEDIUM       = u8"\U0001F3FD";
-    const char* DARK_MEDIUM  = u8"\U0001F3FE";
-    const char* DARK         = u8"\U0001F3FF";
+    const char* LIGHT        = u8"\\U0001F3FB";
+    const char* LIGHT_MEDIUM = u8"\\U0001F3FC";
+    const char* MEDIUM       = u8"\\U0001F3FD";
+    const char* DARK_MEDIUM  = u8"\\U0001F3FE";
+    const char* DARK         = u8"\\U0001F3FF";
 
     if (
       code == LIGHT        ||
@@ -284,5 +285,18 @@ std::string Emoji::nameByLocale(const std::string& localeKey) const {
 
       await writeFile(`${__dirname}/../src/emojis.cpp`, emojisCpp.trimLeft())
     }
+  }
+
+  if (!SKIP_QRC) {
+    const emojisQrc =
+`
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource>
+    ${(await readdir(`${__dirname}/../src/res/72x72`)).map(f => `<file>res/72x72/${f}</file>`).join('\n    ')}
+  </qresource>
+</RCC>
+`
+    await writeFile(`${__dirname}/../src/emojis.qrc`, emojisQrc.trimLeft())
   }
 })().catch(console.error)
