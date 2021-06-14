@@ -119,6 +119,7 @@ The settings file should be located at `/home/$USER/.config/gazatu.xyz/emoji-pic
 - `[General] | activateWindowBeforeWritingByDefault` => `true` to activate windows by default before writing to them
 - `[General] | aliasExactMatching` => `true` to only show aliased emojis when the search matches completely
 - `[General] | customQssFilePath` => custom styling (colors and shit) for the emoji picker (refer to [src/main.qss](src/main.qss) for examples); useful if you don't like the dark theme
+- `[General] | enableEmojiIncludesSearch` => `true` to enable sub-string search (for example: `joy` to find face_with_tears_of_joy); you need to enter 3 or more characters
 - `[General] | gendersDisabled` => `true` if you only want to see gender neutral emojis (jobs or family or w/e)
 - `[General] | hideInputMethod` => `true` if you don't want to see the input method
 - `[General] | localeKey` => the emoji translation you want to use (en, de, fr, nl, da, it, pt, es, sv, pl, hr, cs, fi, el, hu) or empty if you want to use english with underscores
@@ -148,6 +149,7 @@ If the dialog is too smol for you: put `QT_SCALE_FACTOR=float` in front of the c
 activateWindowBeforeWritingByDefault=false
 aliasExactMatching=false
 customQssFilePath=
+enableEmojiIncludesSearch=true
 gendersDisabled=false
 hideInputMethod=false
 localeKey=
