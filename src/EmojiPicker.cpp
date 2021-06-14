@@ -192,7 +192,7 @@ bool textMatchesEmojiName(const std::string& text, const std::string& emojiKey, 
     return std::tolower(c1) == std::tolower(c2);
   });
 
-  if (EmojiPickerSettings::snapshot().enableEmojiIncludesSearch() && text.length() >= 4 && !mustStartWith) {
+  if (EmojiPickerSettings::snapshot().enableEmojiIncludesSearch() && text.length() >= 3 && !mustStartWith) {
     return found != emojiKey.end();
   } else {
     return found == emojiKey.begin();
