@@ -4,7 +4,9 @@ project(emoji-picker VERSION 0.8.0 LANGUAGES CXX)
 set(PROJECT_NAME_FULL x11-emoji-picker)
 set(PROJECT_ORGANIZATION gazatu.xyz)
 
-cmake_policy(SET CMP0074 NEW)
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.12.0")
+  cmake_policy(SET CMP0074 NEW)
+endif()
 
 add_definitions(
   -DPROJECT_ORGANIZATION="${PROJECT_ORGANIZATION}"
@@ -100,13 +102,13 @@ endif()
 if (UNIX AND NOT APPLE) # LINUX
   set(CMAKE_INSTALL_PREFIX /usr)
 
-  install(TARGETS ${PROJECT_NAME})
+  install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
   install(FILES ${PROJECT_SOURCE_DIR}/res/${PROJECT_NAME_FULL}.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications)
   install(FILES ${PROJECT_SOURCE_DIR}/res/${PROJECT_NAME_FULL}.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/72x72/apps)
 
   add_custom_target(appimage
-    COMMAND make install DESTDIR=_AppDir
-    COMMAND VERSION=${PROJECT_VERSION} linuxdeployqt.AppImage _AppDir/usr/share/applications/${PROJECT_NAME_FULL}.desktop -appimage -no-translations
+    COMMAND make install DESTDIR=${CMAKE_BINARY_DIR}/_AppDir
+    COMMAND VERSION=${PROJECT_VERSION} linuxdeployqt.AppImage ${CMAKE_BINARY_DIR}/_AppDir/usr/share/applications/${PROJECT_NAME_FULL}.desktop -appimage -no-translations
   )
 
   set(CPACK_PACKAGE_NAME ${PROJECT_NAME_FULL})
