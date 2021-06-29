@@ -1,10 +1,6 @@
 #include "EmojiPicker.hpp"
 #include "EmojiPickerSettings.hpp"
 #include "EmojiTranslator.hpp"
-#include "crossdo.h"
-#undef Status
-#undef KeyPress
-#undef KeyRelease
 #include <QApplication>
 #include <QClipboard>
 #include <QEvent>
@@ -13,6 +9,12 @@
 #include <QTextStream>
 #include <QTimer>
 #include <memory>
+#include "uinput.hpp"
+#include <QtDBus>
+#include "EmojiPickerDBusInterface.hpp"
+#include "WindowManager.hpp"
+#include <QDebug>
+#include <unistd.h>
 
 std::string getProcessNameFromPID(int pid) {
   if (pid == 0) {
@@ -69,23 +71,132 @@ std::string getInputMethod(const std::string& prevWindowProcessName, EmojiPicker
   }
 }
 
+// struct Subject {
+//   QString subject_kind;
+//   QMap<QString, QVariant> subject_details;
+// };
+// Q_DECLARE_METATYPE(Subject);
+
+// QDBusArgument& operator<<(QDBusArgument& argument, const Subject& subject) {
+//   argument.beginStructure();
+//   argument << subject.subject_kind << subject.subject_details;
+//   argument.endStructure();
+
+//   return argument;
+// }
+
+// const QDBusArgument& operator>>(const QDBusArgument& argument, Subject&) {
+// 	return argument;
+// }
+
+// enum class CheckAuthorizationFlags {
+//   None = 0x00000000,
+//   AllowUserInteraction = 0x00000001,
+// };
+
+// struct AuthorizationResult {
+//   bool is_authorized;
+//   bool is_challenge;
+//   QMap<QString, QString> details;
+// };
+// Q_DECLARE_METATYPE(AuthorizationResult);
+
+// QDBusArgument& operator<<(QDBusArgument& argument, const AuthorizationResult&) {
+//   return argument;
+// }
+
+// const QDBusArgument& operator>>(const QDBusArgument& argument, AuthorizationResult& result) {
+// 	argument.beginStructure();
+// 	argument >> result.is_authorized >> result.is_challenge >> result.details;
+// 	argument.endStructure();
+
+// 	return argument;
+// }
+
+// void requestUInputWritePermission() {
+//   qDBusRegisterMetaType<QMap<QString, QVariant>>();
+//   qDBusRegisterMetaType<QMap<QString, QString>>();
+//   qDBusRegisterMetaType<Subject>();
+//   qDBusRegisterMetaType<AuthorizationResult>();
+
+//   Subject subject;
+//   subject.subject_kind = "unix-process";
+//   subject.subject_details["pid"] = QVariant::fromValue((quint32)getpid());
+//   subject.subject_details["start-time"] = QVariant::fromValue((quint64)time(nullptr));
+//   QString action_id = "xyz.gazatu.EmojiPicker.uinput";
+//   QMap<QString, QString> details;
+//   quint32 flags = (quint32)CheckAuthorizationFlags::AllowUserInteraction;
+//   QString cancellation_id;
+
+//   QDBusMessage message = QDBusMessage::createMethodCall("org.freedesktop.PolicyKit1", "/org/freedesktop/PolicyKit1/Authority", "org.freedesktop.PolicyKit1.Authority", "CheckAuthorization");
+//   message << QVariant::fromValue(subject) << QVariant::fromValue(action_id) << QVariant::fromValue(details) << QVariant::fromValue(flags) << QVariant::fromValue(cancellation_id);
+//   QDBusMessage result = QDBusConnection::systemBus().call(message);
+
+//   qDebug() << result;
+// }
+
 int main(int argc, char** argv) {
   QApplication::setOrganizationName(PROJECT_ORGANIZATION);
   QApplication::setOrganizationDomain(PROJECT_ORGANIZATION);
   QApplication::setApplicationName(PROJECT_NAME);
   QApplication::setApplicationVersion(PROJECT_VERSION);
 
-  QApplication app(argc, argv);
+  QApplication app{argc, argv};
+
+  QCommandLineParser cliParser;
+  cliParser.setApplicationDescription("emoji picker");
+  cliParser.addHelpOption();
+  cliParser.addVersionOption();
+
+  QCommandLineOption daemonOption{"daemon", "run as dbus daemon (service: xyz.gazatu.EmojiPicker, object: /xyz/gazatu/EmojiPicker, methods: show & hide)"};
+  cliParser.addOption(daemonOption);
+
+  // QCommandLineOption dbusOption{"dbus", "bus to provide service on (default: $DBUS_SESSION_BUS_ADDRESS)"};
+  // cliParser.addOption(dbusOption);
+
+  cliParser.process(app);
+  bool runAsDaemon = cliParser.isSet(daemonOption);
+  // QString dbusSession = cliParser.value(dbusOption);
+
+  if (runAsDaemon) {
+    EmojiPickerSettings::snapshotScope = QSettings::SystemScope;
+  }
+
   QApplication::installTranslator(new EmojiTranslator(nullptr, EmojiPickerSettings::snapshot().localeKey()));
 
-  auto crossdo = std::unique_ptr<crossdo_t, decltype(&crossdo_free)>(crossdo_new(), &crossdo_free);
-  window_t prevWindow;
-  crossdo_get_active_window(crossdo.get(), &prevWindow);
-  int prevWindowPID = crossdo_get_pid_window(crossdo.get(), prevWindow);
-  std::string prevWindowProcessName = getProcessNameFromPID(prevWindowPID);
+  std::string prevWindowProcessName = "";
+  bool activateWindowBeforeWriting = false;
+  bool useClipboardHack = false;
+  std::string inputMethod = "";
 
-  bool activateWindowBeforeWriting = EmojiPickerSettings::snapshot().activateWindowBeforeWriting(prevWindowProcessName);
-  bool useClipboardHack = EmojiPickerSettings::snapshot().useClipboardHack(prevWindowProcessName);
+  auto windowManager = WindowManager::instance();
+  auto prevWindow = windowManager->activeWindow();
+  auto prevWindowPID = prevWindow->pid();
+
+  qDebug() << "windowManager: " << windowManager->name().data();
+
+  uinput::file uinputFile = uinput::open(PROJECT_NAME);
+
+  auto initState = [&]() {
+    if (uinputFile) {
+      prevWindowProcessName = "";
+      activateWindowBeforeWriting = true;
+      useClipboardHack = true;
+      inputMethod = "uinput & activate window & ctrl+v";
+    } else if (prevWindowPID) {
+      prevWindowProcessName = getProcessNameFromPID(prevWindowPID);
+      activateWindowBeforeWriting = EmojiPickerSettings::snapshot().activateWindowBeforeWriting(prevWindowProcessName);
+      useClipboardHack = EmojiPickerSettings::snapshot().useClipboardHack(prevWindowProcessName);
+      inputMethod = getInputMethod(prevWindowProcessName, EmojiPickerSettings::snapshot());
+    } else {
+      prevWindowProcessName = "";
+      activateWindowBeforeWriting = true;
+      useClipboardHack = true;
+      inputMethod = "activate window & ctrl+v";
+    }
+  };
+
+  initState();
 
   if (!EmojiPickerSettings::snapshot().useSystemQtTheme()) {
     app.setStyle("fusion");
@@ -121,29 +232,29 @@ int main(int argc, char** argv) {
         readQFileIfExists(QString::fromStdString(EmojiPickerSettings::snapshot().customQssFilePath())));
   }
 
-  if (EmojiPickerSettings::snapshot().openAtMouseLocation()) {
-    int cursorX = 0;
-    int cursorY = 0;
-    crossdo_get_mouse_location2(crossdo.get(), &cursorX, &cursorY, nullptr, nullptr);
+  // if (EmojiPickerSettings::snapshot().openAtMouseLocation()) {
+  //   int cursorX = 0;
+  //   int cursorY = 0;
+  //   crossdo_get_mouse_location2(crossdo.get(), &cursorX, &cursorY, nullptr, nullptr);
 
-    if (cursorX != 0 && cursorY != 0) {
-      window.move(cursorX, cursorY);
-    }
-  }
+  //   if (cursorX != 0 && cursorY != 0) {
+  //     window.move(cursorX, cursorY);
+  //   }
+  // }
 
   QMimeData* prevClipboardMimeData = nullptr;
   EmojiPicker* mainWidget = new EmojiPicker();
-  mainWidget->setInputMethod(getInputMethod(prevWindowProcessName, EmojiPickerSettings::snapshot()));
+  mainWidget->setInputMethod(inputMethod);
 
   QObject::connect(mainWidget, &EmojiPicker::returnPressed, [&](const std::string& emojiStr, bool closeAfter) {
-    window_t currentWindow = 0;
+    std::shared_ptr<Window> currentWindow;
+
     if (activateWindowBeforeWriting || closeAfter) {
-      crossdo_get_active_window(crossdo.get(), &currentWindow);
+      currentWindow = windowManager->activeWindow();
     }
 
-    if (currentWindow != 0) {
-      crossdo_activate_window(crossdo.get(), prevWindow);
-      crossdo_wait_for_window_active(crossdo.get(), prevWindow, 1);
+    if (currentWindow) {
+      prevWindow->activate();
     }
 
     if (useClipboardHack) {
@@ -155,46 +266,55 @@ int main(int argc, char** argv) {
       QApplication::clipboard()->setText(QString::fromStdString(emojiStr));
 
       if (closeAfter) {
-#ifdef __linux__
-        charcodemap_t* keys;
-        int keysLen;
-
-        xdo_get_active_modifiers(crossdo.get(), &keys, &keysLen);
-        xdo_clear_active_modifiers(crossdo.get(), prevWindow, keys, keysLen);
-#endif
+        if (uinputFile) {
+          uinputFile.writeInputEvent(EV_KEY, KEY_LEFTSHIFT, uinput::KEY_RELEASE);
+        } else {
+          prevWindow->clearModifiers();
+        }
       }
 
-      crossdo_send_keysequence_window(crossdo.get(), prevWindow, "ctrl+v", 12000);
+      if (uinputFile) {
+        uinputFile.writeKeypress(KEY_V, KEY_LEFTCTRL, SYN_REPORT);
+      } else {
+        prevWindow->sendKeysequence("ctrl+v");
+      }
     } else {
-      crossdo_enter_text_window(crossdo.get(), prevWindow, emojiStr.data(), 12000);
+      prevWindow->enterText(emojiStr.data());
     }
 
-    if (currentWindow != 0 && !closeAfter) {
-      crossdo_activate_window(crossdo.get(), currentWindow);
-      crossdo_wait_for_window_active(crossdo.get(), currentWindow, 1);
+    if (currentWindow && !closeAfter) {
+      currentWindow->activate();
     }
   });
 
   QObject::connect(mainWidget, &EmojiPicker::escapePressed, [&]() {
+    window.hide();
+
     EmojiPickerSettings::writeDefaultsToDisk();
 
     if (useClipboardHack && prevClipboardMimeData != nullptr) {
-      window.hide();
-
       QTimer::singleShot(100, [&]() {
         QApplication::clipboard()->clear();
         QApplication::clipboard()->setMimeData(prevClipboardMimeData);
 
-        QObject::connect(QApplication::clipboard(), &QClipboard::dataChanged, [&]() {
-          app.exit();
-        });
+        if (!runAsDaemon) {
+          QObject::connect(QApplication::clipboard(), &QClipboard::dataChanged, [&]() {
+            app.exit();
+          });
+        }
       });
     } else {
-      app.exit();
+      if (!runAsDaemon) {
+        app.exit();
+      }
     }
   });
 
   QObject::connect(mainWidget, &EmojiPicker::toggleInputMethod, [&]() {
+    if (prevWindowProcessName.length() == 0) {
+      return;
+    }
+
     EmojiPickerSettings settings;
     settings.toggleInputMethod(prevWindowProcessName);
 
@@ -205,7 +325,27 @@ int main(int argc, char** argv) {
   });
 
   window.setCentralWidget(mainWidget);
-  window.show();
+
+  if (runAsDaemon) {
+    auto dbus = new EmojiPickerDBusInterface(&window, !!uinputFile ? QDBusConnection::SystemBus : QDBusConnection::SessionBus);
+    dbus->_show = [&]() {
+      prevWindow = windowManager->activeWindow();
+      prevWindowPID = prevWindow->pid();
+      initState();
+      mainWidget->setInputMethod(inputMethod);
+
+      prevClipboardMimeData = nullptr;
+
+      mainWidget->reset();
+
+      window.show();
+    };
+    dbus->_hide = [&]() {
+      window.hide();
+    };
+  } else {
+    window.show();
+  }
 
   return app.exec();
 }
