@@ -8,13 +8,6 @@ EmojiPicker::EmojiPicker(QWidget* parent)
     : QWidget(parent) {
   setLayout(_mainLayout);
 
-  _recentEmojis = EmojiPickerSettings::snapshot().recentEmojis();
-  _skinTonesDisabled = EmojiPickerSettings::snapshot().skinTonesDisabled();
-  _gendersDisabled = EmojiPickerSettings::snapshot().gendersDisabled();
-  _maxEmojiVersion = EmojiPickerSettings::snapshot().maxEmojiVersion();
-  _aliasedEmojis = EmojiPickerSettings::snapshot().aliasedEmojis();
-  _settingsPath = EmojiPickerSettings::snapshot().fileName().toStdString();
-
   _emojiLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
   _emojiLayoutWidget->setLayout(_emojiLayout);
@@ -37,7 +30,7 @@ EmojiPicker::EmojiPicker(QWidget* parent)
     _mainLayout->addWidget(_inputMethodLabel, 0, Qt::AlignBottom);
   }
 
-  fillViewWithRecentEmojis();
+  reset();
 
   QObject::connect(_emojiEdit, &EmojiLineEdit::textEdited, this, &EmojiPicker::onTextChanged);
   QObject::connect(_emojiEdit, &EmojiLineEdit::returnPressed, this, &EmojiPicker::onReturnPressed);
@@ -53,6 +46,20 @@ EmojiPicker::EmojiPicker(QWidget* parent)
 
 void EmojiPicker::setInputMethod(const std::string& InputMethod) {
   _inputMethodLabel->setText(QString("InputMethod: ") + QString::fromStdString(InputMethod));
+}
+
+void EmojiPicker::reset() {
+  _recentEmojis = EmojiPickerSettings::snapshot().recentEmojis();
+  _skinTonesDisabled = EmojiPickerSettings::snapshot().skinTonesDisabled();
+  _gendersDisabled = EmojiPickerSettings::snapshot().gendersDisabled();
+  _maxEmojiVersion = EmojiPickerSettings::snapshot().maxEmojiVersion();
+  _aliasedEmojis = EmojiPickerSettings::snapshot().aliasedEmojis();
+  _settingsPath = EmojiPickerSettings::snapshot().fileName().toStdString();
+
+  _emojiEdit->setText("");
+
+  clearView();
+  fillViewWithRecentEmojis();
 }
 
 void EmojiPicker::wheelEvent(QWheelEvent* event) {

@@ -17,6 +17,8 @@ public:
 
   void setInputMethod(const std::string& InputMethod);
 
+  void reset();
+
 signals:
   void returnPressed(const std::string& emojiStr, bool closeAfter);
   void escapePressed();
