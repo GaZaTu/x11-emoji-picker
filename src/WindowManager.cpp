@@ -65,42 +65,7 @@ private:
   }
 };
 
-class XDoWindow : public Window {
-public:
-  XDoWindow(libxdo lib, libxdo::xdo_t* xdo, libxdo::Window window) : _lib(lib), _xdo(xdo), _window(window) {};
-
-  int pid() override {
-    return _lib._get_pid_window(_xdo, _window);
-  }
-
-  void activate() override {
-    _lib._activate_window(_xdo, _window);
-    _lib._wait_for_window_active(_xdo, _window, 1);
-  }
-
-  void clearModifiers() override {
-    libxdo::charcodemap_t* keys;
-    int keysLen;
-
-    _lib._get_active_modifiers(_xdo, &keys, &keysLen);
-    _lib._clear_active_modifiers(_xdo, _window, keys, keysLen);
-  }
-
-  void sendKeysequence(const char* sequence) override {
-    _lib._send_keysequence_window(_xdo, _window, sequence, 12000);
-  }
-
-  void enterText(const char* text) override {
-    _lib._enter_text_window(_xdo, _window, text, 12000);
-  }
-
-private:
-  libxdo _lib;
-  libxdo::xdo_t* _xdo;
-  libxdo::Window _window;
-};
-
-class XDoWindowManager : public WindowManager {
+class XDoWindowManager : public wm::WindowManager {
 public:
   XDoWindowManager() {
     if (*this) {
@@ -120,11 +85,36 @@ public:
     return !!_lib;
   }
 
-  std::shared_ptr<Window> activeWindow() override {
+  wm::WId activeWindow() override {
     libxdo::Window window;
     _lib._get_active_window(_xdo, &window);
 
-    return std::make_shared<XDoWindow>(_lib, _xdo, window);
+    return window;
+  }
+
+  int pid(wm::WId window) override {
+    return _lib._get_pid_window(_xdo, window);
+  }
+
+  void activate(wm::WId window) override {
+    _lib._activate_window(_xdo, window);
+    _lib._wait_for_window_active(_xdo, window, 1);
+  }
+
+  void clearModifiers(wm::WId window) override {
+    libxdo::charcodemap_t* keys;
+    int keysLen;
+
+    _lib._get_active_modifiers(_xdo, &keys, &keysLen);
+    _lib._clear_active_modifiers(_xdo, window, keys, keysLen);
+  }
+
+  void sendKeysequence(wm::WId window, const char* sequence) override {
+    _lib._send_keysequence_window(_xdo, window, sequence, 12000);
+  }
+
+  void enterText(wm::WId window, const char* text) override {
+    _lib._enter_text_window(_xdo, window, text, 12000);
   }
 
   bool supportsInput() override {
@@ -140,18 +130,18 @@ class libKF5WindowSystem {
 public:
   using WId = unsigned long;
 
-  using KF5WindowSystem_activeWindow_t = WId (*)();
+  using KWindowSystem_activeWindow_t = WId (*)();
   // using xdo_get_pid_window_t = int (*)(const xdo_t* xdo, Window window);
-  using KF5WindowSystem_activateWindow_t = void (*)(WId win, long time);
+  using KWindowSystem_activateWindow_t = void (*)(WId win, long time);
   // using xdo_wait_for_window_active_t = int (*)(const xdo_t* xdo, Window window, int active);
   // using xdo_get_active_modifiers_t = int (*)(const xdo_t* xdo, charcodemap_t** keys, int* nkeys);
   // using xdo_clear_active_modifiers_t = int (*)(const xdo_t* xdo, Window window, charcodemap_t* active_mods, int active_mods_n);
   // using xdo_send_keysequence_window_t = int (*)(const xdo_t* xdo, Window window, const char* keysequence, useconds_t delay);
   // using xdo_enter_text_window_t = int (*)(const xdo_t* xdo, Window window, const char* string, useconds_t delay);
 
-  KF5WindowSystem_activeWindow_t _activeWindow;
+  KWindowSystem_activeWindow_t _activeWindow;
   // xdo_get_pid_window_t _get_pid_window;
-  KF5WindowSystem_activateWindow_t _activateWindow;
+  KWindowSystem_activateWindow_t _activateWindow;
   // xdo_wait_for_window_active_t _wait_for_window_active;
   // xdo_get_active_modifiers_t _get_active_modifiers;
   // xdo_clear_active_modifiers_t _clear_active_modifiers;
@@ -181,9 +171,9 @@ private:
       return;
     }
 
-    _activeWindow = (KF5WindowSystem_activeWindow_t)dlsym(_ptr.get(), "_ZN13KWindowSystem12activeWindowEv");
+    _activeWindow = (KWindowSystem_activeWindow_t)dlsym(_ptr.get(), "_ZN13KWindowSystem12activeWindowEv");
     // _get_pid_window = (xdo_get_pid_window_t)dlsym(_ptr.get(), "xdo_get_pid_window");
-    _activateWindow = (KF5WindowSystem_activateWindow_t)dlsym(_ptr.get(), "_ZN13KWindowSystem14activateWindowEyl");
+    _activateWindow = (KWindowSystem_activateWindow_t)dlsym(_ptr.get(), "_ZN13KWindowSystem17forceActiveWindowEyl"); // _ZN13KWindowSystem14activateWindowEyl
     // _wait_for_window_active = (xdo_wait_for_window_active_t)dlsym(_ptr.get(), "xdo_wait_for_window_active");
     // _get_active_modifiers = (xdo_get_active_modifiers_t)dlsym(_ptr.get(), "xdo_get_active_modifiers");
     // _clear_active_modifiers = (xdo_clear_active_modifiers_t)dlsym(_ptr.get(), "xdo_clear_active_modifiers");
@@ -192,20 +182,7 @@ private:
   }
 };
 
-class KF5Window : public Window {
-public:
-  KF5Window(libKF5WindowSystem lib, libKF5WindowSystem::WId window) : _lib(lib), _window(window) {};
-
-  void activate() override {
-    _lib._activateWindow(_window, 0);
-  }
-
-private:
-  libKF5WindowSystem _lib;
-  libKF5WindowSystem::WId _window;
-};
-
-class KF5WindowManager : public WindowManager {
+class KF5WindowManager : public wm::WindowManager {
 public:
   std::string name() override {
     return "KF5WindowManager";
@@ -215,26 +192,30 @@ public:
     return !!_lib;
   }
 
-  std::shared_ptr<Window> activeWindow() override {
-    return std::make_shared<KF5Window>(_lib, _lib._activeWindow());
+  wm::WId activeWindow() override {
+    return _lib._activeWindow();
+  }
+
+  void activate(wm::WId window) override {
+    _lib._activateWindow(window, 0);
   }
 
 private:
   libKF5WindowSystem _lib;
 };
 
-std::shared_ptr<WindowManager> _instance;
-std::shared_ptr<WindowManager> WindowManager::instance() {
+std::shared_ptr<wm::WindowManager> _instance;
+std::shared_ptr<wm::WindowManager> wm::WindowManager::instance() {
   if (!_instance) {
-    _instance = std::make_shared<XDoWindowManager>();
-    if (*_instance) {
-      return _instance;
-    }
-
-    // _instance = std::make_shared<KF5WindowManager>();
+    // _instance = std::make_shared<XDoWindowManager>();
     // if (*_instance) {
     //   return _instance;
     // }
+
+    _instance = std::make_shared<KF5WindowManager>();
+    if (*_instance) {
+      return _instance;
+    }
   }
 
   return _instance;

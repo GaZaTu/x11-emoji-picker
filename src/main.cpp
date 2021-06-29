@@ -169,11 +169,10 @@ int main(int argc, char** argv) {
   bool useClipboardHack = false;
   std::string inputMethod = "";
 
-  auto windowManager = WindowManager::instance();
-  auto prevWindow = windowManager->activeWindow();
-  auto prevWindowPID = prevWindow->pid();
+  auto prevWindow = wm::activeWindow();
+  auto prevWindowPID = wm::pid(prevWindow);
 
-  qDebug() << "windowManager: " << windowManager->name().data();
+  qDebug() << "windowManager: " << wm::WindowManager::instance()->name().data();
 
   uinput::file uinputFile = uinput::open(PROJECT_NAME);
 
@@ -247,14 +246,14 @@ int main(int argc, char** argv) {
   mainWidget->setInputMethod(inputMethod);
 
   QObject::connect(mainWidget, &EmojiPicker::returnPressed, [&](const std::string& emojiStr, bool closeAfter) {
-    std::shared_ptr<Window> currentWindow;
+    wm::WId currentWindow = 0;
 
     if (activateWindowBeforeWriting || closeAfter) {
-      currentWindow = windowManager->activeWindow();
+      currentWindow = wm::activeWindow();
     }
 
     if (currentWindow) {
-      prevWindow->activate();
+      wm::activate(prevWindow);
     }
 
     if (useClipboardHack) {
@@ -269,21 +268,21 @@ int main(int argc, char** argv) {
         if (uinputFile) {
           uinputFile.writeInputEvent(EV_KEY, KEY_LEFTSHIFT, uinput::KEY_RELEASE);
         } else {
-          prevWindow->clearModifiers();
+          wm::clearModifiers(prevWindow);
         }
       }
 
       if (uinputFile) {
         uinputFile.writeKeypress(KEY_V, KEY_LEFTCTRL, SYN_REPORT);
       } else {
-        prevWindow->sendKeysequence("ctrl+v");
+        wm::sendKeysequence(prevWindow, "ctrl+v");
       }
     } else {
-      prevWindow->enterText(emojiStr.data());
+      wm::enterText(prevWindow, emojiStr.data());
     }
 
     if (currentWindow && !closeAfter) {
-      currentWindow->activate();
+      wm::activate(currentWindow);
     }
   });
 
@@ -329,8 +328,8 @@ int main(int argc, char** argv) {
   if (runAsDaemon) {
     auto dbus = new EmojiPickerDBusInterface(&window, !!uinputFile ? QDBusConnection::SystemBus : QDBusConnection::SessionBus);
     dbus->_show = [&]() {
-      prevWindow = windowManager->activeWindow();
-      prevWindowPID = prevWindow->pid();
+      prevWindow = wm::activeWindow();
+      prevWindowPID = wm::pid(prevWindow);
       initState();
       mainWidget->setInputMethod(inputMethod);
 
@@ -339,6 +338,8 @@ int main(int argc, char** argv) {
       mainWidget->reset();
 
       window.show();
+
+      wm::activate(window.winId());
     };
     dbus->_hide = [&]() {
       window.hide();
