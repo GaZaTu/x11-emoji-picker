@@ -19,17 +19,23 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets)
+find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets DBus)
 
 find_package(ICU REQUIRED COMPONENTS uc)
 
-if (UNIX AND NOT APPLE) # LINUX (X11)
-  find_library(XDOTOOL_LIB xdo REQUIRED)
-  add_library(XDOTOOL STATIC SHARED IMPORTED)
-  set_target_properties(XDOTOOL PROPERTIES
-    IMPORTED_LOCATION ${XDOTOOL_LIB}
-  )
-endif ()
+# if (UNIX AND NOT APPLE) # LINUX (X11)
+#   find_library(XDOTOOL_LIB xdo REQUIRED)
+#   add_library(XDOTOOL STATIC SHARED IMPORTED)
+#   set_target_properties(XDOTOOL PROPERTIES
+#     IMPORTED_LOCATION ${XDOTOOL_LIB}
+#   )
+# endif ()
+
+# find_library(KDE_WINDOW_SYSTEM_LIB KF5WindowSystem REQUIRED)
+# add_library(KDE_WINDOW_SYSTEM STATIC SHARED IMPORTED)
+# set_target_properties(KDE_WINDOW_SYSTEM PROPERTIES
+#   IMPORTED_LOCATION ${KDE_WINDOW_SYSTEM_LIB}
+# )
 
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
@@ -43,6 +49,8 @@ set(COMMON_SRC_FILES
   src/EmojiPicker.cpp
   src/EmojiPickerSettings.cpp
   src/EmojiTranslator.cpp
+  src/EmojiPickerDBusInterface.cpp
+  src/WindowManager.cpp
 )
 
 if (UNIX AND NOT APPLE) # LINUX
@@ -58,6 +66,23 @@ set(SRC_FILES
   ${PLATFORM_SRC_FILES}
 )
 
+set(SRC_FILES
+  ${SRC_FILES}
+  ${CMAKE_CURRENT_BINARY_DIR}/xyz.gazatu.EmojiPicker.xml
+)
+qt5_generate_dbus_interface(
+  src/EmojiPickerDBusInterface.hpp
+  xyz.gazatu.EmojiPicker.xml
+)
+qt5_add_dbus_adaptor(
+  SRC_FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/xyz.gazatu.EmojiPicker.xml
+  EmojiPickerDBusInterface.hpp
+  EmojiPickerDBusInterface
+  EmojiPickerDBusAdaptor
+  EmojiPickerDBusAdaptor
+)
+
 add_executable(${PROJECT_NAME} ${SRC_FILES})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -71,14 +96,15 @@ target_link_libraries(${PROJECT_NAME}
   Qt5::Core
   Qt5::Gui
   Qt5::Widgets
+  Qt5::DBus
   ICU::uc
 )
 
-if (UNIX AND NOT APPLE) # LINUX (X11)
-  target_link_libraries(${PROJECT_NAME}
-    XDOTOOL
-  )
-endif ()
+# if (UNIX AND NOT APPLE) # LINUX (X11)
+#   target_link_libraries(${PROJECT_NAME}
+#     XDOTOOL
+#   )
+# endif ()
 
 set(STACK_SIZE_DEC 4194304) # 4MB
 set(STACK_SIZE_HEX 0x400000) # 4MB
@@ -105,6 +131,8 @@ if (UNIX AND NOT APPLE) # LINUX
   install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
   install(FILES ${PROJECT_SOURCE_DIR}/res/${PROJECT_NAME_FULL}.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications)
   install(FILES ${PROJECT_SOURCE_DIR}/res/${PROJECT_NAME_FULL}.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/72x72/apps)
+  install(FILES ${PROJECT_SOURCE_DIR}/res/xyz.gazatu.EmojiPicker.conf DESTINATION /usr/share/dbus-1/system.d)
+  install(FILES ${PROJECT_SOURCE_DIR}/res/xyz.gazatu.EmojiPicker.service DESTINATION /usr/share/dbus-1/system-services)
 
   add_custom_target(appimage
     COMMAND make install DESTDIR=${CMAKE_BINARY_DIR}/_AppDir

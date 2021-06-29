@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=xyz.gazatu.EmojiPicker
+Exec=emoji-picker --daemon
+User=root
