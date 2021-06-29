@@ -47,6 +47,7 @@ void writeQSettingsArrayFromStdVector(QSettings& settings, const QString& prefix
   settings.endArray();
 }
 
+QSettings::Scope EmojiPickerSettings::snapshotScope = QSettings::UserScope;
 EmojiPickerSettings* EmojiPickerSettings::_snapshot = nullptr;
 EmojiPickerSettings& EmojiPickerSettings::snapshot() {
   if (_snapshot == nullptr) {
@@ -80,8 +81,8 @@ void EmojiPickerSettings::writeDefaultsToDisk() {
   settings.setEnableEmojiIncludesSearch(settings.enableEmojiIncludesSearch());
 }
 
-EmojiPickerSettings::EmojiPickerSettings(QObject* parent)
-    : QSettings(QSettings::IniFormat, QSettings::UserScope, QApplication::organizationName(),
+EmojiPickerSettings::EmojiPickerSettings(QSettings::Scope scope, QObject* parent)
+    : QSettings(QSettings::IniFormat, scope, QApplication::organizationName(),
           QApplication::applicationName(), parent) {
 }
 

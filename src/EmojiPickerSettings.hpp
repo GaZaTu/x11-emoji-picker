@@ -9,11 +9,12 @@ class EmojiPickerSettings : public QSettings {
   Q_OBJECT
 
 public:
+  static QSettings::Scope snapshotScope;
   static EmojiPickerSettings& snapshot();
 
   static void writeDefaultsToDisk();
 
-  explicit EmojiPickerSettings(QObject* parent = nullptr);
+  explicit EmojiPickerSettings(QSettings::Scope scope = snapshotScope, QObject* parent = nullptr);
 
   std::vector<Emoji> recentEmojis();
   void setRecentEmojis(const std::vector<Emoji>& recentEmojis);
