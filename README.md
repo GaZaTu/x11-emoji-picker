@@ -115,6 +115,26 @@ I recommend running it (in the keybind) using the following command instead:
 
 *Note: This is much faster because it extracts itself to `/tmp` which makes subsequent runs have almost the same performance as if you ran the executable directly.*
 
+### Wayland 😱
+
+*Disclaimer: As of right now, using the emoji picker on Wayland systems (including XWayland) requires a somewhat more complex setup.*
+
+#### Installing
+
+Depending on your window manager you may need to start the emoji-picker executable as a system (root) service (with systemd for example) to get access to `/dev/uinput`.
+
+If you're using systemd then you should already have an x11-emoji-picker.service file if installed with `AUR`/`.deb`/`.rpm`/`make install`.
+Now you just need to run `sudo systemctl start x11-emoji-picker` to start the emoji picker daemon or `sudo systemctl enable x11-emoji-picker` to have it start on system boot.
+
+The emoji picker daemon provides a DBus service to open the window.
+The command (in the keybind) to open the emoji picker is:
+
+`dbus-send --system --type=method_call --dest=xyz.gazatu.EmojiPicker /xyz/gazatu/EmojiPicker xyz.gazatu.EmojiPicker.show string:$WAYLAND_DISPLAY string:''`
+
+#### Supported Window Managers
+
+- KWin (KDE Plasma) > only works in daemon mode
+
 ### Settings
 
 The settings file should be located at `/home/$USER/.config/gazatu.xyz/emoji-picker.ini`.

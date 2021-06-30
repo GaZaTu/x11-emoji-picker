@@ -19,27 +19,14 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets DBus)
+find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets DBus Network)
 
 find_package(ICU REQUIRED COMPONENTS uc)
-
-# if (UNIX AND NOT APPLE) # LINUX (X11)
-#   find_library(XDOTOOL_LIB xdo REQUIRED)
-#   add_library(XDOTOOL STATIC SHARED IMPORTED)
-#   set_target_properties(XDOTOOL PROPERTIES
-#     IMPORTED_LOCATION ${XDOTOOL_LIB}
-#   )
-# endif ()
-
-# find_library(KDE_WINDOW_SYSTEM_LIB KF5WindowSystem REQUIRED)
-# add_library(KDE_WINDOW_SYSTEM STATIC SHARED IMPORTED)
-# set_target_properties(KDE_WINDOW_SYSTEM PROPERTIES
-#   IMPORTED_LOCATION ${KDE_WINDOW_SYSTEM_LIB}
-# )
 
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
 set(COMMON_SRC_FILES
+  src/app.cpp
   src/main.cpp
   src/main.qrc
   src/emojis.cpp
@@ -97,6 +84,7 @@ target_link_libraries(${PROJECT_NAME}
   Qt5::Gui
   Qt5::Widgets
   Qt5::DBus
+  Qt5::Network
   ICU::uc
 )
 
@@ -123,7 +111,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # g++ / mingw g++
   endif ()
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC") # msvc
   set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS /STACK:${STACK_SIZE_DEC})
-endif()
+endif ()
 
 if (UNIX AND NOT APPLE) # LINUX
   set(CMAKE_INSTALL_PREFIX /usr)
@@ -131,8 +119,10 @@ if (UNIX AND NOT APPLE) # LINUX
   install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
   install(FILES ${PROJECT_SOURCE_DIR}/res/${PROJECT_NAME_FULL}.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications)
   install(FILES ${PROJECT_SOURCE_DIR}/res/${PROJECT_NAME_FULL}.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/72x72/apps)
-  install(FILES ${PROJECT_SOURCE_DIR}/res/xyz.gazatu.EmojiPicker.conf DESTINATION /usr/share/dbus-1/system.d)
-  install(FILES ${PROJECT_SOURCE_DIR}/res/xyz.gazatu.EmojiPicker.service DESTINATION /usr/share/dbus-1/system-services)
+  install(FILES ${PROJECT_SOURCE_DIR}/res/dbus-1/xyz.gazatu.EmojiPicker.conf DESTINATION ${CMAKE_INSTALL_PREFIX}/share/dbus-1/system.d)
+  # install(FILES ${PROJECT_SOURCE_DIR}/res/dbus-1/xyz.gazatu.EmojiPicker.service DESTINATION ${CMAKE_INSTALL_PREFIX}/share/dbus-1/system-services)
+  # install(FILES ${PROJECT_SOURCE_DIR}/res/polkit-1/xyz.gazatu.EmojiPicker.policy DESTINATION ${CMAKE_INSTALL_PREFIX}/share/polkit-1/actions)
+  install(FILES ${PROJECT_SOURCE_DIR}/res/systemd/x11-emoji-picker.service DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/systemd/system)
 
   add_custom_target(appimage
     COMMAND make install DESTDIR=${CMAKE_BINARY_DIR}/_AppDir
