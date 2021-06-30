@@ -10,7 +10,7 @@ class EmojiPickerSettings : public QSettings {
 
 public:
   static QSettings::Scope snapshotScope;
-  static EmojiPickerSettings& snapshot();
+  static EmojiPickerSettings& snapshot(bool reset = false);
 
   static void writeDefaultsToDisk();
 

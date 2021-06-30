@@ -49,7 +49,12 @@ void writeQSettingsArrayFromStdVector(QSettings& settings, const QString& prefix
 
 QSettings::Scope EmojiPickerSettings::snapshotScope = QSettings::UserScope;
 EmojiPickerSettings* EmojiPickerSettings::_snapshot = nullptr;
-EmojiPickerSettings& EmojiPickerSettings::snapshot() {
+EmojiPickerSettings& EmojiPickerSettings::snapshot(bool reset) {
+  if (_snapshot != nullptr && reset) {
+    delete _snapshot;
+    _snapshot = nullptr;
+  }
+
   if (_snapshot == nullptr) {
     _snapshot = new EmojiPickerSettings();
   }
