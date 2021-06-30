@@ -1,7 +1,8 @@
 #include "EmojiPickerDBusInterface.hpp"
 #include "EmojiPickerDBusAdaptor.h"
 
-// dbus-send --system --type=method_call --dest=xyz.gazatu.EmojiPicker /xyz/gazatu/EmojiPicker xyz.gazatu.EmojiPicker.show
+// dbus-send --system --type=method_call --dest=xyz.gazatu.EmojiPicker /xyz/gazatu/EmojiPicker xyz.gazatu.EmojiPicker.show string:$DISPLAY string:$XAUTHORITY
+// dbus-send --system --type=method_call --dest=xyz.gazatu.EmojiPicker /xyz/gazatu/EmojiPicker xyz.gazatu.EmojiPicker.show string:$WAYLAND_DISPLAY string:'!wayland'
 
 EmojiPickerDBusInterface::EmojiPickerDBusInterface(QObject* parent, QDBusConnection::BusType busType)
     : QObject(parent) {
@@ -9,8 +10,6 @@ EmojiPickerDBusInterface::EmojiPickerDBusInterface(QObject* parent, QDBusConnect
 
   QDBusConnection dbus =
       busType == QDBusConnection::SystemBus ? QDBusConnection::systemBus() : QDBusConnection::sessionBus();
-  // QDBusConnection dbus = QDBusConnection::connectToBus("unix:path=/run/user/77000927/bus", "emojipicker");
-  // QDBusConnection dbus = QDBusConnection::sessionBus();
 
   if (!dbus.registerObject("/xyz/gazatu/EmojiPicker", this)) {
     throw std::runtime_error{"failed to register dbus object"};
@@ -24,8 +23,8 @@ EmojiPickerDBusInterface::EmojiPickerDBusInterface(QObject* parent, QDBusConnect
 EmojiPickerDBusInterface::~EmojiPickerDBusInterface() {
 }
 
-void EmojiPickerDBusInterface::show() {
-  _show();
+void EmojiPickerDBusInterface::show(const QString& display, const QString& xauthority) {
+  _show(display, xauthority);
 }
 
 void EmojiPickerDBusInterface::hide() {

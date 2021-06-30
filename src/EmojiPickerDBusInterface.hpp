@@ -9,13 +9,13 @@ class EmojiPickerDBusInterface : public QObject {
   Q_CLASSINFO("D-Bus Interface", "xyz.gazatu.EmojiPicker");
 
 public:
-  std::function<void()> _show;
+  std::function<void(const QString&, const QString&)> _show;
   std::function<void()> _hide;
 
   EmojiPickerDBusInterface(QObject* parent, QDBusConnection::BusType busType);
   virtual ~EmojiPickerDBusInterface();
 
 public slots:
-  void show();
+  void show(const QString& display, const QString& xauthority);
   void hide();
 };
