@@ -4,7 +4,7 @@ After=graphical.target
 Requires=graphical.target
 
 [Service]
-ExecStart=/home/gazatu/workspace/x11-emoji-picker/build/emoji-picker --daemon
+ExecStart=emoji-picker --daemon
 
 [Install]
 WantedBy=graphical.target
