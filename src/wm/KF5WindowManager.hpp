@@ -3,6 +3,7 @@
 #include "../WindowManager.hpp"
 #include <dlfcn.h>
 #include <memory>
+#include <unistd.h>
 
 class libKF5WindowSystem {
 public:
@@ -58,6 +59,7 @@ public:
 
   void activate(wm::WId window) override {
     _lib._activateWindow(window, 0);
+    usleep(20000);
   }
 
 private:
