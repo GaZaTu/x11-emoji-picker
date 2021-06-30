@@ -1,0 +1,10 @@
+[Unit]
+Description=x11-emoji-picker daemon
+After=graphical.target
+Requires=graphical.target
+
+[Service]
+ExecStart=/home/gazatu/workspace/x11-emoji-picker/build/emoji-picker --daemon
+
+[Install]
+WantedBy=graphical.target
