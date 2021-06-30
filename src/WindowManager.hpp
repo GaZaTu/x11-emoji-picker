@@ -39,31 +39,17 @@ public:
   }
 };
 
-WId activeWindow() {
-  return WindowManager::instance()->activeWindow();
-}
+WId activeWindow();
 
-int pid(WId window) {
-  return WindowManager::instance()->pid(window);
-}
+int pid(WId window);
 
-void activate(WId window) {
-  WindowManager::instance()->activate(window);
-}
+void activate(WId window);
 
-void clearModifiers(WId window) {
-  WindowManager::instance()->clearModifiers(window);
-}
+void clearModifiers(WId window);
 
-void sendKeysequence(WId window, const char* sequence) {
-  WindowManager::instance()->sendKeysequence(window, sequence);
-}
+void sendKeysequence(WId window, const char* sequence);
 
-void enterText(WId window, const char* text) {
-  WindowManager::instance()->enterText(window, text);
-}
+void enterText(WId window, const char* text);
 
-bool supportsInput() {
-  return WindowManager::instance()->supportsInput();
-}
+bool supportsInput();
 } // namespace wm
