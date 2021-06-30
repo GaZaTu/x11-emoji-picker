@@ -79,7 +79,9 @@ public:
   }
 
   virtual ~XDoWindowManager() {
-    _lib._free(_xdo);
+    if (*this) {
+      _lib._free(_xdo);
+    }
   }
 
   std::string name() override {
