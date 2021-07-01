@@ -112,7 +112,9 @@
     "span": "cpp",
     "stop_token": "cpp",
     "typeindex": "cpp",
-    "valarray": "cpp"
+    "valarray": "cpp",
+    "semaphore": "cpp",
+    "qtdbus": "cpp"
   },
   "cmake.sourceDirectory": "${workspaceFolder}/.",
   "files.exclude": {

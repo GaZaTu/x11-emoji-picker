@@ -37,7 +37,7 @@ public:
   xdo_enter_text_window_t _enter_text_window;
 
   libxdo(const std::string& file = "libxdo.so") {
-    if (std::string{getenv("XDG_SESSION_TYPE")} != "X11") {
+    if (std::string{getenv("XDG_SESSION_TYPE")} != "x11") {
       return;
     }
 
