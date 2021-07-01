@@ -1,42 +1,28 @@
 #pragma once
 
 #include "../WindowManager.hpp"
+#include <QCoreApplication>
 #include <QDataStream>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 // #include <QLocalSocket>
-#include <QCoreApplication>
 #include <QProcess>
 #include <memory>
+#include <unistd.h>
 
-constexpr const char SWAYSOCK[] = "SWAYSOCK";
-constexpr const char MAGIC_STRING[] = "i3-ipc";
+namespace sway {
+static constexpr char SWAYSOCK[] = "SWAYSOCK";
+static constexpr char MAGIC_STRING[] = "i3-ipc";
 
-constexpr int RUN_COMMAND = 0;
-constexpr int GET_TREE = 4;
-
-QJsonObject getFocusedNodeInTree(QJsonObject& node) {
-  if (node["focused"].toBool() == true) {
-    return node;
-  }
-
-  for (QJsonValue child : node["nodes"].toArray()) {
-    QJsonObject childObject = child.toObject();
-    QJsonObject focusedChild = getFocusedNodeInTree(childObject);
-
-    if (!focusedChild.isEmpty()) {
-      return focusedChild;
-    }
-  }
-
-  return {};
+static constexpr int RUN_COMMAND = 0;
+static constexpr int GET_TREE = 4;
 }
 
 class SwayWindowManager : public wm::WindowManager {
 public:
   SwayWindowManager() {
-    const char* swaysock = getenv(SWAYSOCK);
+    const char* swaysock = getenv(sway::SWAYSOCK);
     if (swaysock == nullptr) {
       return;
     }
@@ -131,4 +117,21 @@ private:
 
   //   return QJsonDocument::fromJson(output);
   // }
+
+  static QJsonObject getFocusedNodeInTree(QJsonObject& node) {
+    if (node["focused"].toBool() == true) {
+      return node;
+    }
+
+    for (QJsonValue child : node["nodes"].toArray()) {
+      QJsonObject childObject = child.toObject();
+      QJsonObject focusedChild = getFocusedNodeInTree(childObject);
+
+      if (!focusedChild.isEmpty()) {
+        return focusedChild;
+      }
+    }
+
+    return {};
+  }
 };

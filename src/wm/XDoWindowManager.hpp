@@ -3,6 +3,8 @@
 #include "../WindowManager.hpp"
 #include <dlfcn.h>
 #include <memory>
+#include <string>
+#include <unistd.h>
 
 class libxdo {
 public:
@@ -35,6 +37,10 @@ public:
   xdo_enter_text_window_t _enter_text_window;
 
   libxdo(const std::string& file = "libxdo.so") {
+    if (std::string{getenv("XDG_SESSION_TYPE")} != "X11") {
+      return;
+    }
+
     auto ptr = dlopen(file.data(), RTLD_LAZY);
     if (!ptr) {
       return;

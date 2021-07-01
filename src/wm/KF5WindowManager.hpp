@@ -3,6 +3,7 @@
 #include "../WindowManager.hpp"
 #include <dlfcn.h>
 #include <memory>
+#include <string>
 #include <unistd.h>
 
 class libKF5WindowSystem {
@@ -16,6 +17,10 @@ public:
   KWindowSystem_activateWindow_t _activateWindow;
 
   libKF5WindowSystem(const std::string& file = "libKF5WindowSystem.so.5") {
+    if (std::string{getenv("XDG_CURRENT_DESKTOP")} != "KDE") {
+      return;
+    }
+
     auto ptr = dlopen(file.data(), RTLD_LAZY);
     if (!ptr) {
       return;
