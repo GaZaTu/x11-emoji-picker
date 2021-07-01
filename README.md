@@ -129,7 +129,7 @@ Now you just need to run `sudo systemctl start x11-emoji-picker` to start the em
 The emoji picker daemon provides a DBus service to open the window.
 The command (in the keybind) to open the emoji picker is:
 
-`dbus-send --system --type=method_call --dest=xyz.gazatu.EmojiPicker /xyz/gazatu/EmojiPicker xyz.gazatu.EmojiPicker.show string:$WAYLAND_DISPLAY string:''`
+`dbus-send --system --type=method_call --dest=xyz.gazatu.EmojiPicker /xyz/gazatu/EmojiPicker xyz.gazatu.EmojiPicker.show dict:string:string:WAYLAND_DISPLAY,$WAYLAND_DISPLAY`
 
 #### Supported Window Managers
 

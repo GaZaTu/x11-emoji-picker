@@ -1,8 +1,8 @@
 #include "EmojiPickerDBusInterface.hpp"
 #include "EmojiPickerDBusAdaptor.h"
 
-// dbus-send --system --type=method_call --dest=xyz.gazatu.EmojiPicker /xyz/gazatu/EmojiPicker xyz.gazatu.EmojiPicker.show string:$DISPLAY string:$XAUTHORITY
-// dbus-send --system --type=method_call --dest=xyz.gazatu.EmojiPicker /xyz/gazatu/EmojiPicker xyz.gazatu.EmojiPicker.show string:$WAYLAND_DISPLAY string:'!wayland'
+// dbus-send --system --type=method_call --dest=xyz.gazatu.EmojiPicker /xyz/gazatu/EmojiPicker xyz.gazatu.EmojiPicker.show string:$DISPLAY string:$XAUTHORITY dict:string:string:DISPLAY,$DISPLAY,XAUTHORITY,$XAUTHORITY
+// dbus-send --system --type=method_call --dest=xyz.gazatu.EmojiPicker /xyz/gazatu/EmojiPicker xyz.gazatu.EmojiPicker.show dict:string:string:WAYLAND_DISPLAY,$WAYLAND_DISPLAY
 
 EmojiPickerDBusInterface::EmojiPickerDBusInterface(QObject* parent, QDBusConnection::BusType busType)
     : QObject(parent) {
@@ -23,8 +23,8 @@ EmojiPickerDBusInterface::EmojiPickerDBusInterface(QObject* parent, QDBusConnect
 EmojiPickerDBusInterface::~EmojiPickerDBusInterface() {
 }
 
-void EmojiPickerDBusInterface::show(const QString& display, const QString& xauthority) {
-  _show(display, xauthority);
+void EmojiPickerDBusInterface::show(const QMap<QString, QString>& env) {
+  _show(env);
 }
 
 void EmojiPickerDBusInterface::hide() {

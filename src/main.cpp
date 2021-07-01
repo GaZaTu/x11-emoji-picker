@@ -36,12 +36,9 @@ int main(int argc, char** argv) {
     EmojiPickerSettings::snapshotScope = QSettings::SystemScope;
 
     dbus = new EmojiPickerDBusInterface(coreApp.get(), dbusBusType);
-    dbus->_show = [&](const QString& display, const QString& xauthority) {
-      if (xauthority == "!wayland") {
-        setenv("WAYLAND_DISPLAY", display.toStdString().data(), true);
-      } else {
-        setenv("DISPLAY", display.toStdString().data(), true);
-        setenv("XAUTHORITY", xauthority.toStdString().data(), true);
+    dbus->_show = [&](const QMap<QString, QString>& env) {
+      for (auto& key : env) {
+        setenv(key.toStdString().data(), env[key].toStdString().data(), true);
       }
 
       upgradeToQApplication();
@@ -62,7 +59,7 @@ int main(int argc, char** argv) {
 
     if (args.runAsDaemon) {
       dbus = new EmojiPickerDBusInterface(guiApp.get(), dbusBusType);
-      dbus->_show = [&](const QString& display, const QString& xauthority) {
+      dbus->_show = [&](const QMap<QString, QString>&) {
         guiMain->show();
       };
       dbus->_hide = [&]() {
