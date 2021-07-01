@@ -206,7 +206,7 @@ app::main::main(QApplication& a, args& args) : app(a) {
     }
   }
 
-  window.resize(w, h);
+  window.setFixedSize(w, h);
 
   window.setWindowOpacity(EmojiPickerSettings::snapshot().windowOpacity());
   window.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
