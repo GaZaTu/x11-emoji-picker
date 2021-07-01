@@ -2,7 +2,6 @@
 #include "EmojiPickerSettings.hpp"
 #include "EmojiTranslator.hpp"
 #include "app.hpp"
-#include <QDebug>
 #include <QtDBus>
 #include <unistd.h>
 

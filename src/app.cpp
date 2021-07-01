@@ -5,8 +5,8 @@
 #include "uinput.hpp"
 #include <QClipboard>
 #include <QCommandLineParser>
-#include <QDebug>
 #include <QMimeData>
+#include <QTextStream>
 #include <QTimer>
 
 std::string getProcessNameFromPID(int pid) {
@@ -180,7 +180,7 @@ void app::main::initState() {
 }
 
 app::main::main(QApplication& a, args& args) : app(a) {
-  qDebug() << "windowManager: " << wm::WindowManager::instance()->name().data();
+  // qDebug() << "windowManager:" << wm::WindowManager::instance()->name().data();
 
   initState();
 
