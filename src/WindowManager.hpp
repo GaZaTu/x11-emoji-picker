@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QWidget>
 #include <memory>
 #include <string>
 
@@ -34,6 +35,10 @@ public:
   virtual void enterText(WId window, const char* text) {
   }
 
+  virtual WId getWIdForQWindow(const QWidget& window) {
+    return window.winId();
+  }
+
   virtual bool supportsInput() {
     return false;
   }
@@ -50,6 +55,8 @@ void clearModifiers(WId window);
 void sendKeysequence(WId window, const char* sequence);
 
 void enterText(WId window, const char* text);
+
+WId getWIdForQWindow(const QWidget& window);
 
 bool supportsInput();
 } // namespace wm

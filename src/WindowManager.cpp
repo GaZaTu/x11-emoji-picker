@@ -49,6 +49,10 @@ void wm::enterText(wm::WId window, const char* text) {
   wm::WindowManager::instance()->enterText(window, text);
 }
 
+wm::WId wm::getWIdForQWindow(const QWidget& window) {
+  return wm::WindowManager::instance()->getWIdForQWindow(window);
+}
+
 bool wm::supportsInput() {
   return wm::WindowManager::instance()->supportsInput();
 }

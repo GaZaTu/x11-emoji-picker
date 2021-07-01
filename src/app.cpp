@@ -230,11 +230,11 @@ app::main::main(QApplication& a, args& args) : app(a) {
   mainWidget = new EmojiPicker();
   mainWidget->setInputMethod(inputMethod);
 
-  QObject::connect(mainWidget, &EmojiPicker::returnPressed, [&](const std::string& emojiStr, bool closeAfter) {
+  QObject::connect(mainWidget, &EmojiPicker::returnPressed, [this](const std::string& emojiStr, bool closeAfter) {
     wm::WId currentWindow = 0;
 
     if (activateWindowBeforeWriting || closeAfter) {
-      currentWindow = wm::activeWindow();
+      currentWindow = wm::getWIdForQWindow(window);
     }
 
     if (currentWindow) {
@@ -271,7 +271,7 @@ app::main::main(QApplication& a, args& args) : app(a) {
     }
   });
 
-  QObject::connect(mainWidget, &EmojiPicker::escapePressed, [&]() {
+  QObject::connect(mainWidget, &EmojiPicker::escapePressed, [this, &args]() {
     window.hide();
 
     EmojiPickerSettings::writeDefaultsToDisk();
@@ -294,7 +294,7 @@ app::main::main(QApplication& a, args& args) : app(a) {
     }
   });
 
-  QObject::connect(mainWidget, &EmojiPicker::toggleInputMethod, [&]() {
+  QObject::connect(mainWidget, &EmojiPicker::toggleInputMethod, [this]() {
     if (prevWindowProcessName.length() == 0) {
       return;
     }
@@ -323,7 +323,7 @@ void app::main::show() {
 
   window.show();
 
-  wm::activate(window.winId());
+  wm::activate(wm::getWIdForQWindow(window));
 }
 
 void app::main::hide() {
