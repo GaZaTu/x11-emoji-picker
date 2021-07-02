@@ -7,6 +7,10 @@
 namespace wm {
 using WId = uint64_t;
 
+constexpr int SUPPORTS_KEYSEQUENCE_INPUT = 1 << 0;
+constexpr int SUPPORTS_TEXT_INPUT = 1 << 1;
+constexpr int SUPPORTS_UNFOCUSED_INPUT = 1 << 2;
+
 class WindowManager {
 public:
   static std::shared_ptr<WindowManager> instance();
@@ -39,8 +43,8 @@ public:
     return window.winId();
   }
 
-  virtual bool supportsInput() {
-    return false;
+  virtual int capabilities() {
+    return 0;
   }
 };
 
@@ -58,5 +62,5 @@ void enterText(WId window, const char* text);
 
 WId getWIdForQWindow(const QWidget& window);
 
-bool supportsInput();
+int capabilities();
 } // namespace wm

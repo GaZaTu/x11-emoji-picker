@@ -130,8 +130,8 @@ public:
     _lib._enter_text_window(_xdo, window, text, 12000);
   }
 
-  bool supportsInput() override {
-    return true;
+  int capabilities() override {
+    return wm::SUPPORTS_TEXT_INPUT | wm::SUPPORTS_KEYSEQUENCE_INPUT | wm::SUPPORTS_UNFOCUSED_INPUT;
   }
 
 private:

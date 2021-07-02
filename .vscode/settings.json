@@ -114,7 +114,8 @@
     "typeindex": "cpp",
     "valarray": "cpp",
     "semaphore": "cpp",
-    "qtdbus": "cpp"
+    "qtdbus": "cpp",
+    "wayland-util.h": "c"
   },
   "cmake.sourceDirectory": "${workspaceFolder}/.",
   "files.exclude": {

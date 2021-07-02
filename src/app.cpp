@@ -49,19 +49,23 @@ QString readQFileIfExists(const QString& path) {
   return ts.readAll();
 }
 
+std::string getInputMethod(bool activateWindowBeforeWriting, bool useClipboardHack) {
+  if (!activateWindowBeforeWriting && !useClipboardHack) {
+    return "direct";
+  } else if (!activateWindowBeforeWriting && useClipboardHack) {
+    return "ctrl+v";
+  } else if (activateWindowBeforeWriting && !useClipboardHack) {
+    return "activate window & direct";
+  } else {
+    return "activate window & ctrl+v";
+  }
+}
+
 std::string getInputMethod(const std::string& prevWindowProcessName, EmojiPickerSettings& settings) {
   bool activateWindowBeforeWriting = settings.activateWindowBeforeWriting(prevWindowProcessName);
   bool useClipboardHack = settings.useClipboardHack(prevWindowProcessName);
 
-  if (!activateWindowBeforeWriting && !useClipboardHack) {
-    return "default";
-  } else if (!activateWindowBeforeWriting && useClipboardHack) {
-    return "ctrl+v";
-  } else if (activateWindowBeforeWriting && !useClipboardHack) {
-    return "activate window & default";
-  } else {
-    return "activate window & ctrl+v";
-  }
+  return getInputMethod(activateWindowBeforeWriting, useClipboardHack);
 }
 
 // struct Subject {
@@ -149,14 +153,19 @@ app::args::args(QCoreApplication& app) {
 }
 
 void app::main::initState() {
-  if (!wm::supportsInput()) {
+  auto capabilities = wm::capabilities();
+  auto supportsKeysequenceInput = (capabilities & wm::SUPPORTS_KEYSEQUENCE_INPUT) != 0;
+  auto supportsTextInput = (capabilities & wm::SUPPORTS_TEXT_INPUT) != 0;
+  auto supportsUnfocusedInput = (capabilities & wm::SUPPORTS_UNFOCUSED_INPUT) != 0;
+
+  if (!supportsKeysequenceInput && !supportsTextInput) {
     uinputFd = uinput::open(PROJECT_NAME);
     if (uinputFd < 1) {
       uinputFd = 0;
     }
   }
 
-  if (!uinputFd && !wm::supportsInput()) {
+  if (!uinputFd && (!supportsKeysequenceInput && !supportsTextInput)) {
     prevWindowProcessName = "";
     activateWindowBeforeWriting = false;
     useClipboardHack = false;
@@ -173,9 +182,9 @@ void app::main::initState() {
     inputMethod = getInputMethod(prevWindowProcessName, EmojiPickerSettings::snapshot());
   } else {
     prevWindowProcessName = "";
-    activateWindowBeforeWriting = true;
-    useClipboardHack = true;
-    inputMethod = "activate window & ctrl+v";
+    activateWindowBeforeWriting = !supportsUnfocusedInput;
+    useClipboardHack = !supportsTextInput;
+    inputMethod = getInputMethod(activateWindowBeforeWriting, useClipboardHack);
   }
 }
 

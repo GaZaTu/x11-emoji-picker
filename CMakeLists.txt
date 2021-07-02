@@ -4,9 +4,9 @@ project(emoji-picker VERSION 0.8.0 LANGUAGES CXX)
 set(PROJECT_NAME_FULL x11-emoji-picker)
 set(PROJECT_ORGANIZATION gazatu.xyz)
 
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.12.0")
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.12.0")
   cmake_policy(SET CMP0074 NEW)
-endif()
+endif ()
 
 add_definitions(
   -DPROJECT_ORGANIZATION="${PROJECT_ORGANIZATION}"
@@ -22,6 +22,12 @@ set(CMAKE_AUTORCC ON)
 find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets DBus Network)
 
 find_package(ICU REQUIRED COMPONENTS uc)
+
+find_library(WAYLAND_CLIENT_LIB wayland-client)
+add_library(WAYLAND_CLIENT STATIC SHARED IMPORTED)
+set_target_properties(WAYLAND_CLIENT PROPERTIES
+  IMPORTED_LOCATION ${WAYLAND_CLIENT_LIB}
+)
 
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
@@ -70,6 +76,36 @@ qt5_add_dbus_adaptor(
   EmojiPickerDBusAdaptor
 )
 
+find_package(ECM NO_MODULE)
+if (${ECM_FOUND})
+  set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
+
+  find_package(WaylandScanner REQUIRED)
+  if (${WaylandScanner_FOUND})
+    # ecm_add_wayland_client_protocol(SRC_FILES
+    #   PROTOCOL /usr/share/wayland-protocols/staging/xdg-activation/xdg-activation-v1.xml
+    #   BASENAME xdg-activation-v1
+    # )
+    # set_source_files_properties(${CMAKE_BINARY_DIR}/wayland-xdg-activation-v1-protocol.c PROPERTIES LANGUAGE CXX)
+
+    ecm_add_wayland_client_protocol(SRC_FILES
+      PROTOCOL /usr/share/wayland-protocols/unstable/text-input/text-input-unstable-v3.xml
+      BASENAME text-input-unstable-v3
+    )
+    set_source_files_properties(${CMAKE_BINARY_DIR}/wayland-text-input-unstable-v3-protocol.c PROPERTIES LANGUAGE CXX)
+
+    ecm_add_wayland_client_protocol(SRC_FILES
+      PROTOCOL ${PROJECT_SOURCE_DIR}/src/wayland-protocols/wlroots/input-method-unstable-v2.xml
+      BASENAME input-method-unstable-v2
+    )
+    set_source_files_properties(${CMAKE_BINARY_DIR}/wayland-input-method-unstable-v2-protocol.c PROPERTIES LANGUAGE CXX)
+
+    add_definitions(
+      -DWAYLAND_PROTOCOLS=true
+    )
+  endif ()
+endif ()
+
 add_executable(${PROJECT_NAME} ${SRC_FILES})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -86,6 +122,7 @@ target_link_libraries(${PROJECT_NAME}
   Qt5::DBus
   Qt5::Network
   ICU::uc
+  WAYLAND_CLIENT
 )
 
 # if (UNIX AND NOT APPLE) # LINUX (X11)

@@ -53,6 +53,6 @@ wm::WId wm::getWIdForQWindow(const QWidget& window) {
   return wm::WindowManager::instance()->getWIdForQWindow(window);
 }
 
-bool wm::supportsInput() {
-  return wm::WindowManager::instance()->supportsInput();
+int wm::capabilities() {
+  return wm::WindowManager::instance()->capabilities();
 }
