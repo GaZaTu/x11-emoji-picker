@@ -13,8 +13,14 @@
 #include <QDebug>
 
 #ifdef WAYLAND_PROTOCOLS
-#include "wayland-text-input-unstable-v3-client-protocol.h"
+// #include "wayland-text-input-unstable-v3-client-protocol.h"
 #include "wayland-input-method-unstable-v2-client-protocol.h"
+
+// WL_EXPORT const struct wl_interface zwp_text_input_manager_v3_interface = {
+// 	"zwp_text_input_manager_v3", 1,
+// 	2, zwp_text_input_manager_v3_requests,
+// 	0, NULL,
+// };
 
 namespace wl {
 std::shared_ptr<wl_display> display(const char* name = nullptr) {
@@ -74,27 +80,6 @@ public:
     // _socket.waitForConnected();
 
     _valid = true;
-
-#ifdef WAYLAND_PROTOCOLS
-    _display = wl::display();
-    _registry = wl::registry(_display);
-
-    _registry_listener = wl::createRegistryListener();
-    _registry_listener_func = [this](wl_registry* registry, uint32_t name, const char* _interface, uint32_t version) {
-      qDebug() << "interface" << _interface;
-
-      std::string interface{_interface};
-
-      if (interface == wl_seat_interface.name) {
-        _active_seat = (wl_seat*)wl_registry_bind(registry, name, &wl_seat_interface, version <= 7 ? version : 7);
-      } else if (interface == zwp_text_input_v3_interface.name) {
-        _text_input_manager_v3 =
-            (zwp_text_input_manager_v3*)wl_registry_bind(registry, name, &zwp_text_input_v3_interface, 1);
-      }
-    };
-
-    wl_registry_add_listener(&*_registry, &_registry_listener, &_registry_listener_func);
-#endif
   }
 
   std::string name() override {
@@ -135,6 +120,8 @@ public:
   }
 
   void activate(wm::WId window) override {
+    qDebug() << "activate" << window;
+
     QString payload = QString{"[con_id=%1] focus"}.arg(window);
     if (window == -1) {
       payload = QString{"[pid=%1] focus"}.arg(QCoreApplication::applicationPid());
@@ -160,19 +147,54 @@ public:
   }
 
   void enterText(wm::WId window, const char* text) override {
-#ifdef WAYLAND_PROTOCOLS
-    wl_display_dispatch(&*_display);
-    wl_display_roundtrip(&*_display);
+    qDebug() << "enterText" << window << text;
 
-    if (!_active_seat) {
+#ifdef WAYLAND_PROTOCOLS
+    wayland_integration wli;
+
+    if (!wli._active_seat) {
       return;
     }
 
-    if (!_text_input_manager_v3) {
-      throw std::runtime_error{"wayland compositor does not support `text_input_v3`"};
+    if (!wli._input_method_manager_v2) {
+      throw std::runtime_error{"wayland compositor does not support `zwp_input_method_manager_v2`"};
     }
 
-    zwp_text_input_manager_v3_get_text_input(_text_input_manager_v3, _active_seat);
+    std::shared_ptr<zwp_input_method_v2> input_method_v2{zwp_input_method_manager_v2_get_input_method(wli._input_method_manager_v2, wli._active_seat), &zwp_input_method_v2_destroy};
+
+    // zwp_input_method_v2_listener listener;
+    // listener.activate = [](auto, auto) {
+    //   qDebug() << "listener.activate";
+    // };
+    // listener.deactivate = [](auto, auto) {
+    //   qDebug() << "listener.deactivate";
+    // };
+    // listener.surrounding_text = [](void *data, zwp_input_method_v2 *zwp_input_method_v2, const char *text, uint32_t cursor, uint32_t anchor) {
+    //   qDebug() << "listener.surrounding_text" << text << cursor << anchor;
+    // };
+    // listener.text_change_cause = [](auto, auto, auto) {
+    //   qDebug() << "listener.text_change_cause";
+    // };
+    // listener.content_type = [](auto, auto, auto, auto) {
+    //   qDebug() << "listener.content_type";
+    // };
+    // listener.done = [](auto, auto) {
+    //   qDebug() << "listener.done";
+    // };
+    // listener.unavailable = [](auto, auto) {
+    //   qDebug() << "listener.unavailable";
+    // };
+
+    // zwp_input_method_v2_add_listener(&*input_method_v2, &listener, nullptr);
+
+    wl_display_dispatch(&*wli._display);
+    wl_display_roundtrip(&*wli._display);
+
+    zwp_input_method_v2_commit_string(&*input_method_v2, text);
+    zwp_input_method_v2_commit(&*input_method_v2, 0);
+
+    wl_display_dispatch(&*wli._display);
+    wl_display_roundtrip(&*wli._display);
 #endif
   }
 
@@ -189,14 +211,41 @@ private:
   bool _valid = false;
 
 #ifdef WAYLAND_PROTOCOLS
-  std::shared_ptr<wl_display> _display;
-  std::shared_ptr<wl_registry> _registry;
+  class wayland_integration {
+  public:
+    std::shared_ptr<wl_display> _display;
+    std::shared_ptr<wl_registry> _registry;
 
-  wl_registry_listener _registry_listener;
-  wl::registry_listener_func _registry_listener_func;
+    wl_registry_listener _registry_listener;
+    wl::registry_listener_func _registry_listener_func;
 
-  wl_seat* _active_seat = nullptr;
-  zwp_text_input_manager_v3* _text_input_manager_v3 = nullptr;
+    wl_seat* _active_seat = nullptr;
+    zwp_input_method_manager_v2* _input_method_manager_v2 = nullptr;
+
+    wayland_integration() {
+      _display = wl::display();
+      _registry = wl::registry(_display);
+
+      _registry_listener = wl::createRegistryListener();
+      _registry_listener_func = [this](wl_registry* registry, uint32_t name, const char* _interface, uint32_t version) {
+        qDebug() << "interface" << _interface;
+
+        std::string interface{_interface};
+
+        if (interface == wl_seat_interface.name) {
+          _active_seat = (wl_seat*)wl_registry_bind(registry, name, &wl_seat_interface, version <= 7 ? version : 7);
+        } else if (interface == zwp_input_method_manager_v2_interface.name) {
+          _input_method_manager_v2 =
+              (zwp_input_method_manager_v2*)wl_registry_bind(registry, name, &zwp_input_method_manager_v2_interface, 1);
+        }
+      };
+
+      wl_registry_add_listener(&*_registry, &_registry_listener, &_registry_listener_func);
+
+      wl_display_dispatch(&*_display);
+      wl_display_roundtrip(&*_display);
+    }
+  };
 #endif
 
   // static QByteArray createMessage(int type, const QString& payload) {
