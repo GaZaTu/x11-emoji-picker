@@ -79,10 +79,10 @@ qt5_add_dbus_adaptor(
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 find_package(WaylandScanner)
 if (${WaylandScanner_FOUND})
-  # ecm_add_wayland_client_protocol(SRC_FILES
-  #   PROTOCOL /usr/share/wayland-protocols/unstable/text-input/text-input-unstable-v3.xml
-  #   BASENAME text-input-unstable-v3
-  # )
+  ecm_add_wayland_client_protocol(SRC_FILES
+    PROTOCOL /usr/share/wayland-protocols/unstable/text-input/text-input-unstable-v3.xml
+    BASENAME text-input-unstable-v3
+  )
 
   ecm_add_wayland_client_protocol(SRC_FILES
     PROTOCOL ${PROJECT_SOURCE_DIR}/src/wayland-protocols/wlroots/input-method-unstable-v2.xml
