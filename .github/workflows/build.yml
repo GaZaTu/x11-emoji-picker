@@ -23,7 +23,7 @@ jobs:
       options: --privileged
     strategy:
       matrix:
-        image: ['ubuntu', 'ubuntu:focal', 'debian', 'opensuse/leap']
+        image: ['ubuntu', 'debian', 'debian:stretch', 'opensuse/leap']
       fail-fast: false
 
     steps:
@@ -36,7 +36,7 @@ jobs:
         run: zypper install -y tar gzip wget rpm-build gcc-c++ cmake libqt5-qtbase-devel libicu-devel xdotool-devel
       
       - name: Install dependencies .AppImage
-        if: startsWith(matrix.image, 'ubuntu:focal')
+        if: startsWith(matrix.image, 'debian:stretch')
         run: |
           wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
           chmod a+x linuxdeployqt-continuous-x86_64.AppImage
@@ -69,13 +69,13 @@ jobs:
           make
 
       - name: Package
-        if: "! endsWith(matrix.image, 'ubuntu:focal')"
+        if: "! endsWith(matrix.image, 'debian:stretch')"
         run: |
           cd build
           make package
 
       - name: Package .AppImage
-        if: "endsWith(matrix.image, 'ubuntu:focal')"
+        if: "endsWith(matrix.image, 'debian:stretch')"
         run: |
           cd build
           make appimage
@@ -95,7 +95,7 @@ jobs:
           path: build/x11-emoji-picker-x86_64.rpm
 
       - name: Upload artifact .AppImage
-        if: endsWith(matrix.image, 'ubuntu:focal')
+        if: endsWith(matrix.image, 'debian:stretch')
         uses: actions/upload-artifact@v2.2.4
         with:
           name: x11-emoji-picker-x86_64-${{matrix.image}}.AppImage
