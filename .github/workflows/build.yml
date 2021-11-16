@@ -18,7 +18,9 @@ jobs:
     # cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: ubuntu-latest
-    container: ${{matrix.image}}
+    container:
+      image: ${{matrix.image}}
+      options: --privileged
     strategy:
       matrix:
         image: [ubuntu, debian, opensuse/leap]
@@ -70,21 +72,21 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: x11-emoji-picker.x86_64-${{matrix.image}}.deb
-          path: ${{github.workspace}}/build/x11-emoji-picker-x86_64.deb
+          path: ./build/x11-emoji-picker-x86_64.deb
 
       - name: Upload artifact .rpm
         if: startsWith(matrix.image, 'opensuse')
         uses: actions/upload-artifact@v2
         with:
           name: x11-emoji-picker.x86_64-${{matrix.image}}.rpm
-          path: ${{github.workspace}}/build/x11-emoji-picker-x86_64.rpm
+          path: ./build/x11-emoji-picker-x86_64.rpm
 
       - name: Upload artifact .AppImage
         if: startsWith(matrix.image, 'debian')
         uses: actions/upload-artifact@v2
         with:
           name: x11-emoji-picker-x86_64-${{matrix.image}}.AppImage
-          path: ${{github.workspace}}/build/x11-emoji-picker-dev-x86_64.AppImage
+          path: ./build/x11-emoji-picker-dev-x86_64.AppImage
 
   create-release:
     needs: build
