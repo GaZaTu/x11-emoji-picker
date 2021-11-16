@@ -64,25 +64,25 @@ jobs:
         run: cd ${{github.workspace}}/build && make package
 
       - name: Package .AppImage
-        if: equals(matrix.image, 'ubuntu@bionic')
+        if: endsWith(matrix.image, 'ubuntu@bionic')
         run: cd ${{github.workspace}}/build && make appimage
 
       - name: Upload artifact .deb
-        if: equals(matrix.image, 'ubuntu') || equals(matrix.image, 'debian')
+        if: endsWith(matrix.image, 'ubuntu') || endsWith(matrix.image, 'debian')
         uses: actions/upload-artifact@v2
         with:
           name: x11-emoji-picker.x86_64-${{matrix.image}}.deb
           path: ./x11-emoji-picker-x86_64.deb
 
       - name: Upload artifact .rpm
-        if: equals(matrix.image, 'opensuse')
+        if: endsWith(matrix.image, 'opensuse')
         uses: actions/upload-artifact@v2
         with:
           name: x11-emoji-picker.x86_64-${{matrix.image}}.rpm
           path: ./x11-emoji-picker-x86_64.rpm
 
       - name: Upload artifact .AppImage
-        if: equals(matrix.image, 'ubuntu@bionic')
+        if: endsWith(matrix.image, 'ubuntu@bionic')
         uses: actions/upload-artifact@v2
         with:
           name: x11-emoji-picker-x86_64-${{matrix.image}}.AppImage
