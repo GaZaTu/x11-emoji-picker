@@ -48,17 +48,23 @@ jobs:
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
         env:
           CPACK_GENERATOR: DEB
-        run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        run: |
+          mkdir -p build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ..
 
       - name: Configure CMake (OpenSUSE)
         if: startsWith(matrix.image, 'opensuse')
         env:
           CPACK_GENERATOR: RPM
-        run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        run: |
+          mkdir -p build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ..
 
       - name: Build
         # Build your program with the given configuration
-        run: cmake --build build --config ${{env.BUILD_TYPE}}
+        run: make
 
       - name: Package
         if: "! endsWith(matrix.image, 'ubuntu:bionic')"
