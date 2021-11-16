@@ -61,11 +61,11 @@ jobs:
         run: cmake --build build --config ${{env.BUILD_TYPE}}
 
       - name: Package
-        if: ! endsWith(matrix.image, 'ubuntu:bionic')
+        if: "! endsWith(matrix.image, 'ubuntu:bionic')"
         run: cd build && make package
 
       - name: Package .AppImage
-        if: endsWith(matrix.image, 'ubuntu:bionic')
+        if: "endsWith(matrix.image, 'ubuntu:bionic')"
         run: cd build && make appimage
 
       - name: Upload artifact .deb
