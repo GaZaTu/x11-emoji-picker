@@ -48,45 +48,46 @@ jobs:
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
         env:
           CPACK_GENERATOR: DEB
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
       - name: Configure CMake (OpenSUSE)
         if: startsWith(matrix.image, 'opensuse')
         env:
           CPACK_GENERATOR: RPM
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
       - name: Build
         # Build your program with the given configuration
-        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+        run: cmake --build build --config ${{env.BUILD_TYPE}}
 
       - name: Package
-        run: cd ${{github.workspace}}/build && make package
+        if: ! endsWith(matrix.image, 'ubuntu:bionic')
+        run: cd build && make package
 
       - name: Package .AppImage
         if: endsWith(matrix.image, 'ubuntu:bionic')
-        run: cd ${{github.workspace}}/build && make appimage
+        run: cd build && make appimage
 
       - name: Upload artifact .deb
         if: endsWith(matrix.image, 'ubuntu') || endsWith(matrix.image, 'debian')
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2.2.4
         with:
           name: x11-emoji-picker.x86_64-${{matrix.image}}.deb
-          path: ./x11-emoji-picker-x86_64.deb
+          path: build/x11-emoji-picker-x86_64.deb
 
       - name: Upload artifact .rpm
         if: endsWith(matrix.image, 'opensuse')
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2.2.4
         with:
           name: x11-emoji-picker.x86_64-${{matrix.image}}.rpm
-          path: ./x11-emoji-picker-x86_64.rpm
+          path: build/x11-emoji-picker-x86_64.rpm
 
       - name: Upload artifact .AppImage
         if: endsWith(matrix.image, 'ubuntu:bionic')
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2.2.4
         with:
           name: x11-emoji-picker-x86_64-${{matrix.image}}.AppImage
-          path: ./x11-emoji-picker-dev-x86_64.AppImage
+          path: build/x11-emoji-picker-dev-x86_64.AppImage
 
   create-release:
     needs: build
