@@ -64,15 +64,21 @@ jobs:
 
       - name: Build
         # Build your program with the given configuration
-        run: make
+        run: |
+          cd build
+          make
 
       - name: Package
         if: "! endsWith(matrix.image, 'ubuntu:bionic')"
-        run: cd build && make package
+        run: |
+          cd build
+          make package
 
       - name: Package .AppImage
         if: "endsWith(matrix.image, 'ubuntu:bionic')"
-        run: cd build && make appimage
+        run: |
+          cd build
+          make appimage
 
       - name: Upload artifact .deb
         if: endsWith(matrix.image, 'ubuntu') || endsWith(matrix.image, 'debian')
