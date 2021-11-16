@@ -24,15 +24,15 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v2
-      
       - name: Install dependencies (Ubuntu / Debian)
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
-        run: apt install gcc cmake qtbase5-dev libicu-dev libxdo-dev
+        run: apt update && apt install gcc cmake qtbase5-dev libicu-dev libxdo-dev
       
       - name: Install dependencies (OpenSUSE)
         if: startsWith(matrix.image, 'opensuse')
-        run: zypper install gcc cmake libqt5-qtbase-devel libicu-devel xdotool-devel
+        run: zypper install gcc cmake libqt5-qtbase-devel libicu-devel xdotool-devel tar
+        
+      - uses: actions/checkout@v2
       
       - name: Install dependencies .AppImage
         if: startsWith(matrix.image, 'debian')
