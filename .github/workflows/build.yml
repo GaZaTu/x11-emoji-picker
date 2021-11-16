@@ -27,7 +27,7 @@ jobs:
     steps:
       - name: Install dependencies (Ubuntu / Debian)
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
-        run: apt update && apt install -y wget file dpkg-shlibdeps fuse g++ cmake qtbase5-dev libicu-dev libxdo-dev
+        run: apt update && apt install -y wget file dpkg-dev fuse g++ cmake qtbase5-dev libicu-dev libxdo-dev
       
       - name: Install dependencies (OpenSUSE)
         if: startsWith(matrix.image, 'opensuse')
