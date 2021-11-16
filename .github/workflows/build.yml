@@ -26,13 +26,11 @@ jobs:
     steps:
       - name: Install dependencies (Ubuntu / Debian)
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
-        run: apt update && apt install -y gcc cmake qtbase5-dev libicu-dev libxdo-dev
+        run: apt update && apt install -y wget gcc cmake qtbase5-dev libicu-dev libxdo-dev
       
       - name: Install dependencies (OpenSUSE)
         if: startsWith(matrix.image, 'opensuse')
-        run: zypper install -y gcc cmake libqt5-qtbase-devel libicu-devel xdotool-devel tar
-        
-      - uses: actions/checkout@v2
+        run: zypper install -y tar wget gcc cmake libqt5-qtbase-devel libicu-devel xdotool-devel
       
       - name: Install dependencies .AppImage
         if: startsWith(matrix.image, 'debian')
@@ -40,6 +38,8 @@ jobs:
           wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
           chmod a+x linuxdeployqt-continuous-x86_64.AppImage
           cp ./linuxdeployqt-continuous-x86_64.AppImage /usr/bin/linuxdeployqt.AppImage
+        
+      - uses: actions/checkout@v2
 
       - name: Configure CMake
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
