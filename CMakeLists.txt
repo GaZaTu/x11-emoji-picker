@@ -106,6 +106,7 @@ if (UNIX AND NOT APPLE) # LINUX
   install(FILES ${PROJECT_SOURCE_DIR}/res/${PROJECT_NAME_FULL}.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications)
   install(FILES ${PROJECT_SOURCE_DIR}/res/${PROJECT_NAME_FULL}.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/72x72/apps)
 
+  # FDM
   add_custom_target(appimage
     COMMAND make install DESTDIR=${CMAKE_BINARY_DIR}/_AppDir
     COMMAND VERSION=dev linuxdeployqt.AppImage ${CMAKE_BINARY_DIR}/_AppDir/usr/share/applications/${PROJECT_NAME_FULL}.desktop -appimage -no-translations
