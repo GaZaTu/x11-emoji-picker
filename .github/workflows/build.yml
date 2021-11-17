@@ -82,14 +82,14 @@ jobs:
         if: endsWith(matrix.image, 'ubuntu') || endsWith(matrix.image, 'debian')
         uses: actions/upload-artifact@v2.2.4
         with:
-          name: x11-emoji-picker.x86_64-${{matrix.image}}.deb
+          name: x11-emoji-picker-x86_64-${{matrix.image}}.deb
           path: build/x11-emoji-picker-x86_64.deb
 
       - name: Upload artifact .rpm
         if: endsWith(matrix.image, 'opensuse/leap')
         uses: actions/upload-artifact@v2.2.4
         with:
-          name: x11-emoji-picker.x86_64-opensuse.rpm
+          name: x11-emoji-picker-x86_64-opensuse.rpm
           path: build/x11-emoji-picker-x86_64.rpm
 
       - name: Upload artifact .AppImage
