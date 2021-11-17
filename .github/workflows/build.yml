@@ -22,11 +22,15 @@ jobs:
       fail-fast: false
 
     steps:
-      - name: Install dependencies (Ubuntu / Debian)
+      - name: Install dependencies (ubuntu / debian)
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
-        run: apt update && apt install -y wget file dpkg-dev fuse g++ cmake qt5-default libicu-dev libxdo-dev
+        run: apt update && apt install -y wget file dpkg-dev fuse g++ cmake qtbase5-dev libicu-dev libxdo-dev
+        
+      - name: Install dependencies (debian:stretch)
+        if: startsWith(matrix.image, 'debian:stretch')
+        run: apt install qt5-default
       
-      - name: Install dependencies (OpenSUSE)
+      - name: Install dependencies (opensuse/leap)
         if: startsWith(matrix.image, 'opensuse/leap')
         run: zypper install -y tar gzip wget rpm-build gcc-c++ cmake libqt5-qtbase-devel libicu-devel xdotool-devel
       
@@ -39,7 +43,7 @@ jobs:
         
       - uses: actions/checkout@v2
 
-      - name: Configure CMake (Ubuntu / Debian)
+      - name: Configure CMake (ubuntu / debian)
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
         env:
           CPACK_GENERATOR: DEB
@@ -48,7 +52,7 @@ jobs:
           cd build
           cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ..
 
-      - name: Configure CMake (OpenSUSE)
+      - name: Configure CMake (opensuse/leap)
         if: startsWith(matrix.image, 'opensuse/leap')
         env:
           CPACK_GENERATOR: RPM
@@ -85,14 +89,14 @@ jobs:
         if: endsWith(matrix.image, 'opensuse/leap')
         uses: actions/upload-artifact@v2.2.4
         with:
-          name: x11-emoji-picker.x86_64-${{matrix.image}}.rpm
+          name: x11-emoji-picker.x86_64-opensuse.rpm
           path: build/x11-emoji-picker-x86_64.rpm
 
       - name: Upload artifact .AppImage
         if: endsWith(matrix.image, 'debian:stretch')
         uses: actions/upload-artifact@v2.2.4
         with:
-          name: x11-emoji-picker-x86_64-${{matrix.image}}.AppImage
+          name: x11-emoji-picker-x86_64.AppImage
           path: build/x11-emoji-picker-dev-x86_64.AppImage
 
   create-release:
