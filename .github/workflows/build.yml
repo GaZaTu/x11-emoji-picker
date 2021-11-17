@@ -7,16 +7,11 @@ on:
     branches: [master]
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
   DEBIAN_FRONTEND: noninteractive
 
 jobs:
   build:
-    # The CMake configure and build commands are platform agnostic and should work equally
-    # well on Windows or Mac.  You can convert this to a matrix build if you need
-    # cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: ubuntu-latest
     container:
       image: ${{matrix.image}}
@@ -29,10 +24,10 @@ jobs:
     steps:
       - name: Install dependencies (Ubuntu / Debian)
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
-        run: apt update && apt install -y wget file dpkg-dev fuse g++ cmake qtbase5-dev libicu-dev libxdo-dev
+        run: apt update && apt install -y wget file dpkg-dev fuse g++ cmake qt5-default libicu-dev libxdo-dev
       
       - name: Install dependencies (OpenSUSE)
-        if: startsWith(matrix.image, 'opensuse')
+        if: startsWith(matrix.image, 'opensuse/leap')
         run: zypper install -y tar gzip wget rpm-build gcc-c++ cmake libqt5-qtbase-devel libicu-devel xdotool-devel
       
       - name: Install dependencies .AppImage
@@ -54,7 +49,7 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ..
 
       - name: Configure CMake (OpenSUSE)
-        if: startsWith(matrix.image, 'opensuse')
+        if: startsWith(matrix.image, 'opensuse/leap')
         env:
           CPACK_GENERATOR: RPM
         run: |
@@ -63,7 +58,6 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ..
 
       - name: Build
-        # Build your program with the given configuration
         run: |
           cd build
           make
@@ -88,7 +82,7 @@ jobs:
           path: build/x11-emoji-picker-x86_64.deb
 
       - name: Upload artifact .rpm
-        if: endsWith(matrix.image, 'opensuse')
+        if: endsWith(matrix.image, 'opensuse/leap')
         uses: actions/upload-artifact@v2.2.4
         with:
           name: x11-emoji-picker.x86_64-${{matrix.image}}.rpm
