@@ -118,10 +118,15 @@ jobs:
           prerelease: true
 
       - name: Download .deb (Ubuntu)
-        id: download-ubuntu-deb
+        id: download_ubuntu_deb
         uses: actions/download-artifact@v2.0.10
         with:
           name: x11-emoji-picker-x86_64-ubuntu.deb
+
+      - name: test
+        run: |
+          ls -la
+          ls -la ${{steps.download_ubuntu_deb.outputs.download-path}}
 
       - name: Upload release asset .deb (Ubuntu)
         uses: actions/upload-release-asset@v1.0.2
@@ -129,12 +134,12 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_path: ${{steps.download-ubuntu-deb.outputs.download-path}}/x11-emoji-picker-x86_64-ubuntu.deb
+          asset_path: ${{steps.download_ubuntu_deb.outputs.download-path}}/x11-emoji-picker-x86_64-ubuntu.deb
           asset_name: x11-emoji-picker-x86_64-ubuntu.deb
           asset_content_type: application/vnd.debian.binary-package
 
       - name: Download .deb (Debian)
-        id: download-debian-deb
+        id: download_debian_deb
         uses: actions/download-artifact@v2.0.10
         with:
           name: x11-emoji-picker-x86_64-debian.deb
@@ -145,12 +150,12 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_path: ${{steps.download-debian-deb.outputs.download-path}}/x11-emoji-picker-x86_64-debian.deb
+          asset_path: ${{steps.download_debian_deb.outputs.download-path}}/x11-emoji-picker-x86_64-debian.deb
           asset_name: x11-emoji-picker-x86_64-debian.deb
           asset_content_type: application/vnd.debian.binary-package
 
       - name: Download .rpm (OpenSUSE)
-        id: download-opensuse-rpm
+        id: download_opensuse_rpm
         uses: actions/download-artifact@v2.0.10
         with:
           name: x11-emoji-picker-x86_64-opensuse.rpm
@@ -161,12 +166,12 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_path: ${{steps.download-opensuse-rpm.outputs.download-path}}/x11-emoji-picker-x86_64-opensuse.rpm
+          asset_path: ${{steps.download_opensuse_rpm.outputs.download-path}}/x11-emoji-picker-x86_64-opensuse.rpm
           asset_name: x11-emoji-picker-x86_64-opensuse.rpm
           asset_content_type: application/x-rpm
 
       - name: Download .AppImage
-        id: download-appimage
+        id: download_appimage
         uses: actions/download-artifact@v2.0.10
         with:
           name: x11-emoji-picker-x86_64.AppImage
@@ -177,6 +182,6 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_path: ${{steps.download-appimage.outputs.download-path}}/x11-emoji-picker-x86_64.AppImage
+          asset_path: ${{steps.download_appimage.outputs.download-path}}/x11-emoji-picker-x86_64.AppImage
           asset_name: x11-emoji-picker-x86_64.AppImage
           asset_content_type: application/x-executable
