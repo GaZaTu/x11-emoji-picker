@@ -112,7 +112,6 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           tag_name: nightly-build
-          backup_tag_name: backup-nightly-build
           release_name: Nightly Release
           body: |
             Nightly Build
@@ -121,7 +120,7 @@ jobs:
       - uses: actions/download-artifact@v2.0.10
         with:
           name: x11-emoji-picker-x86_64-ubuntu.deb
-          path: ${{github.workspace}}/
+          path: /tmp/
 
       - name: Upload release asset (Ubuntu .deb)
         uses: actions/upload-release-asset@v1.0.2
@@ -129,14 +128,14 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_path: ${{github.workspace}}/x11-emoji-picker-x86_64-ubuntu.deb
+          asset_path: /tmp/x11-emoji-picker-x86_64-ubuntu.deb
           asset_name: x11-emoji-picker-x86_64-ubuntu.deb
           asset_content_type: application/vnd.debian.binary-package
 
       - uses: actions/download-artifact@v2.0.10
         with:
           name: x11-emoji-picker-x86_64-debian.deb
-          path: ${{github.workspace}}/
+          path: /tmp/
 
       - name: Upload release asset (Debian .deb)
         uses: actions/upload-release-asset@v1.0.2
@@ -144,14 +143,14 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_path: ${{github.workspace}}/x11-emoji-picker-x86_64-debian.deb
+          asset_path: /tmp/x11-emoji-picker-x86_64-debian.deb
           asset_name: x11-emoji-picker-x86_64-debian.deb
           asset_content_type: application/vnd.debian.binary-package
 
       - uses: actions/download-artifact@v2.0.10
         with:
           name: x11-emoji-picker-x86_64-opensuse.rpm
-          path: ${{github.workspace}}/
+          path: /tmp/
 
       - name: Upload release asset (OpenSUSE .rpm)
         uses: actions/upload-release-asset@v1.0.2
@@ -159,14 +158,14 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_path: ${{github.workspace}}/x11-emoji-picker-x86_64-opensuse.rpm
+          asset_path: /tmp/x11-emoji-picker-x86_64-opensuse.rpm
           asset_name: x11-emoji-picker-x86_64-opensuse.rpm
           asset_content_type: application/x-rpm
 
       - uses: actions/download-artifact@v2.0.10
         with:
-          name: x11-emoji-picker-dev-x86_64.AppImage
-          path: ${{github.workspace}}/
+          name: x11-emoji-picker-x86_64.AppImage
+          path: /tmp/
 
       - name: Upload release asset .AppImage
         uses: actions/upload-release-asset@v1.0.2
@@ -174,6 +173,6 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_path: ${{github.workspace}}/x11-emoji-picker-dev-x86_64.AppImage
+          asset_path: /tmp/x11-emoji-picker-x86_64.AppImage
           asset_name: x11-emoji-picker-x86_64.AppImage
           asset_content_type: application/x-executable
