@@ -244,7 +244,6 @@ std::vector<std::string> defaultActivateWindowBeforeWritingExceptions = {
     "chrome",
     "chromium",
     "kate",
-    "brave-browser",
 };
 
 std::vector<std::string> EmojiPickerSettings::activateWindowBeforeWritingExceptions() {
