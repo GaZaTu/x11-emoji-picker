@@ -176,6 +176,7 @@ windowOpacity=0.9
 3\processName=chrome
 4\processName=chromium
 5\processName=kate
+6\processName=brave-browser
 size=5
 
 [emojiAliasesIniFilePaths]
