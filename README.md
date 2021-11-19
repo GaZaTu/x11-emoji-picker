@@ -41,7 +41,7 @@ Download the `-ubuntu.deb` from [/releases](https://github.com/GaZaTu/x11-emoji-
 Download the `-opensuse.rpm` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases) and run `sudo zypper install ./x11-emoji-picker-*.rpm`.
 
 **Gentoo Ebuild**:
-Put an [ebuild](https://gitlab.com/iressa/eonnbuild/-/tree/main/x11-misc/x11-emoji-picker) in the local overlay or otherwise add an overlay with the ebuild and run `emerge x11-misc/x11-emoji-picker`.
+Third-party ebuilds provided in [https://gpo.zugaina.org/x11-plugins/x11-emoji-picker](https://gpo.zugaina.org/x11-plugins/x11-emoji-picker).
 
 **Other**:
 Download the `.AppImage` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases), add executable permission (`chmod +x x11-emoji-picker-*.AppImage`) and [run it](#appimage) (Read the usage instructions below).
