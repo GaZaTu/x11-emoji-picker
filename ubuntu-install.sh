@@ -44,17 +44,22 @@ then
     # Adding the keyboard shortcut
     # Fetching all customs keyboard shortcuts
     CUSTOM_KEYBINDINGS_LIST=$(gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings)
-    if [[ $CUSTOM_KEYBINDINGS_LIST == "@as []" ]] # creating new list if not exists
+    if ! grep -q "x11-emoji-picker" <<< $CUSTOM_KEYBINDINGS_LIST
     then
-        CUSTOM_KEYBINDINGS_LIST="['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/x11-emoji-picker/']"
-    else # if already existing, adding our new element
-        CUSTOM_KEYBINDINGS_LIST="${CUSTOM_KEYBINDINGS_LIST::-1}, '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/x11-emoji-picker/']"
+        if [[ $CUSTOM_KEYBINDINGS_LIST == "@as []" ]] # creating new list if not exists
+        then
+            CUSTOM_KEYBINDINGS_LIST="['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/x11-emoji-picker/']"
+        else # if already existing, adding our new element
+            CUSTOM_KEYBINDINGS_LIST="${CUSTOM_KEYBINDINGS_LIST::-1}, '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/x11-emoji-picker/']"
+        fi
+        gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "$CUSTOM_KEYBINDINGS_LIST" # update the list
+        gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/x11-emoji-picker/ name 'Emoji Picker' # set name
+        gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/x11-emoji-picker/ command 'emoji-picker' # set command
+        gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/x11-emoji-picker/ binding '<Super>semicolon' # set shortcut
+        echo "Keyboard shortcut added!"
+    else
+        echo "Keyboard shortcut already added."
     fi
-    gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "$CUSTOM_KEYBINDINGS_LIST" # update the list
-    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/x11-emoji-picker/ name 'Emoji Picker' # set name
-    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/x11-emoji-picker/ command 'emoji-picker' # set command
-    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/x11-emoji-picker/ binding '<Super>semicolon' # set shortcut
-    echo "Keyboard shortcut added!"
 fi
 
 echo ""
