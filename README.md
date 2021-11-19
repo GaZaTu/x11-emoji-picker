@@ -36,6 +36,7 @@ Download the `-debian.deb` from [/releases](https://github.com/GaZaTu/x11-emoji-
 
 **Ubuntu**:
 Download the `-ubuntu.deb` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases) and run `sudo apt install ./x11-emoji-picker-*.deb`.
+You can also run the [`ubuntu-install.sh`](ubuntu-install.sh) script which will download and install the application by itself, and will also offer to add a keyboard shortcut for you *(Super+;)*.
 
 **openSUSE**:
 Download the `-opensuse.rpm` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases) and run `sudo zypper install ./x11-emoji-picker-*.rpm`.
