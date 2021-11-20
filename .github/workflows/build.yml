@@ -107,7 +107,7 @@ jobs:
           path: build/x11-emoji-picker-dev-x86_64.AppImage
 
   create-nightly-release:
-    needs: build
+    needs: build-artifact
     runs-on: ubuntu-latest
     if: (github.event_name == 'push' && github.ref == 'refs/heads/master')
 
