@@ -91,6 +91,11 @@ jobs:
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
       - name: Rename artifact .deb (ubuntu / debian)
+        if: "startsWith(matrix.image, 'debian:stretch')"
+        run: |
+          mv build/x11-emoji-picker-dev-x86_64.AppImage build/x11-emoji-picker-x86_64.AppImage
+
+      - name: Rename artifact .AppImage
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
         run: |
           mv build/x11-emoji-picker-x86_64.deb build/x11-emoji-picker-x86_64-${{env.IMAGE}}.deb
