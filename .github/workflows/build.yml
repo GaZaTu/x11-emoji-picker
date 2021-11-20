@@ -18,7 +18,7 @@ jobs:
       options: --privileged
     strategy:
       matrix:
-        image: ['ubuntu:20.04', 'ubuntu:18.04', 'debian:bullseye', 'debian:buster', 'debian:stretch', 'opensuse/leap:15.3', 'opensuse/leap:15.2', 'opensuse/leap:15.1', 'fedora:35', 'fedora:34', 'fedora:33']
+        image: ['ubuntu:22.04', 'ubuntu:21.10', 'ubuntu:20.04', 'ubuntu:18.04', 'debian:11', 'debian:10', 'debian:9', 'opensuse/leap:15.3', 'opensuse/leap:15.2', 'opensuse/leap:15.1', 'fedora:36', 'fedora:35', 'fedora:34', 'fedora:33']
         # 'centos:centos8'
       fail-fast: false
 
@@ -27,8 +27,8 @@ jobs:
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
         run: apt update && apt install -y wget file dpkg-dev fuse g++ cmake qtbase5-dev libicu-dev libxdo-dev
 
-      - name: Install dependencies (debian:stretch)
-        if: startsWith(matrix.image, 'debian:stretch')
+      - name: Install dependencies (debian:9)
+        if: startsWith(matrix.image, 'debian:9')
         run: apt install qt5-default
 
       - name: Install dependencies (opensuse)
@@ -40,7 +40,7 @@ jobs:
         run: dnf install -y tar gzip wget rpm-build gcc-c++ cmake qt5-qtbase-devel libicu-devel libxdo-devel
 
       - name: Install dependencies .AppImage
-        if: startsWith(matrix.image, 'debian:stretch')
+        if: startsWith(matrix.image, 'debian:9')
         run: |
           wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
           chmod a+x linuxdeployqt-continuous-x86_64.AppImage
@@ -77,7 +77,7 @@ jobs:
           make package
 
       - name: Package .AppImage
-        if: "startsWith(matrix.image, 'debian:stretch')"
+        if: "startsWith(matrix.image, 'debian:9')"
         run: |
           cd build
           make appimage
@@ -91,7 +91,7 @@ jobs:
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
       - name: Rename artifact .deb (ubuntu / debian)
-        if: "startsWith(matrix.image, 'debian:stretch')"
+        if: "startsWith(matrix.image, 'debian:9')"
         run: |
           mv build/x11-emoji-picker-dev-x86_64.AppImage build/x11-emoji-picker-x86_64.AppImage
 
@@ -122,7 +122,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload artifact .AppImage
-        if: startsWith(matrix.image, 'debian:stretch')
+        if: startsWith(matrix.image, 'debian:9')
         uses: actions/upload-artifact@v2
         with:
           name: x11-emoji-picker-x86_64.AppImage

@@ -23,7 +23,10 @@ I switched from Windows 10 to Linux at work and missed filling my emails with em
 
 ## Installation 😉
 
-Just build it yourself loooool 4head.
+Download the [install.sh](install.sh) and run it.
+- Terminal: `wget https://raw.githubusercontent.com/GaZaTu/x11-emoji-picker/master/install.sh && sh install.sh`
+
+Otherwise look at the following options:
 
 **"I use Arch btw"**:
 run `yay -S x11-emoji-picker-git`.
@@ -32,14 +35,20 @@ run `yay -S x11-emoji-picker-git`.
 - manjaro: [https://wiki.manjaro.org/index.php/Arch_User_Repository](https://wiki.manjaro.org/index.php/Arch_User_Repository)
 
 **Debian**:
-Download the `-debian.deb` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases) and run `sudo apt install ./x11-emoji-picker-*.deb`.
+Download the `-debian-*.deb` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases) and install it.
+- Terminal: `sudo apt install ./x11-emoji-picker-*.deb`
 
 **Ubuntu**:
-Download the `-ubuntu.deb` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases) and run `sudo apt install ./x11-emoji-picker-*.deb`.
-You can also run the [`ubuntu-install.sh`](ubuntu-install.sh) script which will download and install the application by itself, and will also offer to add a keyboard shortcut for you *(Super+;)*.
+Download the `-ubuntu-*.deb` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases) and install it.
+- Terminal: `sudo apt install ./x11-emoji-picker-*.deb`
 
 **openSUSE**:
-Download the `-opensuse.rpm` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases) and run `sudo zypper install ./x11-emoji-picker-*.rpm`.
+Download the `-opensuse-*.rpm` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases) and install it.
+- Terminal: `sudo zypper install ./x11-emoji-picker-*.rpm`
+
+**Fedora**:
+Download the `-fedora-*.rpm` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases) and install it.
+- Terminal: `sudo dnf install ./x11-emoji-picker-*.rpm`
 
 **Gentoo Ebuild**:
 Third-party ebuilds provided in [https://gpo.zugaina.org/x11-plugins/x11-emoji-picker](https://gpo.zugaina.org/x11-plugins/x11-emoji-picker). Run `sudo eselect reposirory enable <ebuild provider>`, `sudo emerge --sync <ebuild provider>` and `sudo emerge x11-emoji-picker`.
