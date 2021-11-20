@@ -38,8 +38,6 @@ jobs:
         if: startsWith(matrix.image, 'fedora') || startsWith(matrix.image, 'centos')
         run: dnf install -y tar gzip wget rpm-build gcc-c++ cmake qt5-qtbase-devel libicu-devel libxdo-devel
 
-        dnf install libicu
-
       - name: Install dependencies .AppImage
         if: startsWith(matrix.image, 'debian:stretch')
         run: |
