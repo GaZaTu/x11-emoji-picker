@@ -90,24 +90,27 @@ jobs:
 
       - name: Upload artifact .deb (ubuntu / debian)
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@
         with:
           name: x11-emoji-picker-x86_64-${{env.IMAGE}}.deb
-          path: build/x11-emoji-picker-x86_64.deb
+          path: build/*.deb
+          if-no-files-found: error
 
       - name: Upload artifact .rpm (opensuse / fedora / centos)
         if: startsWith(matrix.image, 'opensuse') || startsWith(matrix.image, 'fedora') || startsWith(matrix.image, 'centos')
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@
         with:
           name: x11-emoji-picker-x86_64-${{env.IMAGE}}.rpm
-          path: build/x11-emoji-picker-x86_64.rpm
+          path: build/*.rpm
+          if-no-files-found: error
 
       - name: Upload artifact .AppImage
         if: startsWith(matrix.image, 'debian:stretch')
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@
         with:
           name: x11-emoji-picker-x86_64.AppImage
-          path: build/x11-emoji-picker-dev-x86_64.AppImage
+          path: build/*.AppImage
+          if-no-files-found: error
 
   create-nightly-release:
     needs: build-artifact
