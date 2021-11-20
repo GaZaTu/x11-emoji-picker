@@ -90,7 +90,7 @@ jobs:
 
       - name: Upload artifact .deb (ubuntu / debian)
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
-        uses: actions/upload-artifact@
+        uses: actions/upload-artifact@2
         with:
           name: x11-emoji-picker-x86_64-${{env.IMAGE}}.deb
           path: build/*.deb
@@ -98,7 +98,7 @@ jobs:
 
       - name: Upload artifact .rpm (opensuse / fedora / centos)
         if: startsWith(matrix.image, 'opensuse') || startsWith(matrix.image, 'fedora') || startsWith(matrix.image, 'centos')
-        uses: actions/upload-artifact@
+        uses: actions/upload-artifact@2
         with:
           name: x11-emoji-picker-x86_64-${{env.IMAGE}}.rpm
           path: build/*.rpm
@@ -106,7 +106,7 @@ jobs:
 
       - name: Upload artifact .AppImage
         if: startsWith(matrix.image, 'debian:stretch')
-        uses: actions/upload-artifact@
+        uses: actions/upload-artifact@2
         with:
           name: x11-emoji-picker-x86_64.AppImage
           path: build/*.AppImage
