@@ -11,39 +11,41 @@ env:
   DEBIAN_FRONTEND: noninteractive
 
 jobs:
-  build:
+  build-artifact:
     runs-on: ubuntu-latest
     container:
       image: ${{matrix.image}}
       options: --privileged
     strategy:
       matrix:
-        image: ['ubuntu', 'debian', 'debian:stretch', 'opensuse/leap']
+        image: ['ubuntu:20.04', 'ubuntu:18.04', 'debian:bullseye', 'debian:buster', 'debian:stretch', 'opensuse/leap:15.3', 'opensuse/leap:15.2', 'opensuse/leap:15.1']
+        # 'fedora:35', 'fedora:34', 'fedora:33'
+        # 'centos:centos8'
       fail-fast: false
 
     steps:
-      - name: Install dependencies (ubuntu / debian)
+      - name: Install dependencies (ubuntu & debian)
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
         run: apt update && apt install -y wget file dpkg-dev fuse g++ cmake qtbase5-dev libicu-dev libxdo-dev
-        
+
       - name: Install dependencies (debian:stretch)
         if: startsWith(matrix.image, 'debian:stretch')
         run: apt install qt5-default
-      
-      - name: Install dependencies (opensuse/leap)
-        if: startsWith(matrix.image, 'opensuse/leap')
+
+      - name: Install dependencies (opensuse)
+        if: startsWith(matrix.image, 'opensuse')
         run: zypper install -y tar gzip wget rpm-build gcc-c++ cmake libqt5-qtbase-devel libicu-devel xdotool-devel
-      
+
       - name: Install dependencies .AppImage
         if: startsWith(matrix.image, 'debian:stretch')
         run: |
           wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
           chmod a+x linuxdeployqt-continuous-x86_64.AppImage
           cp ./linuxdeployqt-continuous-x86_64.AppImage /usr/bin/linuxdeployqt.AppImage
-        
+
       - uses: actions/checkout@v2
 
-      - name: Configure CMake (ubuntu / debian)
+      - name: Configure (ubuntu / debian)
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
         env:
           CPACK_GENERATOR: DEB
@@ -52,8 +54,8 @@ jobs:
           cd build
           cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ..
 
-      - name: Configure CMake (opensuse/leap)
-        if: startsWith(matrix.image, 'opensuse/leap')
+      - name: Configure (opensuse / fedora / centos)
+        if: startsWith(matrix.image, 'opensuse') || startsWith(matrix.image, 'fedora') || startsWith(matrix.image, 'centos')
         env:
           CPACK_GENERATOR: RPM
         run: |
@@ -67,39 +69,44 @@ jobs:
           make
 
       - name: Package
-        if: "! endsWith(matrix.image, 'debian:stretch')"
         run: |
           cd build
           make package
 
       - name: Package .AppImage
-        if: "endsWith(matrix.image, 'debian:stretch')"
+        if: "startsWith(matrix.image, 'debian:stretch')"
         run: |
           cd build
           make appimage
 
-      - name: Upload artifact .deb
-        if: endsWith(matrix.image, 'ubuntu') || endsWith(matrix.image, 'debian')
+      - name: Fix image name
+        run:
+          RAW_IMAGE="${{ matrix.image }}"
+          IMAGE=$(echo $RAW_IMAGE | sed 's/\//-/' | sed 's/:/-/')
+          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+
+      - name: Upload artifact .deb (ubuntu / debian)
+        if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
         uses: actions/upload-artifact@v2.2.4
         with:
-          name: x11-emoji-picker-x86_64-${{matrix.image}}.deb
+          name: x11-emoji-picker-x86_64-${{env.IMAGE}}.deb
           path: build/x11-emoji-picker-x86_64.deb
 
-      - name: Upload artifact .rpm
-        if: endsWith(matrix.image, 'opensuse/leap')
+      - name: Upload artifact .rpm (opensuse / fedora / centos)
+        if: startsWith(matrix.image, 'opensuse') || startsWith(matrix.image, 'fedora') || startsWith(matrix.image, 'centos')
         uses: actions/upload-artifact@v2.2.4
         with:
-          name: x11-emoji-picker-x86_64-opensuse.rpm
+          name: x11-emoji-picker-x86_64-${{env.IMAGE}}.rpm
           path: build/x11-emoji-picker-x86_64.rpm
 
       - name: Upload artifact .AppImage
-        if: endsWith(matrix.image, 'debian:stretch')
+        if: startsWith(matrix.image, 'debian:stretch')
         uses: actions/upload-artifact@v2.2.4
         with:
           name: x11-emoji-picker-x86_64.AppImage
           path: build/x11-emoji-picker-dev-x86_64.AppImage
 
-  create-release:
+  create-nightly-release:
     needs: build
     runs-on: ubuntu-latest
     if: (github.event_name == 'push' && github.ref == 'refs/heads/master')
@@ -117,66 +124,14 @@ jobs:
             Nightly Build
           prerelease: true
 
-      - name: Download .deb (Ubuntu)
-        id: download_ubuntu_deb
+      - name: Download artifacts
         uses: actions/download-artifact@v2.0.10
         with:
-          name: x11-emoji-picker-x86_64-ubuntu.deb
+          path: artifacts
 
-      - name: Upload release asset .deb (Ubuntu)
-        uses: actions/upload-release-asset@v1.0.2
+      - name: Upload release assets
+        uses: alexellis/upload-assets@0.2.2
         env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_path: ${{steps.download_ubuntu_deb.outputs.download-path}}/x11-emoji-picker-x86_64.deb
-          asset_name: x11-emoji-picker-x86_64-ubuntu.deb
-          asset_content_type: application/vnd.debian.binary-package
-
-      - name: Download .deb (Debian)
-        id: download_debian_deb
-        uses: actions/download-artifact@v2.0.10
-        with:
-          name: x11-emoji-picker-x86_64-debian.deb
-
-      - name: Upload release asset .deb (Debian)
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        with:
-          upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_path: ${{steps.download_debian_deb.outputs.download-path}}/x11-emoji-picker-x86_64.deb
-          asset_name: x11-emoji-picker-x86_64-debian.deb
-          asset_content_type: application/vnd.debian.binary-package
-
-      - name: Download .rpm (OpenSUSE)
-        id: download_opensuse_rpm
-        uses: actions/download-artifact@v2.0.10
-        with:
-          name: x11-emoji-picker-x86_64-opensuse.rpm
-
-      - name: Upload release asset .rpm (OpenSUSE)
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        with:
-          upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_path: ${{steps.download_opensuse_rpm.outputs.download-path}}/x11-emoji-picker-x86_64.rpm
-          asset_name: x11-emoji-picker-x86_64-opensuse.rpm
-          asset_content_type: application/x-rpm
-
-      - name: Download .AppImage
-        id: download_appimage
-        uses: actions/download-artifact@v2.0.10
-        with:
-          name: x11-emoji-picker-x86_64.AppImage
-
-      - name: Upload release asset .AppImage
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        with:
-          upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_path: ${{steps.download_appimage.outputs.download-path}}/x11-emoji-picker-dev-x86_64.AppImage
-          asset_name: x11-emoji-picker-x86_64.AppImage
-          asset_content_type: application/x-executable
+          asset_paths: '["${{steps.download_ubuntu_deb.outputs.download-path}}/**/*"]'
