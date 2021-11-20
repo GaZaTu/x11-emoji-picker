@@ -81,7 +81,7 @@ jobs:
           make appimage
 
       - name: Fix image name
-        run:
+        run: |
           IMAGE=${{ matrix.image }}
           echo "IMAGE=$IMAGE"
           IMAGE=$(echo $IMAGE | sed 's/\//-/' | sed 's/:/-/')
