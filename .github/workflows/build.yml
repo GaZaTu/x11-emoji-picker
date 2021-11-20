@@ -141,16 +141,17 @@ jobs:
           prerelease: true
 
       - name: Download artifacts
+        id: download_artifacts
         uses: actions/download-artifact@v2.0.10
         with:
           path: artifacts
 
       - name: Display downloaded artifacts
-        run: ls -R ${{steps.download_ubuntu_deb.outputs.download-path}}
+        run: ls -R ${{steps.download_artifacts.outputs.download-path}}
 
       - name: Upload release assets
         uses: csexton/release-asset-action@v2
         with:
-          pattern: "${{steps.download_ubuntu_deb.outputs.download-path}}/*/*.{deb|rpm|AppImage}"
+          pattern: "${{steps.download_artifacts.outputs.download-path}}/**/*"
           github-token: ${{secrets.GITHUB_TOKEN}}
           release-url: ${{steps.create_release.outputs.upload_url}}
