@@ -88,6 +88,16 @@ jobs:
           echo "IMAGE=$IMAGE"
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
+      - name: Rename artifact .deb (ubuntu / debian)
+        if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
+        run: |
+          mv build/x11-emoji-picker-x86_64.deb build/x11-emoji-picker-x86_64-${{env.IMAGE}}.deb
+
+      - name: Rename artifact .rpm (opensuse / fedora / centos)
+        if: startsWith(matrix.image, 'opensuse') || startsWith(matrix.image, 'fedora') || startsWith(matrix.image, 'centos')
+        run: |
+          mv build/x11-emoji-picker-x86_64.rpm build/x11-emoji-picker-x86_64-${{env.IMAGE}}.rpm
+
       - name: Upload artifact .deb (ubuntu / debian)
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
         uses: actions/upload-artifact@v2
@@ -139,8 +149,8 @@ jobs:
         run: ls -R ${{steps.download_ubuntu_deb.outputs.download-path}}
 
       - name: Upload release assets
-        uses: alexellis/upload-assets@0.2.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: csexton/release-asset-action@v2
         with:
-          asset_paths: '["${{steps.download_ubuntu_deb.outputs.download-path}}/*/*"]'
+          pattern: "${{steps.download_ubuntu_deb.outputs.download-path}}/*/*.{deb|rpm|AppImage}"
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          release-url: ${{steps.create_release.outputs.upload_url}}
