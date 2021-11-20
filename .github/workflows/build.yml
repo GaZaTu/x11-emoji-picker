@@ -82,8 +82,10 @@ jobs:
 
       - name: Fix image name
         run:
-          RAW_IMAGE="${{ matrix.image }}"
-          IMAGE=$(echo $RAW_IMAGE | sed 's/\//-/' | sed 's/:/-/')
+          IMAGE=${{ matrix.image }}
+          echo "IMAGE=$IMAGE"
+          IMAGE=$(echo $IMAGE | sed 's/\//-/' | sed 's/:/-/')
+          echo "IMAGE=$IMAGE"
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
       - name: Upload artifact .deb (ubuntu / debian)
