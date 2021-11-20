@@ -84,7 +84,7 @@ jobs:
         run: |
           IMAGE=${{ matrix.image }}
           echo "IMAGE=$IMAGE"
-          IMAGE=$(echo $IMAGE | sed 's/\//-/' | sed 's/:/-/')
+          IMAGE=$(echo $IMAGE | sed 's/\//-/' | sed 's/:/-/' | sed 's/-dev//')
           echo "IMAGE=$IMAGE"
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
@@ -150,7 +150,7 @@ jobs:
         run: ls -R ${{steps.download_artifacts.outputs.download-path}}
 
       - name: Upload release assets
-        uses: csexton/release-asset-action@v2
+        uses: GaZaTu/release-asset-action@v3
         with:
           pattern: "${{steps.download_artifacts.outputs.download-path}}/**/*"
           github-token: ${{secrets.GITHUB_TOKEN}}
