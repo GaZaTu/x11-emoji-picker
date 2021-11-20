@@ -18,7 +18,8 @@ jobs:
       options: --privileged
     strategy:
       matrix:
-        image: ['ubuntu:20.04', 'ubuntu:18.04', 'debian:bullseye', 'debian:buster', 'debian:stretch', 'opensuse/leap:15.3', 'opensuse/leap:15.2', 'opensuse/leap:15.1']
+        image: ['ubuntu:20.04', 'ubuntu:18.04', 'debian:bullseye', 'debian:buster', 'debian:stretch']
+        # 'opensuse/leap:15.3', 'opensuse/leap:15.2', 'opensuse/leap:15.1'
         # 'fedora:35', 'fedora:34', 'fedora:33'
         # 'centos:centos8'
       fail-fast: false
@@ -129,9 +130,12 @@ jobs:
         with:
           path: artifacts
 
+      - name: Display downloaded artifacts
+        run: ls -R ${{steps.download_ubuntu_deb.outputs.download-path}}
+
       - name: Upload release assets
         uses: alexellis/upload-assets@0.2.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          asset_paths: '["${{steps.download_ubuntu_deb.outputs.download-path}}/**/*"]'
+          asset_paths: '["${{steps.download_ubuntu_deb.outputs.download-path}}/*/*"]'
