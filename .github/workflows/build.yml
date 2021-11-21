@@ -84,7 +84,7 @@ jobs:
 
       - name: Create artifact name
         run: |
-          DISTRO_ID=$(grep "^ID=" "/etc/os-release" | sed "s/ID=//")
+          DISTRO_ID=$(grep "^ID=" "/etc/os-release" | sed "s/ID=//" | sed "s/\"//g")
           DISTRO_VERSION_ID=$(grep "^VERSION_ID=" "/etc/os-release" | sed "s/VERSION_ID=//" | sed "s/\"//g")
           ARTIFACT_NAME=x11-emoji-picker-x86_64
           ARTIFACT_NAME_WITH_DISTRO=$ARTIFACT_NAME-$DISTRO_ID-$DISTRO_VERSION_ID

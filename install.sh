@@ -11,7 +11,7 @@ done
 
 echo "Installing x11-emoji-picker release: $RELEASE..."
 
-DISTRO_ID=$(grep "^ID=" "/etc/os-release" | sed "s/ID=//")
+DISTRO_ID=$(grep "^ID=" "/etc/os-release" | sed "s/ID=//" | sed "s/\"//g")
 DISTRO_VERSION_ID=$(grep "^VERSION_ID=" "/etc/os-release" | sed "s/VERSION_ID=//" | sed "s/\"//g")
 
 PACKAGE_MANAGER=$(
@@ -32,7 +32,7 @@ if ! command -v jq > /dev/null;
 then
   echo ""
   echo "jq not found, installing through package manager..."
-  sudo "$PACKAGE_MANAGER" install -y jq
+  sudo $PACKAGE_MANAGER install -y jq
 fi
 
 echo ""
