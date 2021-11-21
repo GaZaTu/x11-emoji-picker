@@ -137,7 +137,7 @@ jobs:
     steps:
       - name: Create nightly
         id: create_release
-        uses: pajlada/create-release@v2
+        uses: pajlada/create-release@v2.0.3
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
@@ -146,37 +146,6 @@ jobs:
           body: |
             Nightly Build
           prerelease: true
-
-      - name: Download artifacts
-        id: download_artifacts
-        uses: actions/download-artifact@v2
-        with:
-          path: artifacts
-
-      - name: Display downloaded artifacts
-        run: ls -R ${{steps.download_artifacts.outputs.download-path}}
-
-      - name: Upload release assets
-        uses: GaZaTu/release-asset-action@v3
-        with:
-          pattern: "${{steps.download_artifacts.outputs.download-path}}/**/*"
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          release-url: ${{steps.create_release.outputs.upload_url}}
-
-  create-release:
-    needs: build-artifact
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-
-    steps:
-      - name: Create release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        with:
-          tag_name: ${{github.ref}}
-          release_name: Release ${{github.ref}}
 
       - name: Download artifacts
         id: download_artifacts
