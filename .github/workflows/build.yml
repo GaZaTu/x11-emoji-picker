@@ -82,34 +82,36 @@ jobs:
           cd build
           make appimage
 
-      - name: Fix image name
+      - name: Create artifact name
         run: |
-          IMAGE=${{ matrix.image }}
-          echo "IMAGE=$IMAGE"
-          IMAGE=$(echo $IMAGE | sed 's/\//-/' | sed 's/:/-/' | sed 's/-dev//')
-          echo "IMAGE=$IMAGE"
-          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+          DISTRO_ID=$(grep "^ID=" "/etc/os-release" | sed "s/ID=//")
+          DISTRO_VERSION_ID=$(grep "^VERSION_ID=" "/etc/os-release" | sed "s/VERSION_ID=//" | sed "s/\"//g")
+          ARTIFACT_NAME=x11-emoji-picker-x86_64
+          ARTIFACT_NAME_WITH_DISTRO=$ARTIFACT_NAME-$DISTRO_ID-$DISTRO_VERSION_ID
+          echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
+          echo "ARTIFACT_NAME_WITH_DISTRO=$ARTIFACT_NAME_WITH_DISTRO" >> $GITHUB_ENV
+          echo "ARTIFACT_NAME_WITH_DISTRO=$ARTIFACT_NAME_WITH_DISTRO"
 
       - name: Rename artifact .deb (ubuntu / debian)
-        if: "startsWith(matrix.image, 'debian:9')"
-        run: |
-          mv build/x11-emoji-picker-dev-x86_64.AppImage build/x11-emoji-picker-x86_64.AppImage
-
-      - name: Rename artifact .AppImage
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
         run: |
-          mv build/x11-emoji-picker-x86_64.deb build/x11-emoji-picker-x86_64-${{env.IMAGE}}.deb
+          mv build/x11-emoji-picker-x86_64.deb build/${{env.ARTIFACT_NAME_WITH_DISTRO}}.deb
 
       - name: Rename artifact .rpm (opensuse / fedora / centos)
         if: startsWith(matrix.image, 'opensuse') || startsWith(matrix.image, 'fedora') || startsWith(matrix.image, 'centos')
         run: |
-          mv build/x11-emoji-picker-x86_64.rpm build/x11-emoji-picker-x86_64-${{env.IMAGE}}.rpm
+          mv build/x11-emoji-picker-x86_64.rpm build/${{env.ARTIFACT_NAME_WITH_DISTRO}}.rpm
+
+      - name: Rename artifact .AppImage
+        if: "startsWith(matrix.image, 'debian:9')"
+        run: |
+          mv build/x11-emoji-picker-dev-x86_64.AppImage build/${{env.ARTIFACT_NAME}}.AppImage
 
       - name: Upload artifact .deb (ubuntu / debian)
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
         uses: actions/upload-artifact@v2
         with:
-          name: x11-emoji-picker-x86_64-${{env.IMAGE}}.deb
+          name: ${{env.ARTIFACT_NAME_WITH_DISTRO}}.deb
           path: build/*.deb
           if-no-files-found: error
 
@@ -117,7 +119,7 @@ jobs:
         if: startsWith(matrix.image, 'opensuse') || startsWith(matrix.image, 'fedora') || startsWith(matrix.image, 'centos')
         uses: actions/upload-artifact@v2
         with:
-          name: x11-emoji-picker-x86_64-${{env.IMAGE}}.rpm
+          name: ${{env.ARTIFACT_NAME_WITH_DISTRO}}.rpm
           path: build/*.rpm
           if-no-files-found: error
 
@@ -125,7 +127,7 @@ jobs:
         if: startsWith(matrix.image, 'debian:9')
         uses: actions/upload-artifact@v2
         with:
-          name: x11-emoji-picker-x86_64.AppImage
+          name: ${{env.ARTIFACT_NAME}}.AppImage
           path: build/*.AppImage
           if-no-files-found: error
 
