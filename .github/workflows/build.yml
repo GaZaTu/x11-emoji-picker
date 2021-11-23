@@ -7,7 +7,6 @@ on:
     branches: [master]
 
 env:
-  BUILD_TYPE: Release
   DEBIAN_FRONTEND: noninteractive
 
 jobs:
@@ -47,29 +46,33 @@ jobs:
           cp ./linuxdeployqt-continuous-x86_64.AppImage /usr/bin/linuxdeployqt.AppImage
 
       - uses: actions/checkout@v2
+      - run: git fetch --prune --unshallow --tags
 
-      - name: Configure (ubuntu / debian)
+      - name: Set CPACK_GENERATOR to DEB (ubuntu / debian)
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
-        env:
-          CPACK_GENERATOR: DEB
         run: |
-          mkdir -p build
-          cd build
-          cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ..
+          echo "CPACK_GENERATOR=DEB" >> $GITHUB_ENV
 
-      - name: Configure (opensuse / fedora / centos)
+      - name: Set CPACK_GENERATOR to RPM (opensuse / fedora / centos)
         if: startsWith(matrix.image, 'opensuse') || startsWith(matrix.image, 'fedora') || startsWith(matrix.image, 'centos')
-        env:
-          CPACK_GENERATOR: RPM
         run: |
+          echo "CPACK_GENERATOR=RPM" >> $GITHUB_ENV
+
+      - name: Configure
+        run: |
+          VERSION_LATEST_TAG=$(git describe --match "v[0-9]*" --abbrev=0 HEAD | sed "s/v//")
+          VERSION_TIMESTAMP=$(date +'%Y%m%d%H%M')
+          VERSION_GIT_HASH=$(git rev-parse --short HEAD)
+          VERSION=$VERSION_LATEST_TAG+git$VERSION_TIMESTAMP.$VERSION_GIT_HASH
+          echo "VERSION=$VERSION"
           mkdir -p build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DCPACK_GENERATOR=$CPACK_GENERATOR -DPACKAGE_VERSION=$VERSION ..
 
       - name: Build
         run: |
           cd build
-          make
+          make -j$(nproc)
 
       - name: Package
         run: |
@@ -136,6 +139,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
 
+    # git tag --points-at HEAD | grep v[0-9.]*
     steps:
       - name: Create nightly
         id: create_release
