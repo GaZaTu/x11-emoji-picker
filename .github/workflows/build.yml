@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Install dependencies (ubuntu & debian)
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
-        run: apt update && apt install -y wget file dpkg-dev fuse g++ cmake qtbase5-dev libicu-dev libxdo-dev
+        run: apt update && apt install -y wget file dpkg-dev fuse git g++ cmake qtbase5-dev libicu-dev libxdo-dev
 
       - name: Install dependencies (debian:9)
         if: startsWith(matrix.image, 'debian:9')
@@ -32,11 +32,11 @@ jobs:
 
       - name: Install dependencies (opensuse)
         if: startsWith(matrix.image, 'opensuse')
-        run: zypper install -y tar gzip wget rpm-build gcc-c++ cmake libqt5-qtbase-devel libicu-devel xdotool-devel
+        run: zypper install -y tar gzip wget rpm-build git gcc-c++ cmake libqt5-qtbase-devel libicu-devel xdotool-devel
 
       - name: Install dependencies (fedora & centos)
         if: startsWith(matrix.image, 'fedora') || startsWith(matrix.image, 'centos')
-        run: dnf install -y tar gzip wget rpm-build gcc-c++ cmake qt5-qtbase-devel libicu-devel libxdo-devel
+        run: dnf install -y tar gzip wget rpm-build git gcc-c++ cmake qt5-qtbase-devel libicu-devel libxdo-devel
 
       - name: Install dependencies .AppImage
         if: startsWith(matrix.image, 'debian:9')
