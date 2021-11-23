@@ -47,6 +47,7 @@ jobs:
 
       - uses: actions/checkout@v2
       - run: git fetch --prune --unshallow --tags
+        continue-on-error: true
 
       - name: Set CPACK_GENERATOR to DEB (ubuntu / debian)
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
