@@ -23,38 +23,45 @@ I switched from Windows 10 to Linux at work and missed filling my emails with em
 
 ## Installation 😉
 
-Download the [install.sh](install.sh) and run it.
-- Terminal: `wget https://raw.githubusercontent.com/GaZaTu/x11-emoji-picker/master/install.sh && sh install.sh`
+Download the [install.sh](install.sh) and run it. It downloads and installs either a `.deb` (**Ubuntu**, **Debian**), a `.rpm` (**openSUSE**, **Fedora**) or the `.AppImage` (location: `/usr/bin/emoji-picker.AppImage`).
+
+- Terminal: `wget -q https://raw.githubusercontent.com/GaZaTu/x11-emoji-picker/master/install.sh && sh install.sh`
+- Installing nightly build: `sh install.sh -r tags/nightly-build`
 
 Otherwise look at the following options:
 
 **"I use Arch btw"**:
 run `yay -S x11-emoji-picker-git`.
+
 - repo: [https://aur.archlinux.org/packages/x11-emoji-picker-git](https://aur.archlinux.org/packages/x11-emoji-picker-git)
 - yay: [https://github.com/Jguer/yay#installation](https://github.com/Jguer/yay#installation)
 - manjaro: [https://wiki.manjaro.org/index.php/Arch_User_Repository](https://wiki.manjaro.org/index.php/Arch_User_Repository)
 
 **Debian**:
-Download the `-debian-*.deb` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases) and install it.
+Download a `-debian-*.deb` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases) and install it.
+
 - Terminal: `sudo apt install ./x11-emoji-picker-*.deb`
 
 **Ubuntu**:
-Download the `-ubuntu-*.deb` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases) and install it.
+Download a `-ubuntu-*.deb` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases) and install it.
+
 - Terminal: `sudo apt install ./x11-emoji-picker-*.deb`
 
 **openSUSE**:
-Download the `-opensuse-*.rpm` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases) and install it.
+Download a `-opensuse-*.rpm` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases) and install it.
+
 - Terminal: `sudo zypper install ./x11-emoji-picker-*.rpm`
 
 **Fedora**:
-Download the `-fedora-*.rpm` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases) and install it.
+Download a `-fedora-*.rpm` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases) and install it.
+
 - Terminal: `sudo dnf install ./x11-emoji-picker-*.rpm`
 
 **Gentoo Ebuild**:
-Third-party ebuilds provided in [https://gpo.zugaina.org/x11-plugins/x11-emoji-picker](https://gpo.zugaina.org/x11-plugins/x11-emoji-picker). Run `sudo eselect reposirory enable <ebuild provider>`, `sudo emerge --sync <ebuild provider>` and `sudo emerge x11-emoji-picker`.
+Third-party ebuilds provided in [https://gpo.zugaina.org/x11-plugins/x11-emoji-picker](https://gpo.zugaina.org/x11-plugins/x11-emoji-picker). Run `sudo eselect repository enable <ebuild provider>`, `sudo emerge --sync <ebuild provider>` and `sudo emerge x11-emoji-picker`.
 
 **Other**:
-Download the `.AppImage` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases), add executable permission (`chmod +x x11-emoji-picker-*.AppImage`) and [run it](#appimage) (Read the usage instructions below).
+Download the `.AppImage` from [/releases](https://github.com/GaZaTu/x11-emoji-picker/releases), [add executable permission](https://discourse.appimage.org/t/how-to-run-an-appimage/80) (`chmod +x x11-emoji-picker-*.AppImage`) and [run it](#appimage) (Read the usage instructions below).
 
 *Note: There are [nightly releases](https://github.com/GaZaTu/x11-emoji-picker/releases/tag/nightly-build) aswell now which are rebuilt on every push to master*
 
@@ -64,8 +71,8 @@ This is a CMake project so you need `cmake`, `make` and some c++ compiler like `
 
 ### Dependencies
 
-- Qt5
-- ICU
+- Qt5 (core, gui, widgets)
+- ICU (uc)
 - xdotool
 
 **Arch**:
@@ -95,7 +102,7 @@ I committed the generated code so you won't have to run any scripts.
 
 First you should add the `emoji-picker` executable as a keybind (however you do that in your window manager); I use `meta+.` just like the windows keybind.
 
-*Note: The executable path should be `/usr/bin/emoji-picker` if installed with `AUR`/`.deb`/`.rpm`/`make install`.*
+*Note: The executable path should be `/usr/bin/emoji-picker` if installed with `AUR`/`.deb`/`.rpm`/`make install`, which means it'll be on your `$PATH`.*
 
 **KDE**:
 [https://userbase.kde.org/Tutorials/hotkeys](https://userbase.kde.org/Tutorials/hotkeys)
