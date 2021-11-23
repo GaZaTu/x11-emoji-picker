@@ -59,16 +59,21 @@ jobs:
         run: |
           echo "CPACK_GENERATOR=RPM" >> $GITHUB_ENV
 
-      - name: Configure
+      - name: Create artifact version
         run: |
           VERSION_LATEST_TAG=$(git describe --match "v[0-9]*" --abbrev=0 HEAD | sed "s/v//")
           VERSION_TIMESTAMP=$(date +'%Y%m%d%H%M')
           VERSION_GIT_HASH=$(git rev-parse --short HEAD)
           VERSION=$VERSION_LATEST_TAG+git$VERSION_TIMESTAMP.$VERSION_GIT_HASH
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "VERSION=$VERSION"
+        continue-on-error: true
+
+      - name: Configure
+        run: |
           mkdir -p build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -DCPACK_GENERATOR=$CPACK_GENERATOR -DPACKAGE_VERSION=$VERSION ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DCPACK_GENERATOR=$CPACK_GENERATOR -DPACKAGE_VERSION=${{env.VERSION}} ..
 
       - name: Build
         run: |
