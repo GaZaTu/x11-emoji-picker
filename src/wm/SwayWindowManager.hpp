@@ -14,7 +14,7 @@
 #include <set>
 
 #ifdef WAYLAND_PROTOCOLS
-#include "wayland-text-input-unstable-v3-client-protocol.h"
+#include "wayland-input-method-unstable-v1-client-protocol.h"
 #include "wayland-input-method-unstable-v2-client-protocol.h"
 
 namespace wl {
@@ -322,7 +322,6 @@ public:
 #ifdef WAYLAND_PROTOCOLS
   void enterText(wm::WId window, const char* text) override {
     wl::input_integration wlinput;
-    wlinput.ignore(zwp_text_input_manager_v3_interface);
     wlinput.commit_string(text);
   }
 #endif

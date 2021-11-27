@@ -2,14 +2,7 @@
   "configurations": [
     {
       "name": "Linux",
-      "intelliSenseMode": "gcc-x64",
-      "compilerPath": "${default}",
-      "compileCommands": "${workspaceFolder}/build/compile_commands.json",
-      "configurationProvider": "ms-vscode.cmake-tools"
-    },
-    {
-      "name": "Win32",
-      "intelliSenseMode": "clang-x64",
+      "intelliSenseMode": "linux-gcc-x64",
       "compilerPath": "${default}",
       "compileCommands": "${workspaceFolder}/build/compile_commands.json",
       "configurationProvider": "ms-vscode.cmake-tools"
