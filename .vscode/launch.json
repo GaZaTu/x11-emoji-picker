@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "(gdb) Launch",
+      "name": "Launch",
       "type": "cppdbg",
       "request": "launch",
       // Resolved by CMake Tools:
@@ -22,13 +22,7 @@
         }
       ],
       "externalConsole": false,
-      "linux": {
-        "MIMode": "gdb"
-      },
-      "windows": {
-        "MIMode": "lldb",
-        "miDebuggerPath": "E:/Programs/LLVM/bin/lldb.exe"
-      },
+      "MIMode": "gdb",
       "setupCommands": [
         {
           "description": "Enable pretty-printing for gdb",
@@ -38,9 +32,10 @@
       ]
     },
     {
-      "name": "(Windows) Launch",
-      "type": "cppvsdbg",
+      "name": "Launch (Notebook)",
+      "type": "cppdbg",
       "request": "launch",
+      // Resolved by CMake Tools:
       "program": "${command:cmake.launchTargetPath}",
       "args": [],
       "stopAtEntry": false,
@@ -50,14 +45,22 @@
           // add the directory where our target was built to the PATHs
           // it gets resolved by CMake Tools:
           "name": "PATH",
-          "value": "$PATH;${command:cmake.launchTargetDirectory};E:/Programs/Qt/5.15.1/msvc2015_64/bin;E:/Lib/ICU/bin64"
-        },
-        {
-          "name": "QT_QPA_PLATFORM_PLUGIN_PATH",
-          "value": "E:/Programs/Qt/5.15.1/msvc2015_64/plugins/platforms"
+          "value": "$PATH:${command:cmake.launchTargetDirectory}"
         }
       ],
-      "externalConsole": false
+      "externalConsole": false,
+      "MIMode": "gdb",
+      // "debugServerPath": "/usr/bin/gdbserver",
+      // "debugServerArgs": "0.0.0.0:9191",
+      "preLaunchTask": "scpexecutable",
+      "miDebuggerServerAddress": "192.168.0.221:9191",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
     }
   ]
 }

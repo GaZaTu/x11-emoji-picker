@@ -76,33 +76,35 @@ qt5_add_dbus_adaptor(
   EmojiPickerDBusAdaptor
 )
 
-find_package(ECM NO_MODULE)
-if (${ECM_FOUND})
-  set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
+  find_package(ECM NO_MODULE)
+  if (${ECM_FOUND})
+    set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
 
-  find_package(WaylandScanner REQUIRED)
-  if (${WaylandScanner_FOUND})
-    # ecm_add_wayland_client_protocol(SRC_FILES
-    #   PROTOCOL /usr/share/wayland-protocols/staging/xdg-activation/xdg-activation-v1.xml
-    #   BASENAME xdg-activation-v1
-    # )
-    # set_source_files_properties(${CMAKE_BINARY_DIR}/wayland-xdg-activation-v1-protocol.c PROPERTIES LANGUAGE CXX)
+    find_package(WaylandScanner REQUIRED)
+    if (${WaylandScanner_FOUND})
+      # ecm_add_wayland_client_protocol(SRC_FILES
+      #   PROTOCOL /usr/share/wayland-protocols/staging/xdg-activation/xdg-activation-v1.xml
+      #   BASENAME xdg-activation-v1
+      # )
+      # set_source_files_properties(${CMAKE_BINARY_DIR}/wayland-xdg-activation-v1-protocol.c PROPERTIES LANGUAGE CXX)
 
-    ecm_add_wayland_client_protocol(SRC_FILES
-      PROTOCOL /usr/share/wayland-protocols/unstable/text-input/text-input-unstable-v3.xml
-      BASENAME text-input-unstable-v3
-    )
-    set_source_files_properties(${CMAKE_BINARY_DIR}/wayland-text-input-unstable-v3-protocol.c PROPERTIES LANGUAGE CXX)
+      ecm_add_wayland_client_protocol(SRC_FILES
+        PROTOCOL /usr/share/wayland-protocols/unstable/text-input/text-input-unstable-v3.xml
+        BASENAME text-input-unstable-v3
+      )
+      set_source_files_properties(${CMAKE_BINARY_DIR}/wayland-text-input-unstable-v3-protocol.c PROPERTIES LANGUAGE CXX)
 
-    ecm_add_wayland_client_protocol(SRC_FILES
-      PROTOCOL ${PROJECT_SOURCE_DIR}/src/wayland-protocols/wlroots/input-method-unstable-v2.xml
-      BASENAME input-method-unstable-v2
-    )
-    set_source_files_properties(${CMAKE_BINARY_DIR}/wayland-input-method-unstable-v2-protocol.c PROPERTIES LANGUAGE CXX)
+      ecm_add_wayland_client_protocol(SRC_FILES
+        PROTOCOL ${PROJECT_SOURCE_DIR}/src/wayland-protocols/wlroots/input-method-unstable-v2.xml
+        BASENAME input-method-unstable-v2
+      )
+      set_source_files_properties(${CMAKE_BINARY_DIR}/wayland-input-method-unstable-v2-protocol.c PROPERTIES LANGUAGE CXX)
 
-    add_definitions(
-      -DWAYLAND_PROTOCOLS=true
-    )
+      add_definitions(
+        -DWAYLAND_PROTOCOLS=true
+      )
+    endif ()
   endif ()
 endif ()
 
