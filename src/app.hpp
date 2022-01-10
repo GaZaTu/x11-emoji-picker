@@ -9,6 +9,7 @@
 namespace app {
 struct args {
   bool runAsDaemon = false;
+  bool delayVisibility = false;
 
   args(QCoreApplication& app);
 };
@@ -18,6 +19,7 @@ public:
   QApplication& app;
   QMainWindow window;
   EmojiPicker* mainWidget;
+  app::args args;
 
   int uinputFd = 0;
 
@@ -31,7 +33,7 @@ public:
 
   QMimeData* prevClipboardMimeData = nullptr;
 
-  main(QApplication& app, args& args);
+  main(QApplication& app, app::args& _args);
 
   void show();
 

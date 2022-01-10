@@ -115,7 +115,8 @@
     "valarray": "cpp",
     "semaphore": "cpp",
     "qtdbus": "cpp",
-    "wayland-util.h": "c"
+    "wayland-util.h": "c",
+    "qjsonobject": "cpp"
   },
   "cmake.sourceDirectory": "${workspaceFolder}/.",
   "files.exclude": {
@@ -125,5 +126,6 @@
     "**/CVS": true,
     "**/.DS_Store": true,
     "src/emojis.cpp": true
-  }
+  },
+  "cmake.configureOnOpen": true
 }

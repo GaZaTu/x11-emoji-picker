@@ -144,12 +144,16 @@ app::args::args(QCoreApplication& app) {
       "run as dbus daemon (service: xyz.gazatu.EmojiPicker, object: /xyz/gazatu/EmojiPicker, methods: show & hide)"};
   cliParser.addOption(daemonOption);
 
+  QCommandLineOption delayOption{"delay", "sleep 5 sec before opening window"};
+  cliParser.addOption(delayOption);
+
   // QCommandLineOption dbusOption{"dbus", "bus to provide service on (default: $DBUS_SESSION_BUS_ADDRESS)"};
   // cliParser.addOption(dbusOption);
 
   cliParser.process(app);
 
   runAsDaemon = cliParser.isSet(daemonOption);
+  delayVisibility = cliParser.isSet(delayOption);
 }
 
 void app::main::initState() {
@@ -188,7 +192,7 @@ void app::main::initState() {
   }
 }
 
-app::main::main(QApplication& a, args& args) : app(a) {
+app::main::main(QApplication& a, app::args& _args) : app(a), args(_args) {
   // qDebug() << "windowManager:" << wm::WindowManager::instance()->name().data();
 
   initState();
@@ -217,9 +221,12 @@ app::main::main(QApplication& a, args& args) : app(a) {
 
   window.setFixedSize(w, h);
 
+  // window.setParent(nullptr);
   window.setWindowOpacity(EmojiPickerSettings::snapshot().windowOpacity());
-  window.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+  window.setWindowFlags(Qt::Dialog | Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
   window.setWindowIcon(QIcon(":/res/72x72/1f0cf.png"));
+  // window.setFocusPolicy(Qt::NoFocus);
+  // window.setAttribute(Qt::WA_ShowWithoutActivating);
 
   if (!EmojiPickerSettings::snapshot().useSystemQtTheme()) {
     window.setStyleSheet(
@@ -280,7 +287,7 @@ app::main::main(QApplication& a, args& args) : app(a) {
     }
   });
 
-  QObject::connect(mainWidget, &EmojiPicker::escapePressed, [this, &args]() {
+  QObject::connect(mainWidget, &EmojiPicker::escapePressed, [this]() {
     window.hide();
 
     EmojiPickerSettings::writeDefaultsToDisk();
@@ -321,6 +328,10 @@ app::main::main(QApplication& a, args& args) : app(a) {
 }
 
 void app::main::show() {
+  if (args.delayVisibility) {
+    sleep(5);
+  }
+
   prevWindow = wm::activeWindow();
   prevWindowPID = wm::pid(prevWindow);
   initState();
