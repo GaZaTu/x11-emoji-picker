@@ -1,6 +1,6 @@
 #include "EmojiPickerSettings.hpp"
 #include <QApplication>
-#include <QDir>
+#include <QStandardPaths>
 #include <algorithm>
 #include <functional>
 #include <locale>
@@ -96,7 +96,7 @@ public:
 
 private:
   static QString path() {
-    return QDir::homePath() + "/.cache/" + QApplication::organizationName() + "/" + QApplication::applicationName() + "-mru.ini";
+    return QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/mru.ini";
   }
 };
 
