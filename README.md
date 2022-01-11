@@ -139,7 +139,7 @@ I recommend running it (in the keybind) using the following command instead:
 
 ### Settings
 
-The settings file should be located at `$HOME/.config/gazatu.xyz/emoji-picker.ini`.
+The settings file should be located at `$XDG_CONFIG_HOME/gazatu.xyz/emoji-picker.ini`.
 
 - `[General] | activateWindowBeforeWritingByDefault` => `true` to activate windows by default before writing to them
 - `[General] | aliasExactMatching` => `true` to only show aliased emojis when the search matches completely
