@@ -166,7 +166,7 @@ If emojis do not get written into your window: try adding that executable to the
 
 If the dialog is too smol for you: put `QT_SCALE_FACTOR=float` in front of the command. (example: `QT_SCALE_FACTOR=1.25 emoji-picker`)
 
-Some things such as recently used emojis are written to `$HOME/.cache/gazatu.xyz/emoji-picker/cache.ini`
+Some things such as recently used emojis are written to `$XDG_CACHE_HOME/gazatu.xyz/emoji-picker/cache.ini`
 
 #### Defaults
 
