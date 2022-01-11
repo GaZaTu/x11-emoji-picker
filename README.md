@@ -139,7 +139,7 @@ I recommend running it (in the keybind) using the following command instead:
 
 ### Settings
 
-The settings file should be located at `/home/$USER/.config/gazatu.xyz/emoji-picker.ini`.
+The settings file should be located at `$HOME/.config/gazatu.xyz/emoji-picker.ini`.
 
 - `[General] | activateWindowBeforeWritingByDefault` => `true` to activate windows by default before writing to them
 - `[General] | aliasExactMatching` => `true` to only show aliased emojis when the search matches completely
@@ -158,7 +158,6 @@ The settings file should be located at `/home/$USER/.config/gazatu.xyz/emoji-pic
 - `[General] | windowOpacity` => how seethrough the emoji picker is supposed to be (0 = invisible)
 - `[activateWindowBeforeWritingExceptions]` => list of executables that should be an exception to the `[General] | activateWindowBeforeWritingByDefault` setting
 - `[emojiAliasesIniFilePaths]` => list of custom emoji codes (refer to [src/aliases/github-emojis.ini](src/aliases/github-emojis.ini) for examples); points to the builtin list of github emojis by default ([https://github.com/ikatyang/emoji-cheat-sheet](https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)); also points to the builtin list of gitmoji emojis by default ([https://gitmoji.dev/](https://gitmoji.dev/))
-- `[recentEmojis]` => list of recently used emojis (edited by the application itself)
 - `[useClipboardHackExceptions]` => list of executables that should be an exception to the `[General] | useClipboardHackByDefault` setting
 
 #### Notes
@@ -166,6 +165,8 @@ The settings file should be located at `/home/$USER/.config/gazatu.xyz/emoji-pic
 If emojis do not get written into your window: try adding that executable to the `[activateWindowBeforeWritingExceptions]` array or to the `[useClipboardHackExceptions]` array. (at runtime also possible using `F5`)
 
 If the dialog is too smol for you: put `QT_SCALE_FACTOR=float` in front of the command. (example: `QT_SCALE_FACTOR=1.25 emoji-picker`)
+
+Some things such as recently used emojis are written to `$HOME/.cache/gazatu.xyz/emoji-picker-mru.ini`
 
 #### Defaults
 
@@ -200,9 +201,6 @@ size=5
 1\path=:/aliases/github-emojis.ini
 2\path=:/aliases/gitmoji-emojis.ini
 size=2
-
-[recentEmojis]
-size=0
 
 [useClipboardHackExceptions]
 1\processName=chatterino
