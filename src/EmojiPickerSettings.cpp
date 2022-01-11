@@ -96,7 +96,7 @@ public:
 
 private:
   static QString path() {
-    return QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/mru.ini";
+    return QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/cache.ini";
   }
 };
 
