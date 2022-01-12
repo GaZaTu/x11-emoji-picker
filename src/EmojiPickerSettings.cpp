@@ -111,14 +111,12 @@ std::vector<Emoji> EmojiPickerSettings::recentEmojis() {
 
   EmojiPickerCache cache;
 
-  auto current = readQSettingsArrayToStdVector<Emoji>(cache, prefix, handler);
-  auto legacy = readQSettingsArrayToStdVector<Emoji>(*this, prefix, handler);
-
-  if (current.empty() && !legacy.empty()) {
-    return std::move(legacy);
+  auto recentEmojis = readQSettingsArrayToStdVector<Emoji>(cache, prefix, handler);
+  if (recentEmojis.empty()) {
+    recentEmojis = readQSettingsArrayToStdVector<Emoji>(*this, prefix, handler);
   }
 
-  return std::move(current);
+  return std::move(recentEmojis);
 }
 void EmojiPickerSettings::setRecentEmojis(const std::vector<Emoji>& recentEmojis) {
   auto prefix = "recentEmojis";
@@ -130,7 +128,9 @@ void EmojiPickerSettings::setRecentEmojis(const std::vector<Emoji>& recentEmojis
   EmojiPickerCache cache;
 
   writeQSettingsArrayFromStdVector<Emoji>(cache, prefix, recentEmojis, handler);
-  writeQSettingsArrayFromStdVector<Emoji>(*this, prefix, {}, handler);
+  if (contains(prefix)) {
+    remove(prefix);
+  }
 }
 
 std::string EmojiPickerSettings::localeKey() const {
