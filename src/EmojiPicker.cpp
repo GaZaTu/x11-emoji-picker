@@ -375,7 +375,7 @@ void EmojiPicker::onReturnPressed(const QKeyEvent& event) {
   emit returnPressed(emoji.code, closeAfter);
 
   if (closeAfter) {
-    emit escapePressed();
+    emitEscapePressed();
   }
 }
 
@@ -433,10 +433,14 @@ void EmojiPicker::onArrowKeyPressed(const QKeyEvent& event) {
   }
 }
 
-void EmojiPicker::onEscapePressed(const QKeyEvent& event) {
+void EmojiPicker::emitEscapePressed() {
   EmojiPickerSettings().setRecentEmojis(_recentEmojis);
 
   emit escapePressed();
+}
+
+void EmojiPicker::onEscapePressed(const QKeyEvent& event) {
+  emitEscapePressed();
 }
 
 void EmojiPicker::onFunctionKeyPressed(const QKeyEvent& event) {
@@ -449,7 +453,7 @@ void EmojiPicker::onFunctionKeyPressed(const QKeyEvent& event) {
     break;
   case Qt::Key_F4:
     QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromStdString(_settingsPath)));
-    emit escapePressed();
+    emitEscapePressed();
     break;
   case Qt::Key_F5:
     emit toggleInputMethod();
