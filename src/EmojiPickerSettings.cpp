@@ -1,5 +1,6 @@
 #include "EmojiPickerSettings.hpp"
 #include <QApplication>
+#include <QStandardPaths>
 #include <algorithm>
 #include <functional>
 #include <locale>
@@ -85,20 +86,49 @@ EmojiPickerSettings::EmojiPickerSettings(QObject* parent)
           QApplication::applicationName(), parent) {
 }
 
+class EmojiPickerCache : public QSettings {
+public:
+  EmojiPickerCache() : QSettings(path(), QSettings::IniFormat) {}
+
+  ~EmojiPickerCache() {
+    setValue("version", QApplication::applicationVersion());
+  }
+
+private:
+  static QString path() {
+    return QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/cache.ini";
+  }
+};
+
 std::vector<Emoji> EmojiPickerSettings::recentEmojis() {
-  return readQSettingsArrayToStdVector<Emoji>(*this, "recentEmojis", [](QSettings& settings) -> Emoji {
+  auto prefix = "recentEmojis";
+  auto handler = [](QSettings& settings) -> Emoji {
     return {
-        settings.value("emojiKey").toString().toStdString(),
-        settings.value("emojiStr").toString().toStdString(),
+      settings.value("emojiKey").toString().toStdString(),
+      settings.value("emojiStr").toString().toStdString(),
     };
-  });
+  };
+
+  EmojiPickerCache cache;
+
+  auto recentEmojis = readQSettingsArrayToStdVector<Emoji>(cache, prefix, handler);
+  if (recentEmojis.empty()) {
+    recentEmojis = readQSettingsArrayToStdVector<Emoji>(*this, prefix, handler);
+  }
+
+  return std::move(recentEmojis);
 }
 void EmojiPickerSettings::setRecentEmojis(const std::vector<Emoji>& recentEmojis) {
-  writeQSettingsArrayFromStdVector<Emoji>(
-      *this, "recentEmojis", recentEmojis, [](QSettings& settings, const Emoji& emoji) -> void {
-        settings.setValue("emojiKey", QString::fromStdString(emoji.name));
-        settings.setValue("emojiStr", QString::fromStdString(emoji.code));
-      });
+  auto prefix = "recentEmojis";
+  auto handler = [](QSettings& settings, const Emoji& emoji) -> void {
+    settings.setValue("emojiKey", QString::fromStdString(emoji.name));
+    settings.setValue("emojiStr", QString::fromStdString(emoji.code));
+  };
+
+  EmojiPickerCache cache;
+
+  writeQSettingsArrayFromStdVector<Emoji>(cache, prefix, recentEmojis, handler);
+  remove(prefix);
 }
 
 std::string EmojiPickerSettings::localeKey() const {
