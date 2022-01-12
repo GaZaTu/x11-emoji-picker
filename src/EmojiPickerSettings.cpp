@@ -128,9 +128,7 @@ void EmojiPickerSettings::setRecentEmojis(const std::vector<Emoji>& recentEmojis
   EmojiPickerCache cache;
 
   writeQSettingsArrayFromStdVector<Emoji>(cache, prefix, recentEmojis, handler);
-  if (contains(prefix)) {
-    remove(prefix);
-  }
+  remove(prefix);
 }
 
 std::string EmojiPickerSettings::localeKey() const {
