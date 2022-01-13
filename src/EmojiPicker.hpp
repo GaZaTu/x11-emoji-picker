@@ -62,6 +62,8 @@ private:
   void fillViewWithEmojisByText(const std::string& text);
   void fillViewWithEmojisByList();
 
+  void emitEscapePressed();
+
 private:
   void onTextChanged(const QString& text);
   void onReturnPressed(const QKeyEvent& event);
