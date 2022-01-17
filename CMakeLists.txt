@@ -43,6 +43,7 @@ set(COMMON_SRC_FILES
   src/EmojiPicker.cpp
   src/EmojiPickerSettings.cpp
   src/EmojiTranslator.cpp
+  src/flowlayout.cpp
 )
 
 if (UNIX AND NOT APPLE) # LINUX

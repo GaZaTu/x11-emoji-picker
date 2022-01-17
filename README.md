@@ -168,6 +168,8 @@ If the dialog is too smol for you: put `QT_SCALE_FACTOR=float` in front of the c
 
 Some things such as recently used emojis are written to `$XDG_CACHE_HOME/gazatu.xyz/emoji-picker/cache.ini`
 
+Check [src/kaomojis.hpp](src/kaomojis.hpp) for a list of kaomoji. (prefix using `:kao:`)
+
 #### Defaults
 
 ```ini
@@ -235,3 +237,5 @@ Code licensed under the [MIT](https://opensource.org/licenses/MIT) license: [LIC
 Graphics licensed by [Twitter](https://github.com/twitter) under *CC-BY 4.0* at [https://github.com/twitter/twemoji](https://github.com/twitter/twemoji/blob/master/LICENSE-GRAPHICS)
 
 Emoji list and translations licensed by [Unicode](https://github.com/unicode-org) at [https://github.com/unicode-org/cldr](https://github.com/unicode-org/cldr/blob/master/unicode-license.txt)
+
+Some Qt code licensed by Qt under `BSD`: [src/flowlayout.h](src/flowlayout.h), [src/flowlayout.cpp](src/flowlayout.cpp)

@@ -3,6 +3,8 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QDesktopServices>
+#include "./kaomojis.hpp"
+#include <QDebug>
 
 EmojiPicker::EmojiPicker(QWidget* parent)
     : QWidget(parent) {
@@ -14,6 +16,16 @@ EmojiPicker::EmojiPicker(QWidget* parent)
   _maxEmojiVersion = EmojiPickerSettings::snapshot().maxEmojiVersion();
   _aliasedEmojis = EmojiPickerSettings::snapshot().aliasedEmojis();
   _settingsPath = EmojiPickerSettings::snapshot().fileName().toStdString();
+
+  for (auto& kaomoji : kaomojis) {
+    auto name = kaomoji.name;
+    auto text = kaomoji.text;
+
+    name = "kao:" + name;
+    name = ":" + name + ":";
+
+    _aliasedEmojis.push_back({std::move(name), std::move(text)});
+  }
 
   _emojiLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
@@ -126,7 +138,8 @@ bool EmojiPicker::addEmojiLabel(EmojiLabel* emojiLabel, int& row, int& col) {
   emojiLabel->setProperty("row", row);
   emojiLabel->setProperty("col", col);
 
-  _emojiLayout->addWidget(emojiLabel, row, col);
+  // _emojiLayout->addWidget(emojiLabel, row, col);
+  _emojiLayout->addWidget(emojiLabel);
 
   col += 1;
 
@@ -384,8 +397,12 @@ void EmojiPicker::onArrowKeyPressed(const QKeyEvent& event) {
     return;
   }
 
-  int rowToSelect = _selectedEmojiLabel->property("row").toInt();
   int colToSelect = _selectedEmojiLabel->property("col").toInt();
+  int rowToSelect = _selectedEmojiLabel->property("row").toInt();
+
+  QPoint pos = _emojiLayout->pointAt(colToSelect * (rowToSelect + 1));
+  colToSelect = pos.x();
+  rowToSelect = pos.y();
 
   switch (event.key()) {
   case Qt::Key_Up:
@@ -403,10 +420,14 @@ void EmojiPicker::onArrowKeyPressed(const QKeyEvent& event) {
   }
 
   for (EmojiLabel* emojiLabel : _emojiLayoutWidget->findChildren<EmojiLabel*>()) {
-    int row = emojiLabel->property("row").toInt();
     int col = emojiLabel->property("col").toInt();
+    int row = emojiLabel->property("row").toInt();
 
-    if (row == rowToSelect && col == colToSelect) {
+    QPoint pos = _emojiLayout->pointAt(col * (row + 1));
+    col = pos.x();
+    row = pos.y();
+
+    if (col == colToSelect && row == rowToSelect) {
       setSelectedEmojiLabel(emojiLabel);
 
       return;

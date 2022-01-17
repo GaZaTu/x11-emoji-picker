@@ -8,6 +8,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 #include <vector>
+#include "flowlayout.h"
 
 class EmojiPicker : public QWidget {
   Q_OBJECT
@@ -41,7 +42,8 @@ private:
   QVBoxLayout* _mainLayout = new QVBoxLayout();
 
   QWidget* _emojiLayoutWidget = new QWidget();
-  QGridLayout* _emojiLayout = new QGridLayout();
+  // QGridLayout* _emojiLayout = new QGridLayout();
+  FlowLayout* _emojiLayout = new FlowLayout();
 
   QLabel* _inputMethodLabel = new QLabel();
 
