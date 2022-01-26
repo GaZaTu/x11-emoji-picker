@@ -4,8 +4,7 @@
 #include <QClipboard>
 #include <QDesktopServices>
 
-EmojiPicker::EmojiPicker(QWidget* parent)
-    : QWidget(parent) {
+EmojiPicker::EmojiPicker(QWidget* parent) : QWidget(parent) {
   setLayout(_mainLayout);
 
   _recentEmojis = EmojiPickerSettings::snapshot().recentEmojis();
@@ -22,9 +21,17 @@ EmojiPicker::EmojiPicker(QWidget* parent)
   if (EmojiPickerSettings::snapshot().useSystemQtTheme()) {
     QColor emojiLabelHoverBgColor = _emojiLayoutWidget->palette().text().color();
     emojiLabelHoverBgColor.setAlphaF(0.33);
-    _emojiLayoutWidget->setStyleSheet(QString("EmojiLabel { padding: 2px; border-radius: 5px; } EmojiLabel:hover { "
-                                              "background-color: #%1; }")
-                                          .arg(emojiLabelHoverBgColor.rgba(), 0, 16));
+
+    QString stylesheet = QString("EmojiLabel { padding: 2px; border-radius: 5px; } EmojiLabel:hover { "
+                                 "background-color: #%1; }")
+                             .arg(emojiLabelHoverBgColor.rgba(), 0, 16);
+    if (EmojiPickerSettings::snapshot().useSystemEmojiFont()) {
+      stylesheet = QString("EmojiLabel { padding: 0px; border-radius: 5px; font-size: 26px; } EmojiLabel:hover { "
+                           "background-color: #%1; }")
+                       .arg(emojiLabelHoverBgColor.rgba(), 0, 16);
+    }
+
+    _emojiLayoutWidget->setStyleSheet(stylesheet);
   }
 
   _mainLayout->addWidget(_emojiEdit->containerWidget());
@@ -121,7 +128,11 @@ bool EmojiPicker::addEmojiLabel(EmojiLabel* emojiLabel, int& row, int& col) {
     _selectedEmojiLabel = selectedEmojiLabel;
   });
 
-  emojiLabel->setProperty("class", "EmojiPicker_emojiLabel");
+  QString className = "EmojiPicker_emojiLabel";
+  if (EmojiPickerSettings::snapshot().useSystemEmojiFont()) {
+    className += " useFont";
+  }
+  emojiLabel->setProperty("class", className);
 
   emojiLabel->setProperty("row", row);
   emojiLabel->setProperty("col", col);

@@ -93,20 +93,27 @@ int main(int argc, char** argv) {
   }
 
   QMainWindow window;
-  int w = 370;
+  int w = 374;
   int h = 236;
 
   if (EmojiPickerSettings::snapshot().useSystemQtTheme()) {
     w = 358;
+    h = 218;
 
     if (EmojiPickerSettings::snapshot().hideInputMethod()) {
-      h = 196;
-    } else {
-      h = 218;
+      h -= 22;
+    }
+
+    if (EmojiPickerSettings::snapshot().useSystemEmojiFont()) {
+      h += 32;
     }
   } else {
     if (EmojiPickerSettings::snapshot().hideInputMethod()) {
-      h = 210;
+      h -= 26;
+    }
+
+    if (EmojiPickerSettings::snapshot().useSystemEmojiFont()) {
+      h += 32;
     }
   }
 

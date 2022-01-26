@@ -154,6 +154,7 @@ The settings file should be located at `$XDG_CONFIG_HOME/gazatu.xyz/emoji-picker
 - `[General] | surroundAliasesWithColons` => `true` if you want emoji aliases to be in colons (:joy: for example)
 - `[General] | swapEnterAndShiftEnter` => `true` if you want `Return` to close the window
 - `[General] | useClipboardHackByDefault` => `true` to write emojis using `ctrl+v` by default (qt5 apps for example)
+- `[General] | useSystemEmojiFont` => `true` if you want to use the system emoji font instead of the bundled twemoji images
 - `[General] | useSystemQtTheme` => `true` if you want to use the system qt theme (not recommended, usually only works with kde i think)
 - `[General] | windowOpacity` => how seethrough the emoji picker is supposed to be (0 = invisible)
 - `[activateWindowBeforeWritingExceptions]` => list of executables that should be an exception to the `[General] | activateWindowBeforeWritingByDefault` setting
@@ -167,6 +168,8 @@ If emojis do not get written into your window: try adding that executable to the
 If the dialog is too smol for you: put `QT_SCALE_FACTOR=float` in front of the command. (example: `QT_SCALE_FACTOR=1.25 emoji-picker`)
 
 Some things such as recently used emojis are written to `$XDG_CACHE_HOME/gazatu.xyz/emoji-picker/cache.ini`
+
+If you enabled `useSystemEmojiFont` to display emojis inside the emoji picker: it's possible that your installed emoji font does not support all emojis (for example: at the time of writing noto-fonts-emoji does not support `heart_mending`) which will likely result in some emojis being either invisible or displayed as 2 separate emojis which will stretch the emoji picker. To "fix" this behavior you can set `maxEmojiVersion` to the version supported by your emoji font. (for example: 12)
 
 #### Defaults
 
@@ -185,6 +188,7 @@ skinTonesDisabled=false
 surroundAliasesWithColons=true
 swapEnterAndShiftEnter=false
 useClipboardHackByDefault=false
+useSystemEmojiFont=false
 useSystemQtTheme=false
 windowOpacity=0.9
 

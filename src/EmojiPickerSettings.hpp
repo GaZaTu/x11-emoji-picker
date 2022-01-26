@@ -77,6 +77,9 @@ public:
   bool enableEmojiIncludesSearch() const;
   void setEnableEmojiIncludesSearch(bool enableEmojiIncludesSearch);
 
+  bool useSystemEmojiFont() const;
+  void setUseSystemEmojiFont(bool useSystemEmojiFont);
+
   void toggleInputMethod(const std::string& processName);
 
 private:
