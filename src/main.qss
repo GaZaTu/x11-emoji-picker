@@ -213,7 +213,7 @@ QLineEdit:selected {
 .EmojiPicker_emojiLabel.useFont {
   padding: 0px;
   border-radius: 5px;
-  font-size: 26px;
+  font-size: 28px;
 }
 
 .EmojiPicker_emojiLabel:hover {

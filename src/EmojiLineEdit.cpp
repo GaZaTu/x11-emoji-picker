@@ -91,7 +91,11 @@ void EmojiLineEdit::setPreviewText(const std::string& previewText) {
 
   int defaultMarginLeft = 0;
   if (EmojiPickerSettings::snapshot().useSystemQtTheme()) {
-    defaultMarginLeft = 1;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+    defaultMarginLeft += 1;
+#else
+    defaultMarginLeft -= 1;
+#endif
   }
 
   setTextMargins(textWidth + defaultMarginLeft, 0, 0, 0);

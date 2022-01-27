@@ -26,7 +26,7 @@ EmojiPicker::EmojiPicker(QWidget* parent) : QWidget(parent) {
                                  "background-color: #%1; }")
                              .arg(emojiLabelHoverBgColor.rgba(), 0, 16);
     if (EmojiPickerSettings::snapshot().useSystemEmojiFont()) {
-      stylesheet = QString("EmojiLabel { padding: 0px; border-radius: 5px; font-size: 26px; } EmojiLabel:hover { "
+      stylesheet = QString("EmojiLabel { padding: 0px; border-radius: 5px; font-size: 28px; } EmojiLabel:hover { "
                            "background-color: #%1; }")
                        .arg(emojiLabelHoverBgColor.rgba(), 0, 16);
     }
@@ -127,6 +127,9 @@ bool EmojiPicker::addEmojiLabel(EmojiLabel* emojiLabel, int& row, int& col) {
     onReturnPressed(QKeyEvent(QEvent::KeyPress, Qt::Key_Return, {}));
     _selectedEmojiLabel = selectedEmojiLabel;
   });
+
+  emojiLabel->setFixedWidth(280 / cols);
+  emojiLabel->setFixedHeight(120 / rows);
 
   QString className = "EmojiPicker_emojiLabel";
   if (EmojiPickerSettings::snapshot().useSystemEmojiFont()) {
