@@ -66,6 +66,16 @@ QPixmap getPixmapByEmojiStr(const std::string& emojiStr) {
   return QPixmap(QString::fromStdString(getPixmapPathByEmojiStr(emojiStr)), "PNG");
 }
 
+int calculateTextWidth(const QFontMetrics& metrics, const QString& text) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+  return metrics.horizontalAdvance(text);
+#else
+  return metrics.width(text);
+#endif
+}
+
+int defaultEmojiTextWidth = 0;
+
 const Emoji& EmojiLabel::emoji() {
   return _emoji;
 }
@@ -79,7 +89,23 @@ void EmojiLabel::setEmoji(const Emoji& emoji, int w, int h) {
 
   QPixmap emojiPixmap = getPixmapByEmojiStr(_emoji.code);
   if (emojiPixmap.isNull() || EmojiPickerSettings::snapshot().useSystemEmojiFont()) {
-    setText(QString::fromStdString(_emoji.code));
+    if (defaultEmojiTextWidth == 0) {
+      defaultEmojiTextWidth = calculateTextWidth(fontMetrics(), "😀");
+    }
+
+    QString text = QString::fromStdString(_emoji.code);
+    int textWidth = calculateTextWidth(fontMetrics(), text);
+
+    QFont textFont = font();
+    textFont.setPixelSize(28);
+
+    if (textWidth > defaultEmojiTextWidth) {
+      double multiplier = (double)defaultEmojiTextWidth / (double)textWidth;
+      textFont.setPixelSize((double)textFont.pixelSize() * multiplier);
+    }
+
+    setFont(textFont);
+    setText(text);
     return;
   }
 

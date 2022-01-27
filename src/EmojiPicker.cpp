@@ -19,17 +19,18 @@ EmojiPicker::EmojiPicker(QWidget* parent) : QWidget(parent) {
   _emojiLayoutWidget->setLayout(_emojiLayout);
 
   if (EmojiPickerSettings::snapshot().useSystemQtTheme()) {
+    int paddingPx = 2;
+    if (EmojiPickerSettings::snapshot().useSystemEmojiFont()) {
+      paddingPx = 0;
+    }
+
     QColor emojiLabelHoverBgColor = _emojiLayoutWidget->palette().text().color();
     emojiLabelHoverBgColor.setAlphaF(0.33);
 
-    QString stylesheet = QString("EmojiLabel { padding: 2px; border-radius: 5px; } EmojiLabel:hover { "
-                                 "background-color: #%1; }")
+    QString stylesheet = QString("EmojiLabel { padding: %1px; border-radius: 5px; } EmojiLabel:hover { "
+                                 "background-color: #%2; }")
+                             .arg(paddingPx)
                              .arg(emojiLabelHoverBgColor.rgba(), 0, 16);
-    if (EmojiPickerSettings::snapshot().useSystemEmojiFont()) {
-      stylesheet = QString("EmojiLabel { padding: 0px; border-radius: 5px; font-size: 28px; } EmojiLabel:hover { "
-                           "background-color: #%1; }")
-                       .arg(emojiLabelHoverBgColor.rgba(), 0, 16);
-    }
 
     _emojiLayoutWidget->setStyleSheet(stylesheet);
   }
