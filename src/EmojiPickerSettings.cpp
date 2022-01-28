@@ -80,6 +80,7 @@ void EmojiPickerSettings::writeDefaultsToDisk() {
   settings.setHideInputMethod(settings.hideInputMethod());
   settings.setEnableEmojiIncludesSearch(settings.enableEmojiIncludesSearch());
   settings.setUseSystemEmojiFont(settings.useSystemEmojiFont());
+  settings.setUseSystemEmojiFontWidthHeuristics(settings.useSystemEmojiFontWidthHeuristics());
 }
 
 EmojiPickerSettings::EmojiPickerSettings(QObject* parent)
@@ -384,6 +385,13 @@ bool EmojiPickerSettings::useSystemEmojiFont() const {
 }
 void EmojiPickerSettings::setUseSystemEmojiFont(bool useSystemEmojiFont) {
   setValue("useSystemEmojiFont", useSystemEmojiFont);
+}
+
+bool EmojiPickerSettings::useSystemEmojiFontWidthHeuristics() const {
+  return value("useSystemEmojiFontWidthHeuristics", true).toBool();
+}
+void EmojiPickerSettings::setUseSystemEmojiFontWidthHeuristics(bool useSystemEmojiFontWidthHeuristics) {
+  setValue("useSystemEmojiFontWidthHeuristics", useSystemEmojiFontWidthHeuristics);
 }
 
 void EmojiPickerSettings::toggleInputMethod(const std::string& processName) {

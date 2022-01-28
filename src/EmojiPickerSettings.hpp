@@ -80,6 +80,9 @@ public:
   bool useSystemEmojiFont() const;
   void setUseSystemEmojiFont(bool useSystemEmojiFont);
 
+  bool useSystemEmojiFontWidthHeuristics() const;
+  void setUseSystemEmojiFontWidthHeuristics(bool useSystemEmojiFontWidthHeuristics);
+
   void toggleInputMethod(const std::string& processName);
 
 private:

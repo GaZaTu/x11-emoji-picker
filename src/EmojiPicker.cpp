@@ -170,6 +170,12 @@ bool EmojiPicker::isDisabledEmoji(const Emoji& emoji) {
     return true;
   }
 
+  if (EmojiPickerSettings::snapshot().useSystemEmojiFont() && EmojiPickerSettings::snapshot().useSystemEmojiFontWidthHeuristics()) {
+    if (!fontSupportsEmoji(fontMetrics(), QString::fromStdString(emoji.code))) {
+      return true;
+    }
+  }
+
   return false;
 }
 
