@@ -139,7 +139,7 @@ I recommend running it (in the keybind) using the following command instead:
 
 ### Settings
 
-The settings file should be located at `$XDG_CONFIG_HOME/gazatu.xyz/emoji-picker.ini`.
+The settings file should be located at `$XDG_CONFIG_HOME/gazatu.xyz/emoji-picker.ini`. (usually in `~/.config`)
 
 - `[General] | activateWindowBeforeWritingByDefault` => `true` to activate windows by default before writing to them
 - `[General] | aliasExactMatching` => `true` to only show aliased emojis when the search matches completely
@@ -168,7 +168,7 @@ If emojis do not get written into your window: try adding that executable to the
 
 If the dialog is too smol for you: put `QT_SCALE_FACTOR=float` in front of the command. (example: `QT_SCALE_FACTOR=1.25 emoji-picker`)
 
-Some things such as recently used emojis are written to `$XDG_CACHE_HOME/gazatu.xyz/emoji-picker/cache.ini`
+Some things such as recently used emojis are written to `$XDG_CACHE_HOME/gazatu.xyz/emoji-picker/cache.ini`. (usually in `~/.cache`)
 
 If you enabled `useSystemEmojiFont` to display emojis inside the emoji picker: it's possible that your installed emoji font does not support all emojis (for example: at the time of writing noto-fonts-emoji does not support `heart_mending`) which will likely result in some emojis being either invisible or displayed as 2 separate emojis. To "fix" this behavior you can either set `maxEmojiVersion` to the version supported by your emoji font (for example: 12) or set `useSystemEmojiFontWidthHeuristics` to `true` (which is the default) to automatically figure it out.
 
@@ -236,8 +236,8 @@ size=2
 
 ## License 😈
 
-Code licensed under the [MIT](https://opensource.org/licenses/MIT) license: [LICENSE](LICENSE)
+Project licensed under the [MIT](https://opensource.org/licenses/MIT) license: [LICENSE](LICENSE)
 
-Graphics licensed by [Twitter](https://github.com/twitter) under *CC-BY 4.0* at [https://github.com/twitter/twemoji](https://github.com/twitter/twemoji/blob/master/LICENSE-GRAPHICS)
+Emoji [graphics](src/res/72x72) licensed by [Twitter](https://github.com/twitter) under [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/) at [https://github.com/twitter/twemoji](https://github.com/twitter/twemoji/blob/master/LICENSE-GRAPHICS)
 
-Emoji list and translations licensed by [Unicode](https://github.com/unicode-org) at [https://github.com/unicode-org/cldr](https://github.com/unicode-org/cldr/blob/master/unicode-license.txt)
+Emoji [list](src/emojis.hpp) and [translations](src/emojis.cpp) licensed by [Unicode](https://github.com/unicode-org) at [https://github.com/unicode-org/cldr](https://github.com/unicode-org/cldr/blob/master/unicode-license.txt)
