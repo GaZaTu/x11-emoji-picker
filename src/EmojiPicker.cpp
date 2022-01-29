@@ -141,8 +141,8 @@ bool EmojiPicker::addEmojiLabel(EmojiLabel* emojiLabel, int& row, int& col) {
     _selectedEmojiLabel = selectedEmojiLabel;
   });
 
-  emojiLabel->setFixedWidth(280 / cols);
-  emojiLabel->setFixedHeight(120 / rows);
+  // emojiLabel->setFixedWidth(280 / cols);
+  // emojiLabel->setFixedHeight(120 / rows);
 
   QString className = "EmojiPicker_emojiLabel";
   if (EmojiPickerSettings::snapshot().useSystemEmojiFont()) {
@@ -421,7 +421,7 @@ void EmojiPicker::onArrowKeyPressed(const QKeyEvent& event) {
   int colToSelect = _selectedEmojiLabel->property("col").toInt();
   int rowToSelect = _selectedEmojiLabel->property("row").toInt();
 
-  QPoint pos = _emojiLayout->pointAt(colToSelect * (rowToSelect + 1));
+  QPoint pos = _emojiLayout->pointAt(colToSelect + (rowToSelect * cols));
   colToSelect = pos.x();
   rowToSelect = pos.y();
 
@@ -444,7 +444,7 @@ void EmojiPicker::onArrowKeyPressed(const QKeyEvent& event) {
     int col = emojiLabel->property("col").toInt();
     int row = emojiLabel->property("row").toInt();
 
-    QPoint pos = _emojiLayout->pointAt(col * (row + 1));
+    QPoint pos = _emojiLayout->pointAt(col + (row * cols));
     col = pos.x();
     row = pos.y();
 

@@ -97,7 +97,7 @@ int main(int argc, char** argv) {
   int h = 246;
 
   if (EmojiPickerSettings::snapshot().useSystemQtTheme()) {
-    w = 358;
+    w = 360;
     h = 228;
 
     if (EmojiPickerSettings::snapshot().hideInputMethod()) {
