@@ -6,8 +6,7 @@
 #include "./kaomojis.hpp"
 #include <QDebug>
 
-EmojiPicker::EmojiPicker(QWidget* parent)
-    : QWidget(parent) {
+EmojiPicker::EmojiPicker(QWidget* parent) : QWidget(parent) {
   setLayout(_mainLayout);
 
   _recentEmojis = EmojiPickerSettings::snapshot().recentEmojis();
@@ -32,11 +31,20 @@ EmojiPicker::EmojiPicker(QWidget* parent)
   _emojiLayoutWidget->setLayout(_emojiLayout);
 
   if (EmojiPickerSettings::snapshot().useSystemQtTheme()) {
+    int paddingPx = 2;
+    if (EmojiPickerSettings::snapshot().useSystemEmojiFont()) {
+      paddingPx = 0;
+    }
+
     QColor emojiLabelHoverBgColor = _emojiLayoutWidget->palette().text().color();
     emojiLabelHoverBgColor.setAlphaF(0.33);
-    _emojiLayoutWidget->setStyleSheet(QString("EmojiLabel { padding: 2px; border-radius: 5px; } EmojiLabel:hover { "
-                                              "background-color: #%1; }")
-                                          .arg(emojiLabelHoverBgColor.rgba(), 0, 16));
+
+    QString stylesheet = QString("EmojiLabel { padding: %1px; border-radius: 5px; } EmojiLabel:hover { "
+                                 "background-color: #%2; }")
+                             .arg(paddingPx)
+                             .arg(emojiLabelHoverBgColor.rgba(), 0, 16);
+
+    _emojiLayoutWidget->setStyleSheet(stylesheet);
   }
 
   _mainLayout->addWidget(_emojiEdit->containerWidget());
@@ -133,7 +141,14 @@ bool EmojiPicker::addEmojiLabel(EmojiLabel* emojiLabel, int& row, int& col) {
     _selectedEmojiLabel = selectedEmojiLabel;
   });
 
-  emojiLabel->setProperty("class", "EmojiPicker_emojiLabel");
+  emojiLabel->setFixedWidth(280 / cols);
+  emojiLabel->setFixedHeight(120 / rows);
+
+  QString className = "EmojiPicker_emojiLabel";
+  if (EmojiPickerSettings::snapshot().useSystemEmojiFont()) {
+    className += " useFont";
+  }
+  emojiLabel->setProperty("class", className);
 
   emojiLabel->setProperty("row", row);
   emojiLabel->setProperty("col", col);
@@ -166,6 +181,12 @@ bool EmojiPicker::isDisabledEmoji(const Emoji& emoji) {
 
   if (_gendersDisabled && emoji.isGenderVariation()) {
     return true;
+  }
+
+  if (EmojiPickerSettings::snapshot().useSystemEmojiFont() && EmojiPickerSettings::snapshot().useSystemEmojiFontWidthHeuristics()) {
+    if (!fontSupportsEmoji(fontMetrics(), QString::fromStdString(emoji.code))) {
+      return true;
+    }
   }
 
   return false;

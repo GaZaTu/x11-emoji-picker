@@ -12,10 +12,10 @@ public:
   explicit EmojiLabel(QWidget* parent = nullptr);
   explicit EmojiLabel(QWidget* parent, const Emoji& emoji);
 
-  const Emoji& emoji();
+  const Emoji& emoji() const;
   void setEmoji(const Emoji& emoji, int w = 24, int h = 24);
 
-  bool highlighted();
+  bool highlighted() const;
   void setHighlighted(bool highlighted);
 
 signals:
@@ -31,3 +31,5 @@ private:
 
   QGraphicsDropShadowEffect* _shadowEffect = new QGraphicsDropShadowEffect();
 };
+
+bool fontSupportsEmoji(const QFontMetrics& metrics, const QString& text);

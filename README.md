@@ -139,7 +139,7 @@ I recommend running it (in the keybind) using the following command instead:
 
 ### Settings
 
-The settings file should be located at `$XDG_CONFIG_HOME/gazatu.xyz/emoji-picker.ini`.
+The settings file should be located at `$XDG_CONFIG_HOME/gazatu.xyz/emoji-picker.ini`. (usually in `~/.config`)
 
 - `[General] | activateWindowBeforeWritingByDefault` => `true` to activate windows by default before writing to them
 - `[General] | aliasExactMatching` => `true` to only show aliased emojis when the search matches completely
@@ -154,6 +154,8 @@ The settings file should be located at `$XDG_CONFIG_HOME/gazatu.xyz/emoji-picker
 - `[General] | surroundAliasesWithColons` => `true` if you want emoji aliases to be in colons (:joy: for example)
 - `[General] | swapEnterAndShiftEnter` => `true` if you want `Return` to close the window
 - `[General] | useClipboardHackByDefault` => `true` to write emojis using `ctrl+v` by default (qt5 apps for example)
+- `[General] | useSystemEmojiFont` => `true` if you want to use the system emoji font instead of the bundled twemoji images
+- `[General] | useSystemEmojiFontWidthHeuristics` => `true` if you want to scale/hide unsupported emojis (may lead to false positives)
 - `[General] | useSystemQtTheme` => `true` if you want to use the system qt theme (not recommended, usually only works with kde i think)
 - `[General] | windowOpacity` => how seethrough the emoji picker is supposed to be (0 = invisible)
 - `[activateWindowBeforeWritingExceptions]` => list of executables that should be an exception to the `[General] | activateWindowBeforeWritingByDefault` setting
@@ -166,7 +168,9 @@ If emojis do not get written into your window: try adding that executable to the
 
 If the dialog is too smol for you: put `QT_SCALE_FACTOR=float` in front of the command. (example: `QT_SCALE_FACTOR=1.25 emoji-picker`)
 
-Some things such as recently used emojis are written to `$XDG_CACHE_HOME/gazatu.xyz/emoji-picker/cache.ini`
+Some things such as recently used emojis are written to `$XDG_CACHE_HOME/gazatu.xyz/emoji-picker/cache.ini`. (usually in `~/.cache`)
+
+If you enabled `useSystemEmojiFont` to display emojis inside the emoji picker: it's possible that your installed emoji font does not support all emojis (for example: at the time of writing noto-fonts-emoji does not support `heart_mending`) which will likely result in some emojis being either invisible or displayed as 2 separate emojis. To "fix" this behavior you can either set `maxEmojiVersion` to the version supported by your emoji font (for example: 12) or set `useSystemEmojiFontWidthHeuristics` to `true` (which is the default) to automatically figure it out.
 
 Check [src/kaomojis.hpp](src/kaomojis.hpp) for a list of kaomoji. (prefix using `:kao:`)
 
@@ -187,6 +191,8 @@ skinTonesDisabled=false
 surroundAliasesWithColons=true
 swapEnterAndShiftEnter=false
 useClipboardHackByDefault=false
+useSystemEmojiFont=false
+useSystemEmojiFontWidthHeuristics=true
 useSystemQtTheme=false
 windowOpacity=0.9
 
@@ -232,10 +238,10 @@ size=2
 
 ## License 😈
 
-Code licensed under the [MIT](https://opensource.org/licenses/MIT) license: [LICENSE](LICENSE)
+Project licensed under the [MIT](https://opensource.org/licenses/MIT) license: [LICENSE](LICENSE)
 
-Graphics licensed by [Twitter](https://github.com/twitter) under *CC-BY 4.0* at [https://github.com/twitter/twemoji](https://github.com/twitter/twemoji/blob/master/LICENSE-GRAPHICS)
+Emoji [graphics](src/res/72x72) licensed by [Twitter](https://github.com/twitter) under [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/) at [https://github.com/twitter/twemoji](https://github.com/twitter/twemoji/blob/master/LICENSE-GRAPHICS)
 
-Emoji list and translations licensed by [Unicode](https://github.com/unicode-org) at [https://github.com/unicode-org/cldr](https://github.com/unicode-org/cldr/blob/master/unicode-license.txt)
+Emoji [list](src/emojis.hpp) and [translations](src/emojis.cpp) licensed by [Unicode](https://github.com/unicode-org) at [https://github.com/unicode-org/cldr](https://github.com/unicode-org/cldr/blob/master/unicode-license.txt)
 
-Some Qt code licensed by Qt under `BSD`: [src/flowlayout.h](src/flowlayout.h), [src/flowlayout.cpp](src/flowlayout.cpp)
+Some Qt code licensed by Qt under [BSD](https://opensource.org/licenses/BSD-3-Clause): [src/flowlayout.h](src/flowlayout.h), [src/flowlayout.cpp](src/flowlayout.cpp)

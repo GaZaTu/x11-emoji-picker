@@ -38,18 +38,18 @@ QWidget* EmojiLineEdit::containerWidget() {
       QColor emojiLabelHoverBgColor = _iconsLayoutWidget->palette().text().color();
       emojiLabelHoverBgColor.setAlphaF(0.33);
       _iconsLayoutWidget->setStyleSheet(
-          QString("EmojiLabel { padding: 1px 2px 1px 2px; border-radius: 5px; } EmojiLabel:hover { "
-                  "background-color: #%1; }")
+          QString("EmojiLabel { padding: 1px 2px 1px 2px; border-radius: 5px; font-size: 14px; }"
+                  "EmojiLabel:hover { background-color: #%1; }")
               .arg(emojiLabelHoverBgColor.rgba(), 0, 16));
     }
 
     _favsLabel = new EmojiLabel();
     _favsLabel->setProperty("class", "EmojiLineEdit_favsLabel");
-    _favsLabel->setEmoji({"", u8"⭐"}, 16, 16);
+    _favsLabel->setEmoji({"", u8"⭐"}, 14, 14);
 
     _helpLabel = new EmojiLabel();
     _helpLabel->setProperty("class", "EmojiLineEdit_helpLabel");
-    _helpLabel->setEmoji({"", u8"🗃"}, 16, 16);
+    _helpLabel->setEmoji({"", u8"🗃"}, 14, 14);
 
     _iconsLayout->addWidget(_favsLabel, 0, 0);
     _iconsLayout->addWidget(_helpLabel, 0, 1);
@@ -91,7 +91,11 @@ void EmojiLineEdit::setPreviewText(const std::string& previewText) {
 
   int defaultMarginLeft = 0;
   if (EmojiPickerSettings::snapshot().useSystemQtTheme()) {
-    defaultMarginLeft = 1;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+    defaultMarginLeft += 1;
+#else
+    defaultMarginLeft -= 1;
+#endif
   }
 
   setTextMargins(textWidth + defaultMarginLeft, 0, 0, 0);

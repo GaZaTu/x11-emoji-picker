@@ -79,6 +79,8 @@ void EmojiPickerSettings::writeDefaultsToDisk() {
   settings.setSurroundAliasesWithColons(settings.surroundAliasesWithColons());
   settings.setHideInputMethod(settings.hideInputMethod());
   settings.setEnableEmojiIncludesSearch(settings.enableEmojiIncludesSearch());
+  settings.setUseSystemEmojiFont(settings.useSystemEmojiFont());
+  settings.setUseSystemEmojiFontWidthHeuristics(settings.useSystemEmojiFontWidthHeuristics());
 }
 
 EmojiPickerSettings::EmojiPickerSettings(QObject* parent)
@@ -88,7 +90,8 @@ EmojiPickerSettings::EmojiPickerSettings(QObject* parent)
 
 class EmojiPickerCache : public QSettings {
 public:
-  EmojiPickerCache() : QSettings(path(), QSettings::IniFormat) {}
+  EmojiPickerCache() : QSettings(path(), QSettings::IniFormat) {
+  }
 
   ~EmojiPickerCache() {
     setValue("version", QApplication::applicationVersion());
@@ -104,8 +107,8 @@ std::vector<Emoji> EmojiPickerSettings::recentEmojis() {
   auto prefix = "recentEmojis";
   auto handler = [](QSettings& settings) -> Emoji {
     return {
-      settings.value("emojiKey").toString().toStdString(),
-      settings.value("emojiStr").toString().toStdString(),
+        settings.value("emojiKey").toString().toStdString(),
+        settings.value("emojiStr").toString().toStdString(),
     };
   };
 
@@ -375,6 +378,20 @@ bool EmojiPickerSettings::enableEmojiIncludesSearch() const {
 }
 void EmojiPickerSettings::setEnableEmojiIncludesSearch(bool enableEmojiIncludesSearch) {
   setValue("enableEmojiIncludesSearch", enableEmojiIncludesSearch);
+}
+
+bool EmojiPickerSettings::useSystemEmojiFont() const {
+  return value("useSystemEmojiFont", false).toBool();
+}
+void EmojiPickerSettings::setUseSystemEmojiFont(bool useSystemEmojiFont) {
+  setValue("useSystemEmojiFont", useSystemEmojiFont);
+}
+
+bool EmojiPickerSettings::useSystemEmojiFontWidthHeuristics() const {
+  return value("useSystemEmojiFontWidthHeuristics", true).toBool();
+}
+void EmojiPickerSettings::setUseSystemEmojiFontWidthHeuristics(bool useSystemEmojiFontWidthHeuristics) {
+  setValue("useSystemEmojiFontWidthHeuristics", useSystemEmojiFontWidthHeuristics);
 }
 
 void EmojiPickerSettings::toggleInputMethod(const std::string& processName) {
