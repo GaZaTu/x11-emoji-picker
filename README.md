@@ -172,7 +172,10 @@ Some things such as recently used emojis are written to `$XDG_CACHE_HOME/gazatu.
 
 If you enabled `useSystemEmojiFont` to display emojis inside the emoji picker: it's possible that your installed emoji font does not support all emojis (for example: at the time of writing noto-fonts-emoji does not support `heart_mending`) which will likely result in some emojis being either invisible or displayed as 2 separate emojis. To "fix" this behavior you can either set `maxEmojiVersion` to the version supported by your emoji font (for example: 12) or set `useSystemEmojiFontWidthHeuristics` to `true` (which is the default) to automatically figure it out.
 
-Check [src/kaomojis.hpp](src/kaomojis.hpp) for a list of kaomoji. (prefix using `:kao:`)
+Regarding kaomoji mode:
+- Check [src/kaomojis.hpp](src/kaomojis.hpp) for a list of kaomoji
+- `F2` (list of all emoji (or kaomoji in this case)) does not work yet
+- `useSystemEmojiFont=true` does not work with kaomoji mode
 
 #### Defaults
 
