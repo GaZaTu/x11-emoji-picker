@@ -83,6 +83,9 @@ public:
   bool useSystemEmojiFontWidthHeuristics() const;
   void setUseSystemEmojiFontWidthHeuristics(bool useSystemEmojiFontWidthHeuristics);
 
+  bool startInKaomojiMode() const;
+  void setStartInKaomojiMode(bool startInKaomojiMode);
+
   void toggleInputMethod(const std::string& processName);
 
 private:
