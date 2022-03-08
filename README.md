@@ -125,7 +125,7 @@ When you've selected your emoji you can press the **return key** to write it.
 - `F2` => show list of all emojis (if you press this while searching, the view will jump to the currently selected emoji aswell)
 - `F4` => close emoji picker and open settings file
 - `F5` => toggle input method for current process (press [`F5` and then `Return`] a few times if emojis don't get written into the window; there are 4 different modes)
-- `Tab` => toggle between `F1` and `F2`
+- `Tab` => toggle between emoji and kaomoji
 
 ### AppImage
 
@@ -188,6 +188,7 @@ localeKey=
 maxEmojiVersion=-1
 openAtMouseLocation=false
 skinTonesDisabled=false
+startInKaomojiMode=false
 surroundAliasesWithColons=true
 swapEnterAndShiftEnter=false
 useClipboardHackByDefault=false
