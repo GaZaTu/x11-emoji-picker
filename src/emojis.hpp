@@ -7,7 +7,7 @@ struct Emoji {
 public:
   std::string name;
   std::string code;
-  short version = 0;
+  short version = -1;
 
   std::string nameByLocale(const std::string& localeKey = std::locale("").name().substr(0, 2)) const;
 
