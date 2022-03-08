@@ -3,7 +3,7 @@
 #include "EmojiLabel.hpp"
 #include "EmojiLineEdit.hpp"
 #include "emojis.hpp"
-#include <QGridLayout>
+// #include <QGridLayout>
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -36,6 +36,9 @@ private:
   int _maxEmojiVersion = -1;
   std::vector<Emoji> _aliasedEmojis;
   std::string _settingsPath;
+
+  const Emoji* _emojiArray = emojis;
+  size_t _emojiArraySize = sizeof(emojis) / sizeof(Emoji);
 
   EmojiLabel* _selectedEmojiLabel = nullptr;
 

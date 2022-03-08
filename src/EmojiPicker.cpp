@@ -6,6 +6,9 @@
 #include "./kaomojis.hpp"
 #include <QDebug>
 
+constexpr size_t kaomojisSize = sizeof(kaomojis) / sizeof(Kaomoji);
+Emoji convertedKaomojis[kaomojisSize];
+
 EmojiPicker::EmojiPicker(QWidget* parent) : QWidget(parent) {
   setLayout(_mainLayout);
 
@@ -16,14 +19,16 @@ EmojiPicker::EmojiPicker(QWidget* parent) : QWidget(parent) {
   _aliasedEmojis = EmojiPickerSettings::snapshot().aliasedEmojis();
   _settingsPath = EmojiPickerSettings::snapshot().fileName().toStdString();
 
-  for (auto& kaomoji : kaomojis) {
-    auto name = kaomoji.name;
-    auto text = kaomoji.text;
+  for (int i = 0; i < kaomojisSize; i++) {
+    auto name = kaomojis[i].name;
+    auto text = kaomojis[i].text;
 
-    name = "kao:" + name;
-    name = ":" + name + ":";
+    convertedKaomojis[i] = {std::move(name), std::move(text)};
+  }
 
-    _aliasedEmojis.push_back({std::move(name), std::move(text)});
+  if (EmojiPickerSettings::snapshot().startInKaomojiMode()) {
+    _emojiArray = convertedKaomojis;
+    _emojiArraySize = kaomojisSize;
   }
 
   _emojiLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
@@ -253,7 +258,9 @@ void EmojiPicker::fillViewWithEmojisByText(const std::string& text) {
     }
 
     EmojiLabel* emojiLabel = nullptr;
-    for (const auto& emoji : emojis) {
+    for (int i = 0; i < _emojiArraySize; i++) {
+      const auto& emoji = _emojiArray[i];
+
       if (emoji.code == alias.code) {
         emojiLabel = new EmojiLabel(nullptr, emoji);
         break;
@@ -285,7 +292,9 @@ void EmojiPicker::fillViewWithEmojisByText(const std::string& text) {
     return;
   }
 
-  for (const auto& emoji : emojis) {
+  for (int i = 0; i < _emojiArraySize; i++) {
+    const auto& emoji = _emojiArray[i];
+
     if (isDisabledEmoji(emoji)) {
       continue;
     }
@@ -316,7 +325,9 @@ void EmojiPicker::fillViewWithEmojisByList() {
   }
 
   if (_helpEmojiListStartEmoji) {
-    for (const auto& emoji : emojis) {
+    for (int i = 0; i < _emojiArraySize; i++) {
+      const auto& emoji = _emojiArray[i];
+
       if (isDisabledEmoji(emoji)) {
         continue;
       }
@@ -338,7 +349,9 @@ void EmojiPicker::fillViewWithEmojisByList() {
     }
   }
 
-  for (const auto& emoji : emojis) {
+  for (int i = 0; i < _emojiArraySize; i++) {
+    const auto& emoji = _emojiArray[i];
+
     if (isDisabledEmoji(emoji)) {
       continue;
     }
@@ -504,10 +517,22 @@ void EmojiPicker::onFunctionKeyPressed(const QKeyEvent& event) {
 }
 
 void EmojiPicker::onTabPressed(const QKeyEvent& event) {
-  if (_helpEmojiListIdx == -1) {
-    onHelpPressed(nullptr);
-  } else if (_helpEmojiListIdx != -1 || _emojiEdit->text() != "") {
-    onFavsPressed(nullptr);
+  if (_emojiArray == emojis) {
+    _emojiArray = convertedKaomojis;
+    _emojiArraySize = sizeof(convertedKaomojis) / sizeof(Emoji);
+  } else {
+    _emojiArray = emojis;
+    _emojiArraySize = sizeof(emojis) / sizeof(Emoji);
+  }
+
+  _helpEmojiListStartEmoji = {"", ""};
+  _helpEmojiListIdx = -1;
+  clearView();
+
+  if (_emojiEdit->text() != "") {
+    fillViewWithEmojisByText(_emojiEdit->text().toStdString());
+  } else {
+    fillViewWithRecentEmojis();
   }
 }
 
@@ -536,6 +561,10 @@ void EmojiPicker::onFavsPressed(QMouseEvent* ev) {
 
 void EmojiPicker::onHelpPressed(QMouseEvent* ev) {
   if (_helpEmojiListIdx != -1) {
+    return;
+  }
+
+  if (_emojiArray != emojis) {
     return;
   }
 
