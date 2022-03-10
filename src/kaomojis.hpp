@@ -16,8 +16,172 @@ public:
   }
 };
 
-// generated from https://slangit.com/emoticons/kaomoji
 const Kaomoji kaomojis[] = {
+  {"grinning", u8"(* ^ ω ^)"},
+  {"grinning", u8"(≧◡≦)"},
+  {"grinning_with_arms", u8"ヽ(o^ ^o)ﾉ"},
+  {"grinning", u8"(*≧ω≦*)"},
+  {"grinning_with_arms", u8"(๑˃ᴗ˂)ﻭ"},
+  {"grinning", u8"(ﾉ≧ڡ≦)"},
+
+  {"sweat_smile", u8"(´･ᴗ･ ` )"},
+
+  {"laughing", u8"(o^▽^o)"},
+  {"laughing", u8"(＾▽＾)"},
+  {"laughing_with_arms", u8"ヽ(o＾▽＾o)ノ"},
+  {"laughing_with_arms", u8"\\(^ヮ^)/"},
+  {"laughing_blush", u8"(〃＾▽＾〃)"},
+
+  {"joy", u8"＼(≧▽≦)／"},
+  {"joy", u8"{*≧∀≦}"},
+
+  {"satisfied", u8"<(￣︶￣)>"},
+  {"satisfied", u8"(￣ω￣)"},
+  {"satisfied", u8"(─‿‿─)"},
+  {"satisfied_laughing", u8"(￣▽￣)"},
+  {"satisfied_laughing_with_arms", u8"＼(￣▽￣)／"},
+
+  {"smiling_with_arms", u8"ヽ(*・ω・)ﾉ"},
+  {"smiling_blush", u8"(*^‿^*)"},
+  {"smiling", u8"(◕‿◕)"},
+  {"relaxed", u8"(๑˘︶˘๑)"},
+  {"smiling", u8"(.❛ ᴗ ❛.)"},
+  {"smiling_blush", u8"(=^_^=)"},
+
+  {"wink_heart", u8" ღゝ◡╹)ノ♡"},
+
+  {"blush_smile", u8"(*^_^*)"},
+  {"flushed", u8"(•ﾟдﾟ•)"},
+  {"blush_closed_eyes", u8"(〃￣ω￣〃ゞ"},
+  {"blush_smile", u8"(⁄ ⁄•⁄ω⁄•⁄ ⁄)"},
+  {"blush_grinning", u8"(⁄ ⁄>⁄ ▽ ⁄<⁄ ⁄)"},
+  {"blush_heart", u8"(´,,•ω•,,)♡"},
+  {"blush", u8"米＾－＾米"},
+
+  {"smug", u8"(￢‿￢ )"},
+
+  {"heart_eyes_with_arms", u8"ヽ(♡‿♡)ノ"},
+  {"heart_eyes", u8"(*♡∀♡)"},
+  {"heart_eyes", u8"٩(♡ε♡)۶"},
+  {"heart_eyes", u8"(｡♥‿♥｡)"},
+  {"heart_eyes_flower_cheeks", u8"(✿ ♥‿♥)"},
+  {"heart_eyes", u8"(๑♡⌓♡๑)"},
+
+  {"star_struck", u8"(✪‿✪)ノ"},
+  {"star_struck", u8"(☆▽☆)"},
+  {"star_struck", u8"(╯✧▽✧)╯"},
+
+  {"kissing_heart", u8"(っ˘з(˘⌣˘ ) ♡"},
+  {"kissing_heart", u8"σ(≧ε≦σ) ♡"},
+
+  {"kissing", u8"(ﾉ´ з `)ノ"},
+  {"kissing_closed_eyes", u8"(￣ε￣＠)"},
+  {"kissing_closed_eyes", u8"(￣З￣)"},
+  {"kissing", u8"(ɔˆз(ˆ⌣ˆc)"},
+
+  {"smiling_with_tear", u8"أ‿أ"},
+
+  {"heart_cheeks", u8"(♡-_-♡)"},
+  {"heart_cheeks", u8"(´ ω `♡)"},
+  {"heart_cheeks_smiling", u8"(ღ˘⌣˘ღ)"},
+  {"heart_cheeks_laughing", u8"(♡°▽°♡)"},
+  {"heart_cheeks", u8"（♥￫ｏ￩♥）"},
+
+  {"couple", u8"( ˘⌣˘)♡(˘⌣˘ )"},
+  {"blush_heart_arrow", u8"Σ>―(〃°ω°〃)♡→"},
+  {"share_hearts", u8"♡＼(￣▽￣)／♡"},
+
+  {"flower_cheeks_smiling", u8"(✿╹◡╹)"},
+  {"flower_cheeks", u8"(◕‿◕✿)"},
+  {"flower_cheeks", u8"(ㆁᴗㆁ✿)"},
+  {"flower_cheeks_grinning", u8"(≖ᴗ≖✿)"},
+  {"flower_cheeks", u8"(✿ヘᴥヘ)"},
+
+  {"OwO", u8"♡(ŐωŐ人)"},
+
+  {"peace", u8"y（^ヮ^）y"},
+
+  {"thumbs_up", u8"PLACEHOLDER"},
+  {"thumbs_up", u8"d(^^*)"},
+
+  {"expressionless", u8"|*￣ー￣|"},
+  {"expressionless", u8"（￣ε￣）"},
+
+  {"cry", u8"(ಥ﹏ಥ)"},
+  {"cry", u8"╥﹏╥"},
+  {"cry", u8"（ｉДｉ）"},
+  {"cry", u8"༼ಢ_ಢ༽"},
+
+  {"sob", u8".･ﾟﾟ･(／ω＼)･ﾟﾟ･."},
+  {"sob", u8"｡･ﾟﾟ*(>д<)*ﾟﾟ･｡"},
+
+  {"sad", u8"(⋟﹏⋞)"},
+  {"confused", u8"(☍﹏⁰)｡"},
+  {"frowning", u8"(-_-)"},
+  {"sad_disappointed", u8"(｡╯︵╰｡)"},
+  {"sad_disappointed", u8"(｡•́︿•̀｡)"},
+
+  {"hugging_sad", u8"(っ˘̩╭╮˘̩)っ"},
+
+  {"not_sure_tear", u8"(≖͞_≖̥)"},
+
+  {"unamused", u8"(；⌣̀_⌣́)"},
+
+  {"unamused", u8"(￢_￢;)"},
+  {"unamused", u8"(￣ヘ￣)"},
+  {"unamused", u8"(¬▂¬)"},
+
+  {"argueing", u8"(；￣Д￣)"},
+  {"argueing", u8"(」°ロ°)」"},
+  {"argueing", u8"ヾ( ￣O￣)ツ"},
+
+  {"confounded", u8"(〃＞＿＜;〃)"},
+  {"confounded", u8"(＞﹏＜)"},
+
+  {"praying", u8"(￣人￣)"},
+  {"praying", u8"(uωu人)"},
+
+  {"pleading_wink", u8"(人ゝω・）"},
+  {"pleading", u8"((_　_*"},
+  {"pleading", u8"(」ﾟДﾟ」"},
+  {"pleading", u8"(人ФｴФ)"},
+
+  {"cat", u8"(=ↀωↀ=)"},
+  {"cat", u8"(⁎˃ᆺ˂)"},
+  {"cat", u8"(=ＴェＴ=)"},
+  {"cat", u8"ฅ(≚ᄌ≚)"},
+
+  {"worried", u8"(ó﹏ò｡)"},
+  {"worried", u8"(´･_･｀)"},
+
+  {"pout", u8"( ￣＾￣)"},
+  {"pout", u8"( *｀з´)"},
+
+  {"mad", u8"ಠ_ಠ"},
+  {"mad_with_arms", u8"ノಠ_ಠノ"},
+  {"mad", u8"ಠ▃ಠ"},
+
+  {"angry", u8"(⋋▂⋌)"},
+  {"angry", u8"〴⋋_⋌〵"},
+  {"angry", u8"(◔ д◔)"},
+  {"angry", u8"(ʘдʘ╬)"},
+  {"angry", u8"(╬ಠ益ಠ)"},
+
+  {"cheerleader", u8"⁽⁽⁕◟(.öˬö.)◞⁕⁾⁾"},
+  {"cheerleader", u8"✺◟(∗❛ัᴗ❛ั∗)◞✺"},
+
+  {"party", u8"┗( ^o^)┛≡┏( ^o^)┓≡┗( ^o^)┛"},
+  {"party", u8"╭(°ㅂ°)╮╰(°ㅂ°)╯╭(°ㅂ°)╮╰(°ㅂ°)╯"},
+  {"party", u8"♪♪＼(^ω^＼)( /^ω^)/♪♪"},
+
+  {"couple_dancing", u8"♪～(◔◡◔ิ)人(╹◡╹๑)～♪"},
+  {"couple_dancing", u8"ヽ(○｀･v･)人(･v･´●)ﾉ"},
+
+  {"dancing", u8"┌|≧∇≦|┘"},
+  {"dancing", u8"(〜￣△￣)〜"},
+  {"dancing", u8"ヘ(￣ω￣ヘ)"},
+  {"dancing", u8"₍₍ ◝(・ω・)◟ ⁾⁾"},
+
   {"take_my_energy", u8"༼ つ ◕_◕ ༽つ"},
   {"shrugging", u8"¯\\_(ツ)_/¯"},
   {"sniper", u8"( ´-ω･)︻┻┳══━一"},
@@ -31,12 +195,7 @@ const Kaomoji kaomojis[] = {
   {"distraught", u8"༼ ༎ຶ ෴ ༎ຶ༽"},
   {"overjoyed", u8"^_^"},
   {"dancing", u8"♪┏(・o･)┛♪"},
-  {"doggy", u8"V●ᴥ●V"},
-  {"outlaw", u8"̿’̿’\\̵͇̿̿\\З=( ͠° ͟ʖ ͡°)=Ε/̵͇̿̿/’̿̿ ̿ ̿ ̿ ̿ ̿"},
-  {"laughing", u8"(＾▽＾)"},
   {"butterfly", u8"Ƹ̵̡Ӝ̵̨̄Ʒ"},
-  {"joyful", u8"(≧∇≦)/"},
-  {"stereo", u8"|̲̅̅●̲̅̅|̲̅̅=̲̅̅|̲̅̅●̲̅̅|"},
   {"kitty_cat", u8"⋟^≏^⋞"},
   {"table_flips_you", u8"┬─┬﻿︵/(.□.)╯"},
   {"kirby", u8"(っ^‿^)っ"},
@@ -51,17 +210,15 @@ const Kaomoji kaomojis[] = {
   {"wizard", u8"(∩｀-´)⊃━☆ﾟ.*･｡ﾟ"},
   {"cat", u8"ฅ(=＾◕ᆺ◕＾=)ฅ"},
   {"hug_me", u8"⊂((・▽・))⊃"},
-  {"flipping_facebook", u8"(╯°□°)╯︵ ʞooqǝɔɐɟ"},
   {"scared", u8".∵･(ﾟДﾟ)"},
   {"herp_derp", u8"（。々°）"},
-  {"snowing", u8"❆❅❉"},
   {"spongebob_squarepants", u8"|∴め ϖ め∴|"},
   {"sword_fighting", u8"(´>_●)メ(●_<｀)"},
   {"koala", u8"ʕ •ᴥ•ʔ"},
   {"frosty_the_snowman", u8"ᒄ₍⁽ˆ⁰ˆ⁾₎ᒃ♪♬"},
   {"loving", u8"(ɔ◔‿◔)ɔ ♥"},
   {"but_at_what_cost", u8"ლ(ಠ益ಠლ)"},
-  {"smiling", u8"( ͡° ͜ʖ ͡°)"},
+  {"lenny", u8"( ͡° ͜ʖ ͡°)"},
   {"gimme", u8"༼ つ ◕_◕ ༽つ"},
   {"painful", u8"(>_<)"},
   {"whoops", u8"(－‸ლ)"},
@@ -85,12 +242,10 @@ const Kaomoji kaomojis[] = {
   {"unimpressed", u8"（￣～￣）"},
   {"shy", u8"（/｡＼)"},
   {"monocle", u8"ಠ_ರೃ"},
-  {"in_love", u8"(♥_♥)"},
   {"running", u8"ε=┏(ﾟロﾟ;)┛"},
   {"furious", u8"(ò_ó)"},
   {"hugging", u8"(>^_^)><(^o^<)"},
   {"huh", u8"[•.•ิ]"},
-  {"hippie", u8"(✿◠‿◠) "},
   {"pumped", u8"o(^▽^)o"},
   {"octopus", u8"Ｃ:。ミ"},
   {"peace", u8"(^o^)y"},
@@ -98,7 +253,6 @@ const Kaomoji kaomojis[] = {
   {"playing_in_the_snow", u8"◦°˚\\☺/˚°◦"},
   {"sleeping", u8"(–˛ — º)"},
   {"emo", u8"(//_^)"},
-  {"cyclops", u8"๏-)"},
   {"anticipation", u8"(⊃‿⊂)"},
   {"thinking", u8"(p_-)"},
   {"teddy_bear", u8"⊂(◜ᴥ◝)つ"},
@@ -107,21 +261,20 @@ const Kaomoji kaomojis[] = {
   {"doing_homework", u8"＿φ( °-°)/"},
   {"devastated", u8"(ಥ﹏ಥ)"},
   {"panda", u8"◖㈠ ω ㈠◗"},
-  {"snooper", u8"┬┴┬┴┤(･_├┬┴┬┴"},
+  {"lurk", u8"┬┴┬┴┤(･_├┬┴┬┴"},
   {"seal", u8"(ᵔᴥᵔ)"},
   {"excited", u8"ヽ(★ω★)ノ"},
   {"magic_attack", u8"(∩｀-´)⊃━☆ﾟ.*･｡ﾟ"},
   {"sobbing", u8"(╥﹏╥)"},
-  {"high_five", u8"^_^/"},
   {"snubbing", u8"(´･ω･`)"},
   {"anger", u8"ლ(ಠ益ಠ)ლ"},
-  {"angry", u8"ヽ(｀⌒´メ)ノ"},
+  {"angry_flailing", u8"ヽ(｀⌒´メ)ノ"},
   {"crying", u8"T^T"},
   {"pig", u8"<(^oo^)>"},
   {"freak_out", u8"ヽ(ﾟДﾟ)ﾉ"},
   {"sleeping_kirby", u8"૮(-.-)ა"},
   {"content", u8"˙ ͜ʟ˙"},
-  {"giving_up", u8"(;-_-)ノ"},
+  {"resign", u8"(;-_-)ノ"},
   {"chasing", u8"(○｀д´)ﾉｼ Σ(っﾟДﾟ)っ"},
   {"bird", u8"(●∈∋●)"},
   {"hug", u8"(っ⌒‿⌒)っ"},
@@ -131,7 +284,7 @@ const Kaomoji kaomojis[] = {
   {"bear", u8"⊂(￣(ｴ)￣)⊃"},
   {"oh_no!", u8"L(´□｀L)"},
   {"inquisitive", u8"(╭ರ_•́)"},
-  {"sad", u8"T.T"},
+  {"monocle", u8"(╭ರ_•́)"},
   {"sleepy", u8"(- o - ) zzZ ☽"},
   {"whispering", u8"( ￣ﾉ∇￣)￣ｰ￣)"},
   {"gleeful", u8"｡◕‿◕｡"},
@@ -152,7 +305,6 @@ const Kaomoji kaomojis[] = {
   {"rolling_eyes", u8"◔̯◔"},
   {"imbecile", u8"(＊☉౪ ⊙｡)ﾉ"},
   {"bread", u8"ʕʔ"},
-  {"playstation_portable", u8"(+[__]∙:∙)"},
   {"hiding", u8"|д･)"},
   {"scaring", u8"(☄ฺ◣д◢)☄ฺ"},
   {"smoking", u8"y(^ o^)y~~"},
@@ -161,7 +313,6 @@ const Kaomoji kaomojis[] = {
   {"dead_person", u8"✖‿✖"},
   {"frustrated", u8"(ᗒᗣᗕ)"},
   {"happy_crying", u8"(°̥̥̥̥̥̥̥̥ᴗ°̥̥̥̥̥̥̥̥)"},
-  {"putting_facebook_back_after_flipping_it", u8"Facebookノ( º _ ºノ)"},
   {"fighting", u8"(ง •̀ゝ•́)ง"},
   {"syringe", u8"-{'''|'''|'''|''']=[]"},
   {"glad", u8"＼（＾ ＾）／"},
@@ -197,9 +348,8 @@ const Kaomoji kaomojis[] = {
   {"shooting", u8"(ﾟ皿ﾟ)ｒ┏┳－*"},
   {"thank_you", u8"＼(-_- )"},
   {"phone", u8"(((☎)))"},
-  {"kissing", u8"(* ￣)(￣ *) "},
+  {"couple_kissing", u8"(* ￣)(￣ *) "},
   {"olympic_hammer_throw", u8"(ﾉ-o-)ﾉ 中"},
   {"cunning", u8"(¬‿¬)"},
   {"puzzled", u8"「(°ヘ°)"}
 };
-  
