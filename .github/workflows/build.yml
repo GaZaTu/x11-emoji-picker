@@ -3,10 +3,10 @@ name: Build
 on:
   push:
     branches: [master]
+    tags:
+      - 'v*'
   pull_request:
     branches: [master]
-  tags:
-    - 'v*'
 
 env:
   DEBIAN_FRONTEND: noninteractive
