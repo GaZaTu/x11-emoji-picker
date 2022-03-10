@@ -3,6 +3,11 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QDesktopServices>
+#include "./kaomojis.hpp"
+#include <QDebug>
+
+constexpr size_t kaomojisSize = sizeof(kaomojis) / sizeof(Kaomoji);
+Emoji convertedKaomojis[kaomojisSize];
 
 EmojiPicker::EmojiPicker(QWidget* parent) : QWidget(parent) {
   setLayout(_mainLayout);
@@ -13,6 +18,18 @@ EmojiPicker::EmojiPicker(QWidget* parent) : QWidget(parent) {
   _maxEmojiVersion = EmojiPickerSettings::snapshot().maxEmojiVersion();
   _aliasedEmojis = EmojiPickerSettings::snapshot().aliasedEmojis();
   _settingsPath = EmojiPickerSettings::snapshot().fileName().toStdString();
+
+  for (int i = 0; i < kaomojisSize; i++) {
+    auto name = kaomojis[i].name;
+    auto text = kaomojis[i].text;
+
+    convertedKaomojis[i] = {std::move(name), std::move(text)};
+  }
+
+  if (EmojiPickerSettings::snapshot().startInKaomojiMode()) {
+    _emojiArray = convertedKaomojis;
+    _emojiArraySize = kaomojisSize;
+  }
 
   _emojiLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
@@ -129,8 +146,10 @@ bool EmojiPicker::addEmojiLabel(EmojiLabel* emojiLabel, int& row, int& col) {
     _selectedEmojiLabel = selectedEmojiLabel;
   });
 
-  emojiLabel->setFixedWidth(280 / cols);
-  emojiLabel->setFixedHeight(120 / rows);
+  if (emojiLabel->emoji().version != -1) {
+    emojiLabel->setFixedWidth(280 / cols);
+    emojiLabel->setFixedHeight(120 / rows);
+  }
 
   QString className = "EmojiPicker_emojiLabel";
   if (EmojiPickerSettings::snapshot().useSystemEmojiFont()) {
@@ -141,7 +160,11 @@ bool EmojiPicker::addEmojiLabel(EmojiLabel* emojiLabel, int& row, int& col) {
   emojiLabel->setProperty("row", row);
   emojiLabel->setProperty("col", col);
 
+#ifdef EMOJI_PICKER_USE_FLOW_LAYOUT
+  _emojiLayout->addWidget(emojiLabel);
+#else
   _emojiLayout->addWidget(emojiLabel, row, col);
+#endif
 
   col += 1;
 
@@ -240,7 +263,9 @@ void EmojiPicker::fillViewWithEmojisByText(const std::string& text) {
     }
 
     EmojiLabel* emojiLabel = nullptr;
-    for (const auto& emoji : emojis) {
+    for (int i = 0; i < _emojiArraySize; i++) {
+      const auto& emoji = _emojiArray[i];
+
       if (emoji.code == alias.code) {
         emojiLabel = new EmojiLabel(nullptr, emoji);
         break;
@@ -272,7 +297,9 @@ void EmojiPicker::fillViewWithEmojisByText(const std::string& text) {
     return;
   }
 
-  for (const auto& emoji : emojis) {
+  for (int i = 0; i < _emojiArraySize; i++) {
+    const auto& emoji = _emojiArray[i];
+
     if (isDisabledEmoji(emoji)) {
       continue;
     }
@@ -303,7 +330,9 @@ void EmojiPicker::fillViewWithEmojisByList() {
   }
 
   if (_helpEmojiListStartEmoji) {
-    for (const auto& emoji : emojis) {
+    for (int i = 0; i < _emojiArraySize; i++) {
+      const auto& emoji = _emojiArray[i];
+
       if (isDisabledEmoji(emoji)) {
         continue;
       }
@@ -325,7 +354,9 @@ void EmojiPicker::fillViewWithEmojisByList() {
     }
   }
 
-  for (const auto& emoji : emojis) {
+  for (int i = 0; i < _emojiArraySize; i++) {
+    const auto& emoji = _emojiArray[i];
+
     if (isDisabledEmoji(emoji)) {
       continue;
     }
@@ -405,8 +436,14 @@ void EmojiPicker::onArrowKeyPressed(const QKeyEvent& event) {
     return;
   }
 
-  int rowToSelect = _selectedEmojiLabel->property("row").toInt();
   int colToSelect = _selectedEmojiLabel->property("col").toInt();
+  int rowToSelect = _selectedEmojiLabel->property("row").toInt();
+
+#ifdef EMOJI_PICKER_USE_FLOW_LAYOUT
+  QPoint pos = _emojiLayout->pointAt(colToSelect + (rowToSelect * cols));
+  colToSelect = pos.x();
+  rowToSelect = pos.y();
+#endif
 
   switch (event.key()) {
   case Qt::Key_Up:
@@ -424,10 +461,16 @@ void EmojiPicker::onArrowKeyPressed(const QKeyEvent& event) {
   }
 
   for (EmojiLabel* emojiLabel : _emojiLayoutWidget->findChildren<EmojiLabel*>()) {
-    int row = emojiLabel->property("row").toInt();
     int col = emojiLabel->property("col").toInt();
+    int row = emojiLabel->property("row").toInt();
 
-    if (row == rowToSelect && col == colToSelect) {
+#ifdef EMOJI_PICKER_USE_FLOW_LAYOUT
+    QPoint pos = _emojiLayout->pointAt(col + (row * cols));
+    col = pos.x();
+    row = pos.y();
+#endif
+
+    if (col == colToSelect && row == rowToSelect) {
       setSelectedEmojiLabel(emojiLabel);
 
       return;
@@ -483,10 +526,22 @@ void EmojiPicker::onFunctionKeyPressed(const QKeyEvent& event) {
 }
 
 void EmojiPicker::onTabPressed(const QKeyEvent& event) {
-  if (_helpEmojiListIdx == -1) {
-    onHelpPressed(nullptr);
-  } else if (_helpEmojiListIdx != -1 || _emojiEdit->text() != "") {
-    onFavsPressed(nullptr);
+  if (_emojiArray == emojis) {
+    _emojiArray = convertedKaomojis;
+    _emojiArraySize = sizeof(convertedKaomojis) / sizeof(Emoji);
+  } else {
+    _emojiArray = emojis;
+    _emojiArraySize = sizeof(emojis) / sizeof(Emoji);
+  }
+
+  _helpEmojiListStartEmoji = {"", ""};
+  _helpEmojiListIdx = -1;
+  clearView();
+
+  if (_emojiEdit->text() != "") {
+    fillViewWithEmojisByText(_emojiEdit->text().toStdString());
+  } else {
+    fillViewWithRecentEmojis();
   }
 }
 
@@ -515,6 +570,10 @@ void EmojiPicker::onFavsPressed(QMouseEvent* ev) {
 
 void EmojiPicker::onHelpPressed(QMouseEvent* ev) {
   if (_helpEmojiListIdx != -1) {
+    return;
+  }
+
+  if (_emojiArray != emojis) {
     return;
   }
 

@@ -1,13 +1,20 @@
 #pragma once
 
+#define EMOJI_PICKER_USE_FLOW_LAYOUT 1
+
 #include "EmojiLabel.hpp"
 #include "EmojiLineEdit.hpp"
 #include "emojis.hpp"
-#include <QGridLayout>
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QWidget>
 #include <vector>
+
+#ifdef EMOJI_PICKER_USE_FLOW_LAYOUT
+#include "flowlayout.h"
+#else
+#include <QGridLayout>
+#endif
 
 class EmojiPicker : public QWidget {
   Q_OBJECT
@@ -36,12 +43,19 @@ private:
   std::vector<Emoji> _aliasedEmojis;
   std::string _settingsPath;
 
+  const Emoji* _emojiArray = emojis;
+  size_t _emojiArraySize = sizeof(emojis) / sizeof(Emoji);
+
   EmojiLabel* _selectedEmojiLabel = nullptr;
 
   QVBoxLayout* _mainLayout = new QVBoxLayout();
 
   QWidget* _emojiLayoutWidget = new QWidget();
+#ifdef EMOJI_PICKER_USE_FLOW_LAYOUT
+  FlowLayout* _emojiLayout = new FlowLayout();
+#else
   QGridLayout* _emojiLayout = new QGridLayout();
+#endif
 
   QLabel* _inputMethodLabel = new QLabel();
 

@@ -125,7 +125,7 @@ When you've selected your emoji you can press the **return key** to write it.
 - `F2` => show list of all emojis (if you press this while searching, the view will jump to the currently selected emoji aswell)
 - `F4` => close emoji picker and open settings file
 - `F5` => toggle input method for current process (press [`F5` and then `Return`] a few times if emojis don't get written into the window; there are 4 different modes)
-- `Tab` => toggle between `F1` and `F2`
+- `Tab` => toggle between emoji and kaomoji
 
 ### AppImage
 
@@ -172,6 +172,11 @@ Some things such as recently used emojis are written to `$XDG_CACHE_HOME/gazatu.
 
 If you enabled `useSystemEmojiFont` to display emojis inside the emoji picker: it's possible that your installed emoji font does not support all emojis (for example: at the time of writing noto-fonts-emoji does not support `heart_mending`) which will likely result in some emojis being either invisible or displayed as 2 separate emojis. To "fix" this behavior you can either set `maxEmojiVersion` to the version supported by your emoji font (for example: 12) or set `useSystemEmojiFontWidthHeuristics` to `true` (which is the default) to automatically figure it out.
 
+Regarding kaomoji mode:
+- Check [src/kaomojis.hpp](src/kaomojis.hpp) for a list of kaomoji
+- `F2` (list of all emoji (or kaomoji in this case)) does not work yet
+- `useSystemEmojiFont=true` does not work with kaomoji mode
+
 #### Defaults
 
 ```ini
@@ -186,6 +191,7 @@ localeKey=
 maxEmojiVersion=-1
 openAtMouseLocation=false
 skinTonesDisabled=false
+startInKaomojiMode=false
 surroundAliasesWithColons=true
 swapEnterAndShiftEnter=false
 useClipboardHackByDefault=false
@@ -241,3 +247,5 @@ Project licensed under the [MIT](https://opensource.org/licenses/MIT) license: [
 Emoji [graphics](src/res/72x72) licensed by [Twitter](https://github.com/twitter) under [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/) at [https://github.com/twitter/twemoji](https://github.com/twitter/twemoji/blob/master/LICENSE-GRAPHICS)
 
 Emoji [list](src/emojis.hpp) and [translations](src/emojis.cpp) licensed by [Unicode](https://github.com/unicode-org) at [https://github.com/unicode-org/cldr](https://github.com/unicode-org/cldr/blob/master/unicode-license.txt)
+
+Some Qt code licensed by Qt under [BSD](https://opensource.org/licenses/BSD-3-Clause): [src/flowlayout.h](src/flowlayout.h), [src/flowlayout.cpp](src/flowlayout.cpp)
