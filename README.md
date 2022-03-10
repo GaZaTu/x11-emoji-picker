@@ -176,6 +176,12 @@ Regarding kaomoji mode:
 - Check [src/kaomojis.hpp](src/kaomojis.hpp) for a list of kaomoji
 - `F2` (list of all emoji (or kaomoji in this case)) does not work yet
 - `useSystemEmojiFont=true` does not work with kaomoji mode
+- required font localizations:
+  - cjk (tc, sc, kr, jp)
+  - kannada
+  - thai
+  - tibetan
+  - sinhala
 
 #### Defaults
 
