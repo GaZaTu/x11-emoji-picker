@@ -120,7 +120,7 @@ std::vector<Emoji> EmojiPickerSettings::recentEmojis() {
     recentEmojis = readQSettingsArrayToStdVector<Emoji>(*this, prefix, handler);
   }
 
-  return std::move(recentEmojis);
+  return recentEmojis;
 }
 void EmojiPickerSettings::setRecentEmojis(const std::vector<Emoji>& recentEmojis) {
   auto prefix = "recentEmojis";
@@ -354,7 +354,11 @@ void EmojiPickerSettings::setWindowOpacity(double windowOpacity) {
 }
 
 bool EmojiPickerSettings::swapEnterAndShiftEnter() const {
+#ifdef __linux__
   return value("swapEnterAndShiftEnter", false).toBool();
+#elif _WIN32
+  return true;
+#endif
 }
 void EmojiPickerSettings::setSwapEnterAndShiftEnter(bool swapEnterAndShiftEnter) {
   setValue("swapEnterAndShiftEnter", swapEnterAndShiftEnter);
