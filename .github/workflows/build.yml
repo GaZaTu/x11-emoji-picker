@@ -19,8 +19,7 @@ jobs:
       options: --privileged
     strategy:
       matrix:
-        image: ['ubuntu:22.04', 'ubuntu:21.10', 'ubuntu:20.04', 'ubuntu:18.04', 'debian:11', 'debian:10', 'debian:9', 'opensuse/leap:15.3', 'opensuse/leap:15.2', 'opensuse/leap:15.1', 'fedora:36', 'fedora:35', 'fedora:34', 'fedora:33']
-        # 'centos:centos8'
+        image: ['ubuntu:23.04', 'ubuntu:22.10', 'ubuntu:22.04', 'ubuntu:20.04', 'ubuntu:18.04', 'debian:11', 'debian:10', 'debian:9', 'opensuse/leap:15.4', 'opensuse/leap:15.3', 'opensuse/leap:15.2', 'opensuse/leap:15.1', 'fedora:38', 'fedora:37', 'fedora:36', 'fedora:35']
       fail-fast: false
 
     steps:
@@ -34,11 +33,11 @@ jobs:
 
       - name: Install dependencies (opensuse)
         if: startsWith(matrix.image, 'opensuse')
-        run: zypper install -y tar gzip wget rpm-build git gcc-c++ cmake libqt5-qtbase-devel libicu-devel xdotool-devel
+        run: zypper refresh && zypper install -y tar gzip wget rpm-build git gcc-c++ cmake libqt5-qtbase-devel libicu-devel xdotool-devel
 
       - name: Install dependencies (fedora & centos)
         if: startsWith(matrix.image, 'fedora') || startsWith(matrix.image, 'centos')
-        run: dnf install -y tar gzip wget rpm-build git gcc-c++ cmake qt5-qtbase-devel libicu-devel libxdo-devel
+        run: dnf clean expire-cache && dnf install -y tar gzip wget rpm-build git gcc-c++ cmake qt5-qtbase-devel libicu-devel libxdo-devel
 
       - name: Install dependencies .AppImage
         if: startsWith(matrix.image, 'debian:9')
