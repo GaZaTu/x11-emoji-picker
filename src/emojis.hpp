@@ -28,5 +28,5 @@ private:
   }
 };
 
-// generated from https://unicode.org/Public/emoji/13.1/emoji-test.txt
-extern const Emoji emojis[3512];
+// generated from https://unicode.org/Public/emoji/14.0/emoji-test.txt
+extern const Emoji emojis[3624];

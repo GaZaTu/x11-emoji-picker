@@ -7,8 +7,8 @@ import { fileURLToPath } from 'url'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
-const UNICODE_EMOJI_LIST_URL = 'https://unicode.org/Public/emoji/13.1/emoji-test.txt'
-const UNICODE_EMOJI_ANNOTATIONS_BASE_URL = 'https://raw.githubusercontent.com/unicode-org/cldr/release-39/common/annotations'
+const UNICODE_EMOJI_LIST_URL = 'https://unicode.org/Public/emoji/14.0/emoji-test.txt'
+const UNICODE_EMOJI_ANNOTATIONS_BASE_URL = 'https://raw.githubusercontent.com/unicode-org/cldr/release-42/common/annotations'
 
 const HTTP_PROXY = process.env.HTTP_PROXY
 const httpProxyAgent = HTTP_PROXY && new ProxyAgent(HTTP_PROXY)

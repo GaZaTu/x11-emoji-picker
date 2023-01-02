@@ -18,16 +18,15 @@ const fetchEmojiAliasesFromGithub = async () => {
   const emojis = []
 
   const emojiAliasesResponse = await fetch(GITHUB_EMOJI_ALIASES_URL, { agent: httpProxyAgent })
-  const emojiAliasesRegex = /^\s*"([^"]+)": "https:\/\/github\.githubassets\.com\/images\/icons\/emoji\/unicode\/([^.]+)\.png\?v8"/gm
-  const emojiAliasesTxt = await emojiAliasesResponse.text()
+  const emojiAliasesJson = /** @type {{ [key: string]: string }} */ (await emojiAliasesResponse.json())
 
-  let match
-  while ((match = emojiAliasesRegex.exec(emojiAliasesTxt)) !== null) {
-    if (match.index === emojiAliasesRegex.lastIndex) {
-      emojiAliasesRegex.lastIndex++
+  for (const [alias, url] of Object.entries(emojiAliasesJson)) {
+    const match = /unicode\/([\w-]+)\.png/.exec(url)
+    if (!match) {
+      continue
     }
 
-    const codepoints = match[2].split('-')
+    const codepoints = match[1].split('-')
     const filename = `${__dirname}/../src/res/72x72/${codepoints.join('-')}.png`
     const emojiStr = String.fromCodePoint(...codepoints.map(c => parseInt(c, 16)))
 
@@ -38,7 +37,7 @@ const fetchEmojiAliasesFromGithub = async () => {
 
     if (existsSync(filename)) {
       emojis.push({
-        name: match[1],
+        name: alias,
         str: emojiStr,
         charCodes: emojiCharCodes,
       })
