@@ -54,9 +54,14 @@ elseif (WIN32)
   )
 endif ()
 
+file(GLOB I18N_SRC_FILES
+  src/i18n/*.cpp
+)
+
 set(SRC_FILES
   ${COMMON_SRC_FILES}
   ${PLATFORM_SRC_FILES}
+  ${I18N_SRC_FILES}
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILES})
