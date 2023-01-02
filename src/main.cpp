@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
 
   window.setWindowOpacity(EmojiPickerSettings::snapshot().windowOpacity());
   window.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
-  window.setWindowIcon(QIcon(":/res/72x72/1f0cf.png"));
+  window.setWindowIcon(QIcon(":/res/x11-emoji-picker.png"));
 
   if (!EmojiPickerSettings::snapshot().useSystemQtTheme()) {
     window.setStyleSheet(
