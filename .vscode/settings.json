@@ -120,7 +120,7 @@
     "**/.svn": true,
     "**/.hg": true,
     "**/CVS": true,
-    "**/.DS_Store": true,
-    "src/emojis.cpp": true
-  }
+    "**/.DS_Store": true
+  },
+  "cmake.configureOnOpen": true
 }

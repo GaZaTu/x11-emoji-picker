@@ -1,7 +1,11 @@
-const { promises: { writeFile, readdir }, existsSync } = require('fs')
-const { execFile } = require('child_process')
-const { default: fetch } = require('node-fetch')
-const ProxyAgent = require('proxy-agent')
+import { execFile } from 'child_process'
+import { existsSync } from 'fs'
+import { readdir, writeFile } from 'fs/promises'
+import fetch from 'node-fetch'
+import ProxyAgent from 'proxy-agent'
+import { fileURLToPath } from 'url'
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 const UNICODE_EMOJI_LIST_URL = 'https://unicode.org/Public/emoji/13.1/emoji-test.txt'
 const UNICODE_EMOJI_ANNOTATIONS_BASE_URL = 'https://raw.githubusercontent.com/unicode-org/cldr/release-39/common/annotations'
@@ -27,11 +31,12 @@ const supportedLocales = [
   'hu',
   'ru',
 ]
+supportedLocales.sort()
 
 /**
- * @returns {Promise<{ name: string, code: string, str: string, version: number }[]>}
  */
 const fetchEmojis = async () => {
+  /** @type {{ name: string, code: string, str: string, version: number }[]} */
   const emojis = []
 
   const emojiTestResponse = await fetch(UNICODE_EMOJI_LIST_URL, { agent: httpProxyAgent })
@@ -62,9 +67,9 @@ const fetchEmojis = async () => {
 
 /**
  * @param {string} locale
- * @returns {Promise<{ name: string, code: string, str: string }[]>}
  */
 const fetchEmojisByLocale = async (locale) => {
+  /** @type {{ name: string, code: string, str: string }[]} */
   const emojis = []
 
   const UNICODE_EMOJI_LOCALE_LIST_URL = `${UNICODE_EMOJI_ANNOTATIONS_BASE_URL}/${locale}.xml`
@@ -94,29 +99,16 @@ const fetchEmojisByLocale = async (locale) => {
   return emojis
 }
 
-/**
- * @param {string[]} locales
- * @returns {Promise<{ locale: string, emojis: { name: string, code: string, str: string }[] }[]>}
- */
-const fetchEmojisByLocales = async (locales) => {
-  const emojis = []
+const NO_CLDR = process.argv.includes('NO_CLDR')
+const SKIP_HPP = process.argv.includes('SKIP_HPP')
+const SKIP_CPP = process.argv.includes('SKIP_CPP')
+const USE_GPERF = process.argv.includes('USE_GPERF')
+const SKIP_QRC = process.argv.includes('SKIP_QRC')
 
-  for (const locale of locales) {
-    emojis.push({ locale, emojis: await fetchEmojisByLocale(locale) })
-  }
+const emojis = await fetchEmojis()
 
-  return emojis
-}
-
-(async () => {
-  const NO_CLDR = process.argv.includes('NO_CLDR')
-  const SKIP_HPP = process.argv.includes('SKIP_HPP')
-  const SKIP_CPP = process.argv.includes('SKIP_CPP')
-  const USE_GPERF = process.argv.includes('USE_GPERF')
-  const SKIP_QRC = process.argv.includes('SKIP_QRC')
-
-  if (!SKIP_HPP) {
-    const emojisHpp =
+if (!SKIP_HPP) {
+  const emojisHpp =
 `
 #pragma once
 
@@ -129,113 +121,152 @@ public:
   std::string code;
   short version = -1;
 
-  ${NO_CLDR ? '// NO_CLDR' : 'std::string nameByLocale(const std::string& localeKey = std::locale("").name().substr(0, 2)) const;'}
+  std::string nameByLocale(const std::string& localeKey = std::locale("").name().substr(0, 2)) const;
 
-  bool isGenderVariation() const {
-    const char* MALE_SIGN   = u8"\\U00002642";
-    const char* FEMALE_SIGN = u8"\\U00002640";
-    const char* BOY         = u8"\\U0001F466";
-    const char* GIRL        = u8"\\U0001F467";
-    const char* MAN         = u8"\\U0001F468";
-    const char* WOMAN       = u8"\\U0001F469";
+  bool isGenderVariation() const;
 
-    if (
-      code == MALE_SIGN   ||
-      code == FEMALE_SIGN ||
-      code == BOY         ||
-      code == GIRL        ||
-      code == MAN         ||
-      code == WOMAN
-    ) {
-      return false;
-    }
+  bool isSkinToneVariation() const;
 
-    return (
-      code.find(MALE_SIGN) != std::string::npos   ||
-      code.find(FEMALE_SIGN) != std::string::npos ||
-      code.find(BOY) != std::string::npos         ||
-      code.find(GIRL) != std::string::npos        ||
-      code.find(MAN) != std::string::npos         ||
-      code.find(WOMAN) != std::string::npos
-    );
-  }
+  bool operator==(const Emoji& other) const;
 
-  bool isSkinToneVariation() const {
-    const char* LIGHT        = u8"\\U0001F3FB";
-    const char* LIGHT_MEDIUM = u8"\\U0001F3FC";
-    const char* MEDIUM       = u8"\\U0001F3FD";
-    const char* DARK_MEDIUM  = u8"\\U0001F3FE";
-    const char* DARK         = u8"\\U0001F3FF";
+  operator bool() const;
 
-    if (
-      code == LIGHT        ||
-      code == LIGHT_MEDIUM ||
-      code == MEDIUM       ||
-      code == DARK_MEDIUM  ||
-      code == DARK
-    ) {
-      return false;
-    }
+private:
+  template <int LOCALE_ID>
+  std::string nameByLocaleId() const;
 
-    return (
-      code.find(LIGHT) != std::string::npos        ||
-      code.find(LIGHT_MEDIUM) != std::string::npos ||
-      code.find(MEDIUM) != std::string::npos       ||
-      code.find(DARK_MEDIUM) != std::string::npos  ||
-      code.find(DARK) != std::string::npos
-    );
-  }
-
-  bool operator==(const Emoji& other) const {
-    return code == other.code;
-  }
-
-  operator bool() const {
-    return code != "";
+  static constexpr unsigned int hashLocaleKey(const char* s, int off = 0) {
+    return !s[off] ? 5381 : (hashLocaleKey(s, off + 1) * 33) ^ s[off];
   }
 };
 
 // generated from ${UNICODE_EMOJI_LIST_URL}
+extern const Emoji emojis[${emojis.length}];
+`
+
+  await writeFile(`${__dirname}/../src/emojis.hpp`, emojisHpp.trimStart())
+}
+
+if (!SKIP_CPP) {
+  const emojisCpp =
+`
+#include "emojis.hpp"
+
+std::string Emoji::nameByLocale(const std::string& localeKey) const {
+  ${NO_CLDR ? '// NO CLDR' : `
+  switch (hashLocaleKey(localeKey.data())) {
+    ${supportedLocales.map(localeKey => {
+      return `case hashLocaleKey("${localeKey}"): return nameByLocaleId<hashLocaleKey("${localeKey}")>();`
+    }).join('\n    ')}
+  }`.trimStart()}
+
+  return name;
+}
+
+bool Emoji::isGenderVariation() const {
+  const char* MALE_SIGN   = u8"\\U00002642";
+  const char* FEMALE_SIGN = u8"\\U00002640";
+  const char* BOY         = u8"\\U0001F466";
+  const char* GIRL        = u8"\\U0001F467";
+  const char* MAN         = u8"\\U0001F468";
+  const char* WOMAN       = u8"\\U0001F469";
+
+  if (
+    code == MALE_SIGN   ||
+    code == FEMALE_SIGN ||
+    code == BOY         ||
+    code == GIRL        ||
+    code == MAN         ||
+    code == WOMAN
+  ) {
+    return false;
+  }
+
+  return (
+    code.find(MALE_SIGN) != std::string::npos   ||
+    code.find(FEMALE_SIGN) != std::string::npos ||
+    code.find(BOY) != std::string::npos         ||
+    code.find(GIRL) != std::string::npos        ||
+    code.find(MAN) != std::string::npos         ||
+    code.find(WOMAN) != std::string::npos
+  );
+}
+
+bool Emoji::isSkinToneVariation() const {
+  const char* LIGHT        = u8"\\U0001F3FB";
+  const char* LIGHT_MEDIUM = u8"\\U0001F3FC";
+  const char* MEDIUM       = u8"\\U0001F3FD";
+  const char* DARK_MEDIUM  = u8"\\U0001F3FE";
+  const char* DARK         = u8"\\U0001F3FF";
+
+  if (
+    code == LIGHT        ||
+    code == LIGHT_MEDIUM ||
+    code == MEDIUM       ||
+    code == DARK_MEDIUM  ||
+    code == DARK
+  ) {
+    return false;
+  }
+
+  return (
+    code.find(LIGHT) != std::string::npos        ||
+    code.find(LIGHT_MEDIUM) != std::string::npos ||
+    code.find(MEDIUM) != std::string::npos       ||
+    code.find(DARK_MEDIUM) != std::string::npos  ||
+    code.find(DARK) != std::string::npos
+  );
+}
+
+bool Emoji::operator==(const Emoji& other) const {
+  return code == other.code;
+}
+
+Emoji::operator bool() const {
+  return code != "";
+}
+
 const Emoji emojis[] = {
-  ${(await fetchEmojis()).map(emoji => `{"${emoji.name}", u8"${emoji.code.split(' ').map(codepoint => `\\U${codepoint.padStart(8, '0')}`).join('')}", ${Math.trunc(emoji.version)}}`).join(',\n  ')}
+  ${emojis.map(emoji => `{"${emoji.name}", u8"${emoji.code.split(' ').map(codepoint => `\\U${codepoint.padStart(8, '0')}`).join('')}", ${Math.trunc(emoji.version)}}`).join(',\n  ')}
 };
 `
 
-    await writeFile(`${__dirname}/../src/emojis.hpp`, emojisHpp.trimLeft())
-  }
+  await writeFile(`${__dirname}/../src/emojis.cpp`, emojisCpp.trimStart())
 
-  if (!SKIP_CPP && !NO_CLDR) {
-    if (USE_GPERF) {
-      const emojisGPerf =
+  if (!NO_CLDR) {
+    for (const localeKey of supportedLocales) {
+      const emojisByLocale = await fetchEmojisByLocale(localeKey)
+
+      if (USE_GPERF) {
+        const emojisGPerf =
 `
 %{
+// generated from ${UNICODE_EMOJI_ANNOTATIONS_BASE_URL}/${localeKey}.xml
+
 #include "emojis.hpp"
 
 %}
 %language=C++
 %readonly-tables
 %enum
-%global-table
 %compare-lengths
 %includes
 %struct-type
 %define slot-name emoji
 %define lookup-function-name find
-%define class-name EmojiTranslations
-%define word-array-name emoji_translations
-struct EmojiTranslation {
+%define class-name EmojiTranslations_${localeKey}
+struct EmojiTranslation_${localeKey} {
   const char* emoji;
   const char* value;
 };
 %%
-${(await fetchEmojisByLocales(supportedLocales))
-  .map(({ locale, emojis }) => emojis.map(emoji => `${locale}/${emoji.str}, "${emoji.name}"`))
-  .flat()
+${emojisByLocale
+  .map(emoji => `${emoji.str}, "${emoji.name}"`)
   .join('\n')}
 %%
-std::string Emoji::nameByLocale(const std::string& localeKey) const {
-  const std::string emojiCodeWithLocaleKey = localeKey + "/" + code;
-  const EmojiTranslation* translation = EmojiTranslations::find(emojiCodeWithLocaleKey.data(), emojiCodeWithLocaleKey.length());
+template <>
+std::string Emoji::nameByLocaleId<Emoji::hashLocaleKey("${localeKey}")>() const {
+  auto translation = EmojiTranslations_${localeKey}::find(code.data(), code.length());
   if (translation == nullptr) {
     return name;
   }
@@ -243,53 +274,49 @@ std::string Emoji::nameByLocale(const std::string& localeKey) const {
   return translation->value;
 }
 `
+        const gperf = execFile('gperf', [`--output-file=src/i18n/emojis_${localeKey}.cpp`], {
+          cwd: `${__dirname}/..`,
+        })
 
-      const gperf = execFile('gperf', [`--output-file=${__dirname}/../src/emojis.cpp`])
+        gperf.stderr.pipe(process.stderr)
+        gperf.stdout.pipe(process.stdout)
+        gperf.stdin.end(emojisGPerf)
 
-      gperf.stderr.pipe(process.stderr)
-      gperf.stdout.pipe(process.stdout)
-      gperf.stdin.end(emojisGPerf)
-
-      await new Promise((resolve, reject) => {
-        gperf.on('error', reject)
-        gperf.on('exit', resolve)
-      })
-    } else {
-      const emojisCpp =
+        await new Promise((resolve, reject) => {
+          gperf.on('error', reject)
+          gperf.on('exit', resolve)
+        })
+      } else {
+        const emojisCpp =
 `
+// generated from ${UNICODE_EMOJI_ANNOTATIONS_BASE_URL}/${localeKey}.xml
+
 #include "emojis.hpp"
 #include <unordered_map>
 
-const std::unordered_map<std::string, std::unordered_map<std::string, std::string>> locales = {
-  ${(await fetchEmojisByLocales(supportedLocales)).map(({ locale, emojis }) => {
-    return `// generated from ${UNICODE_EMOJI_ANNOTATIONS_BASE_URL}/${locale}.xml
-  {"${locale}", {
-    ${emojis.map(emoji => `{u8"${emoji.code.split(' ').map(codepoint => `\\U${codepoint.padStart(8, '0')}`).join('')}", u8"${emoji.name}"}`).join(',\n    ')}
-  }}`
-  }).join(',\n  ')}
+const std::unordered_map<std::string, std::string> EmojiTranslations_${localeKey} = {
+  ${emojisByLocale.map(emoji => `{u8"${emoji.code.split(' ').map(codepoint => `\\U${codepoint.padStart(8, '0')}`).join('')}", u8"${emoji.name}"}`).join(',\n  ')}
 };
 
-std::string Emoji::nameByLocale(const std::string& localeKey) const {
-  auto foundList = locales.find(localeKey);
-  if (foundList == locales.end()) {
+template <>
+std::string Emoji::nameByLocaleId<Emoji::hashLocaleKey("${localeKey}")>() const {
+  auto translation = EmojiTranslations_${localeKey}.find(code);
+  if (translation == EmojiTranslations_${localeKey}.end()) {
     return name;
   }
 
-  auto foundName = foundList->second.find(code);
-  if (foundName == foundList->second.end()) {
-    return name;
-  }
-
-  return foundName->second;
+  return translation->second;
 }
 `
 
-      await writeFile(`${__dirname}/../src/emojis.cpp`, emojisCpp.trimLeft())
+        await writeFile(`${__dirname}/../src/i18n/emojis_${localeKey}.cpp`, emojisCpp.trimStart())
+      }
     }
   }
+}
 
-  if (!SKIP_QRC) {
-    const emojisQrc =
+if (!SKIP_QRC) {
+  const emojisQrc =
 `
 <!DOCTYPE RCC>
 <RCC version="1.0">
@@ -298,6 +325,5 @@ std::string Emoji::nameByLocale(const std::string& localeKey) const {
   </qresource>
 </RCC>
 `
-    await writeFile(`${__dirname}/../src/emojis.qrc`, emojisQrc.trimLeft())
-  }
-})().catch(console.error)
+  await writeFile(`${__dirname}/../src/emojis.qrc`, emojisQrc.trimStart())
+}
