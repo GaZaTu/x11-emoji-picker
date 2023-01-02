@@ -1,0 +1,14 @@
+{
+  "type": "module",
+  "scripts": {
+    "emoji-map": "node create-emoji-map.js USE_GPERF",
+    "emoji-aliases": "node create-emoji-aliases.js GITHUB GITMOJI"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.0",
+    "proxy-agent": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^16.18.11"
+  }
+}

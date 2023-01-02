@@ -1,6 +1,10 @@
-const { promises: { writeFile }, existsSync } = require('fs')
-const { default: fetch } = require('node-fetch')
-const ProxyAgent = require('proxy-agent')
+import { existsSync } from 'fs'
+import { writeFile } from 'fs/promises'
+import fetch from 'node-fetch'
+import ProxyAgent from 'proxy-agent'
+import { fileURLToPath } from 'url'
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 const GITHUB_EMOJI_ALIASES_URL = 'https://api.github.com/emojis'
 
@@ -8,9 +12,9 @@ const HTTP_PROXY = process.env.HTTP_PROXY
 const httpProxyAgent = HTTP_PROXY && new ProxyAgent(HTTP_PROXY)
 
 /**
- * @returns {Promise<{ name: string, str: string, charCodes: number[] }[]>}
  */
 const fetchEmojiAliasesFromGithub = async () => {
+  /** @type {{ name: string, str: string, charCodes: number[] }[]} */
   const emojis = []
 
   const emojiAliasesResponse = await fetch(GITHUB_EMOJI_ALIASES_URL, { agent: httpProxyAgent })
@@ -189,28 +193,26 @@ const gitmojiMap = {
   'git:dead_code': '\\x26b0',
 }
 
-; (async () => {
-  const GITHUB = process.argv.includes('GITHUB')
-  const GITMOJI = process.argv.includes('GITMOJI')
+const GITHUB = process.argv.includes('GITHUB')
+const GITMOJI = process.argv.includes('GITMOJI')
 
-  if (GITHUB) {
-    const githubEmojisIni =
+if (GITHUB) {
+  const githubEmojisIni =
 `
 [AliasesMap]
 ${(await fetchEmojiAliasesFromGithub()).map(emoji => `${emoji.name}=${emoji.charCodes.map(c => `\\x${c.toString(16)}`).join('')}`).join('\n')}
 `
 
-    await writeFile(`${__dirname}/../src/aliases/github-emojis.ini`, githubEmojisIni.trimLeft())
-  }
+  await writeFile(`${__dirname}/../src/aliases/github-emojis.ini`, githubEmojisIni.trimStart())
+}
 
-  if (GITMOJI) {
-    const gitmojiEmojisIni =
+if (GITMOJI) {
+  const gitmojiEmojisIni =
 `
 [AliasesList]
 ${Object.entries(gitmojiMap).map(([key, str], i) => `${i + 1}\\emojiKey=${key}\n${i + 1}\\emojiStr=${str}`).join('\n')}
 size=${Object.keys(gitmojiMap).length}
 `
 
-    await writeFile(`${__dirname}/../src/aliases/gitmoji-emojis.ini`, gitmojiEmojisIni.trimLeft())
-  }
-})().catch(console.error)
+  await writeFile(`${__dirname}/../src/aliases/gitmoji-emojis.ini`, gitmojiEmojisIni.trimStart())
+}
