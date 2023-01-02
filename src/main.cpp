@@ -93,7 +93,7 @@ int main(int argc, char** argv) {
   }
 
   QMainWindow window;
-  int w = 374;
+  int w = 376;
   int h = 246;
 
   if (EmojiPickerSettings::snapshot().useSystemQtTheme()) {

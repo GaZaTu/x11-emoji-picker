@@ -2323,6 +2323,9 @@
     <file>res/72x72/1f6d5.png</file>
     <file>res/72x72/1f6d6.png</file>
     <file>res/72x72/1f6d7.png</file>
+    <file>res/72x72/1f6dd.png</file>
+    <file>res/72x72/1f6de.png</file>
+    <file>res/72x72/1f6df.png</file>
     <file>res/72x72/1f6e0.png</file>
     <file>res/72x72/1f6e1.png</file>
     <file>res/72x72/1f6e2.png</file>
@@ -2355,6 +2358,7 @@
     <file>res/72x72/1f7e9.png</file>
     <file>res/72x72/1f7ea.png</file>
     <file>res/72x72/1f7eb.png</file>
+    <file>res/72x72/1f7f0.png</file>
     <file>res/72x72/1f90c-1f3fb.png</file>
     <file>res/72x72/1f90c-1f3fc.png</file>
     <file>res/72x72/1f90c-1f3fd.png</file>
@@ -2407,6 +2411,11 @@
     <file>res/72x72/1f91c-1f3fe.png</file>
     <file>res/72x72/1f91c-1f3ff.png</file>
     <file>res/72x72/1f91c.png</file>
+    <file>res/72x72/1f91d-1f3fb.png</file>
+    <file>res/72x72/1f91d-1f3fc.png</file>
+    <file>res/72x72/1f91d-1f3fd.png</file>
+    <file>res/72x72/1f91d-1f3fe.png</file>
+    <file>res/72x72/1f91d-1f3ff.png</file>
     <file>res/72x72/1f91d.png</file>
     <file>res/72x72/1f91e-1f3fb.png</file>
     <file>res/72x72/1f91e-1f3fc.png</file>
@@ -2663,6 +2672,7 @@
     <file>res/72x72/1f977-1f3ff.png</file>
     <file>res/72x72/1f977.png</file>
     <file>res/72x72/1f978.png</file>
+    <file>res/72x72/1f979.png</file>
     <file>res/72x72/1f97a.png</file>
     <file>res/72x72/1f97b.png</file>
     <file>res/72x72/1f97c.png</file>
@@ -2794,6 +2804,7 @@
     <file>res/72x72/1f9c9.png</file>
     <file>res/72x72/1f9ca.png</file>
     <file>res/72x72/1f9cb.png</file>
+    <file>res/72x72/1f9cc.png</file>
     <file>res/72x72/1f9cd-1f3fb-200d-2640-fe0f.png</file>
     <file>res/72x72/1f9cd-1f3fb-200d-2642-fe0f.png</file>
     <file>res/72x72/1f9cd-1f3fb.png</file>
@@ -3297,6 +3308,8 @@
     <file>res/72x72/1fa78.png</file>
     <file>res/72x72/1fa79.png</file>
     <file>res/72x72/1fa7a.png</file>
+    <file>res/72x72/1fa7b.png</file>
+    <file>res/72x72/1fa7c.png</file>
     <file>res/72x72/1fa80.png</file>
     <file>res/72x72/1fa81.png</file>
     <file>res/72x72/1fa82.png</file>
@@ -3329,6 +3342,10 @@
     <file>res/72x72/1faa6.png</file>
     <file>res/72x72/1faa7.png</file>
     <file>res/72x72/1faa8.png</file>
+    <file>res/72x72/1faa9.png</file>
+    <file>res/72x72/1faaa.png</file>
+    <file>res/72x72/1faab.png</file>
+    <file>res/72x72/1faac.png</file>
     <file>res/72x72/1fab0.png</file>
     <file>res/72x72/1fab1.png</file>
     <file>res/72x72/1fab2.png</file>
@@ -3336,9 +3353,31 @@
     <file>res/72x72/1fab4.png</file>
     <file>res/72x72/1fab5.png</file>
     <file>res/72x72/1fab6.png</file>
+    <file>res/72x72/1fab7.png</file>
+    <file>res/72x72/1fab8.png</file>
+    <file>res/72x72/1fab9.png</file>
+    <file>res/72x72/1faba.png</file>
     <file>res/72x72/1fac0.png</file>
     <file>res/72x72/1fac1.png</file>
     <file>res/72x72/1fac2.png</file>
+    <file>res/72x72/1fac3-1f3fb.png</file>
+    <file>res/72x72/1fac3-1f3fc.png</file>
+    <file>res/72x72/1fac3-1f3fd.png</file>
+    <file>res/72x72/1fac3-1f3fe.png</file>
+    <file>res/72x72/1fac3-1f3ff.png</file>
+    <file>res/72x72/1fac3.png</file>
+    <file>res/72x72/1fac4-1f3fb.png</file>
+    <file>res/72x72/1fac4-1f3fc.png</file>
+    <file>res/72x72/1fac4-1f3fd.png</file>
+    <file>res/72x72/1fac4-1f3fe.png</file>
+    <file>res/72x72/1fac4-1f3ff.png</file>
+    <file>res/72x72/1fac4.png</file>
+    <file>res/72x72/1fac5-1f3fb.png</file>
+    <file>res/72x72/1fac5-1f3fc.png</file>
+    <file>res/72x72/1fac5-1f3fd.png</file>
+    <file>res/72x72/1fac5-1f3fe.png</file>
+    <file>res/72x72/1fac5-1f3ff.png</file>
+    <file>res/72x72/1fac5.png</file>
     <file>res/72x72/1fad0.png</file>
     <file>res/72x72/1fad1.png</file>
     <file>res/72x72/1fad2.png</file>
@@ -3346,6 +3385,79 @@
     <file>res/72x72/1fad4.png</file>
     <file>res/72x72/1fad5.png</file>
     <file>res/72x72/1fad6.png</file>
+    <file>res/72x72/1fad7.png</file>
+    <file>res/72x72/1fad8.png</file>
+    <file>res/72x72/1fad9.png</file>
+    <file>res/72x72/1fae0.png</file>
+    <file>res/72x72/1fae1.png</file>
+    <file>res/72x72/1fae2.png</file>
+    <file>res/72x72/1fae3.png</file>
+    <file>res/72x72/1fae4.png</file>
+    <file>res/72x72/1fae5.png</file>
+    <file>res/72x72/1fae6.png</file>
+    <file>res/72x72/1fae7.png</file>
+    <file>res/72x72/1faf0-1f3fb.png</file>
+    <file>res/72x72/1faf0-1f3fc.png</file>
+    <file>res/72x72/1faf0-1f3fd.png</file>
+    <file>res/72x72/1faf0-1f3fe.png</file>
+    <file>res/72x72/1faf0-1f3ff.png</file>
+    <file>res/72x72/1faf0.png</file>
+    <file>res/72x72/1faf1-1f3fb-200d-1faf2-1f3fc.png</file>
+    <file>res/72x72/1faf1-1f3fb-200d-1faf2-1f3fd.png</file>
+    <file>res/72x72/1faf1-1f3fb-200d-1faf2-1f3fe.png</file>
+    <file>res/72x72/1faf1-1f3fb-200d-1faf2-1f3ff.png</file>
+    <file>res/72x72/1faf1-1f3fb.png</file>
+    <file>res/72x72/1faf1-1f3fc-200d-1faf2-1f3fb.png</file>
+    <file>res/72x72/1faf1-1f3fc-200d-1faf2-1f3fd.png</file>
+    <file>res/72x72/1faf1-1f3fc-200d-1faf2-1f3fe.png</file>
+    <file>res/72x72/1faf1-1f3fc-200d-1faf2-1f3ff.png</file>
+    <file>res/72x72/1faf1-1f3fc.png</file>
+    <file>res/72x72/1faf1-1f3fd-200d-1faf2-1f3fb.png</file>
+    <file>res/72x72/1faf1-1f3fd-200d-1faf2-1f3fc.png</file>
+    <file>res/72x72/1faf1-1f3fd-200d-1faf2-1f3fe.png</file>
+    <file>res/72x72/1faf1-1f3fd-200d-1faf2-1f3ff.png</file>
+    <file>res/72x72/1faf1-1f3fd.png</file>
+    <file>res/72x72/1faf1-1f3fe-200d-1faf2-1f3fb.png</file>
+    <file>res/72x72/1faf1-1f3fe-200d-1faf2-1f3fc.png</file>
+    <file>res/72x72/1faf1-1f3fe-200d-1faf2-1f3fd.png</file>
+    <file>res/72x72/1faf1-1f3fe-200d-1faf2-1f3ff.png</file>
+    <file>res/72x72/1faf1-1f3fe.png</file>
+    <file>res/72x72/1faf1-1f3ff-200d-1faf2-1f3fb.png</file>
+    <file>res/72x72/1faf1-1f3ff-200d-1faf2-1f3fc.png</file>
+    <file>res/72x72/1faf1-1f3ff-200d-1faf2-1f3fd.png</file>
+    <file>res/72x72/1faf1-1f3ff-200d-1faf2-1f3fe.png</file>
+    <file>res/72x72/1faf1-1f3ff.png</file>
+    <file>res/72x72/1faf1.png</file>
+    <file>res/72x72/1faf2-1f3fb.png</file>
+    <file>res/72x72/1faf2-1f3fc.png</file>
+    <file>res/72x72/1faf2-1f3fd.png</file>
+    <file>res/72x72/1faf2-1f3fe.png</file>
+    <file>res/72x72/1faf2-1f3ff.png</file>
+    <file>res/72x72/1faf2.png</file>
+    <file>res/72x72/1faf3-1f3fb.png</file>
+    <file>res/72x72/1faf3-1f3fc.png</file>
+    <file>res/72x72/1faf3-1f3fd.png</file>
+    <file>res/72x72/1faf3-1f3fe.png</file>
+    <file>res/72x72/1faf3-1f3ff.png</file>
+    <file>res/72x72/1faf3.png</file>
+    <file>res/72x72/1faf4-1f3fb.png</file>
+    <file>res/72x72/1faf4-1f3fc.png</file>
+    <file>res/72x72/1faf4-1f3fd.png</file>
+    <file>res/72x72/1faf4-1f3fe.png</file>
+    <file>res/72x72/1faf4-1f3ff.png</file>
+    <file>res/72x72/1faf4.png</file>
+    <file>res/72x72/1faf5-1f3fb.png</file>
+    <file>res/72x72/1faf5-1f3fc.png</file>
+    <file>res/72x72/1faf5-1f3fd.png</file>
+    <file>res/72x72/1faf5-1f3fe.png</file>
+    <file>res/72x72/1faf5-1f3ff.png</file>
+    <file>res/72x72/1faf5.png</file>
+    <file>res/72x72/1faf6-1f3fb.png</file>
+    <file>res/72x72/1faf6-1f3fc.png</file>
+    <file>res/72x72/1faf6-1f3fd.png</file>
+    <file>res/72x72/1faf6-1f3fe.png</file>
+    <file>res/72x72/1faf6-1f3ff.png</file>
+    <file>res/72x72/1faf6.png</file>
     <file>res/72x72/203c.png</file>
     <file>res/72x72/2049.png</file>
     <file>res/72x72/2122.png</file>
