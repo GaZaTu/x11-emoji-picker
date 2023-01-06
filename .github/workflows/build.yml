@@ -27,10 +27,6 @@ jobs:
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
         run: apt update && apt install -y wget file dpkg-dev fuse git g++ cmake qtbase5-dev libicu-dev libxdo-dev
 
-      - name: Install dependencies (debian:9)
-        if: startsWith(matrix.image, 'debian:9')
-        run: apt install qt5-default
-
       - name: Install dependencies (opensuse)
         if: startsWith(matrix.image, 'opensuse')
         run: zypper refresh && zypper install -y tar gzip wget rpm-build git gcc-c++ cmake libqt5-qtbase-devel libicu-devel xdotool-devel
@@ -42,9 +38,10 @@ jobs:
       - name: Install dependencies .AppImage
         if: startsWith(matrix.image, 'ubuntu:18.04')
         run: |
+          apt install -y qt5-default
           wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
-          chmod a+x linuxdeployqt-continuous-x86_64.AppImage
-          cp ./linuxdeployqt-continuous-x86_64.AppImage /usr/bin/linuxdeployqt.AppImage
+          chmod a+x ./*.AppImage
+          mv ./*.AppImage /usr/bin/linuxdeployqt.AppImage
 
       - uses: actions/checkout@v2
       - run: git fetch --prune --unshallow --tags
@@ -90,7 +87,7 @@ jobs:
         if: "startsWith(matrix.image, 'ubuntu:18.04')"
         run: |
           cd build
-          make appimage
+          make appimage_linuxdeployqt
 
       - name: Create artifact name
         run: |
@@ -184,9 +181,15 @@ jobs:
           install: |
             apt update && apt install -y wget file dpkg-dev fuse git g++ cmake qtbase5-dev libicu-dev libxdo-dev
 
-            wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
-            chmod a+x linuxdeployqt-continuous-x86_64.AppImage
-            cp ./linuxdeployqt-continuous-x86_64.AppImage /usr/bin/linuxdeployqt.AppImage
+            ARCH="${{matrix.arch}}"
+            if [ "$ARCH" = "armv7" ]; then
+              ARCH="armhf"
+            fi
+
+            apt install -y qt5-default
+            wget -c https://github.com/$(wget -q https://github.com/probonopd/go-appimage/releases/expanded_assets/continuous -O - | grep "appimagetool-.*-$ARCH.AppImage" | head -n 1 | cut -d '"' -f 2)
+            chmod a+x ./*.AppImage
+            mv ./*.AppImage /usr/bin/appimagetool.AppImage
           run: |
             cd /project
 
@@ -199,7 +202,7 @@ jobs:
             make -j$(nproc)
 
             # Package .AppImage
-            make appimage
+            make appimage_appimagetool
 
       - name: Create artifact name
         run: |
