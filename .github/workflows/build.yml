@@ -180,7 +180,7 @@ jobs:
             --volume "$PWD:/project"
           env: |
             VERSION: ${{env.VERSION}}
-          shell: /bin/sh
+          shell: /bin/bash
           install: |
             apt update && apt install -y wget file dpkg-dev fuse git g++ cmake qtbase5-dev libicu-dev libxdo-dev
 

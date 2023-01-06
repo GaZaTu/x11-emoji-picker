@@ -118,6 +118,8 @@ if (UNIX AND NOT APPLE) # LINUX
   )
 
   add_custom_target(appimage_appimagetool
+    COMMAND mkdir -p ${CMAKE_BINARY_DIR}/_AppDir
+    COMMAND cp ${CMAKE_BINARY_DIR}/_AppDir/${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/72x72/apps/${PROJECT_NAME_FULL}.png ${CMAKE_BINARY_DIR}/_AppDir/${PROJECT_NAME_FULL}.png
     COMMAND make install DESTDIR=${CMAKE_BINARY_DIR}/_AppDir
     COMMAND appimagetool.AppImage -s deploy ${CMAKE_BINARY_DIR}/_AppDir/usr/share/applications/${PROJECT_NAME_FULL}.desktop
   )
