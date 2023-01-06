@@ -1,5 +1,6 @@
 #include "EmojiLineEdit.hpp"
 #include "EmojiPickerSettings.hpp"
+#include <qnamespace.h>
 
 EmojiLineEdit::EmojiLineEdit(QWidget* parent) : QLineEdit(parent) {
   setProperty("class", "EmojiLineEdit");
@@ -135,5 +136,15 @@ void EmojiLineEdit::keyPressEvent(QKeyEvent* event) {
     }
   default:
     QLineEdit::keyPressEvent(event);
+  }
+}
+
+void EmojiLineEdit::focusOutEvent(QFocusEvent* event) {
+  event->accept();
+
+  if (EmojiPickerSettings::snapshot().closeOnFocusLost()) {
+    if (event->lostFocus()) {
+      emit escapePressed(QKeyEvent(QKeyEvent::Type::None, Qt::Key_Escape, Qt::NoModifier));
+    }
   }
 }
