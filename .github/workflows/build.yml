@@ -41,7 +41,7 @@ jobs:
           apt install -y qt5-default
           wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
           chmod a+x ./*.AppImage
-          mv ./*.AppImage /usr/bin/linuxdeployqt.AppImage
+          mv -f ./*.AppImage /usr/bin/linuxdeployqt.AppImage
 
       - uses: actions/checkout@v2
       - run: git fetch --prune --unshallow --tags
@@ -189,7 +189,7 @@ jobs:
             apt install -y qt5-default
             wget -c https://github.com/$(wget -q https://github.com/probonopd/go-appimage/releases/expanded_assets/continuous -O - | grep "appimagetool-.*-$ARCH.AppImage" | head -n 1 | cut -d '"' -f 2)
             chmod a+x ./*.AppImage
-            mv ./*.AppImage /usr/bin/appimagetool.AppImage
+            mv -f ./*.AppImage /usr/bin/appimagetool.AppImage
           run: |
             cd /project
 
