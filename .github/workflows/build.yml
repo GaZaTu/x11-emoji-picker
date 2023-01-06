@@ -102,17 +102,20 @@ jobs:
       - name: Rename artifact .deb (ubuntu / debian)
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
         run: |
-          mv build/*.deb build/${{env.ARTIFACT_NAME_WITH_DISTRO}}.deb 2>/dev/null; true
+          mv build/*.deb build/${{env.ARTIFACT_NAME_WITH_DISTRO}}.deb
+        continue-on-error: true
 
       - name: Rename artifact .rpm (opensuse / fedora / centos)
         if: startsWith(matrix.image, 'opensuse') || startsWith(matrix.image, 'fedora') || startsWith(matrix.image, 'centos')
         run: |
-          mv build/*.rpm build/${{env.ARTIFACT_NAME_WITH_DISTRO}}.rpm 2>/dev/null; true
+          mv build/*.rpm build/${{env.ARTIFACT_NAME_WITH_DISTRO}}.rpm
+        continue-on-error: true
 
       - name: Rename artifact .AppImage
         if: "startsWith(matrix.image, 'ubuntu:18.04')"
         run: |
-          mv build/*.AppImage build/${{env.ARTIFACT_NAME}}.AppImage 2>/dev/null; true
+          mv build/*.AppImage build/${{env.ARTIFACT_NAME}}.AppImage
+        continue-on-error: true
 
       - name: Upload artifact .deb (ubuntu / debian)
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
@@ -216,7 +219,8 @@ jobs:
 
       - name: Rename artifact .AppImage
         run: |
-          mv build/*.AppImage build/${{env.ARTIFACT_NAME}}.AppImage 2>/dev/null; true
+          mv build/*.AppImage build/${{env.ARTIFACT_NAME}}.AppImage
+        continue-on-error: true
 
       - name: Upload artifact .AppImage
         uses: actions/upload-artifact@v2
