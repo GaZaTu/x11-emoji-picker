@@ -122,6 +122,7 @@ if (UNIX AND NOT APPLE) # LINUX
     COMMAND cp ${PROJECT_SOURCE_DIR}/res/${PROJECT_NAME_FULL}.png ${CMAKE_BINARY_DIR}/_AppDir/${PROJECT_NAME_FULL}.png
     COMMAND make install DESTDIR=${CMAKE_BINARY_DIR}/_AppDir
     COMMAND appimagetool.AppImage -s deploy ${CMAKE_BINARY_DIR}/_AppDir/usr/share/applications/${PROJECT_NAME_FULL}.desktop
+    COMMAND appimagetool.AppImage ${CMAKE_BINARY_DIR}/_AppDir
   )
 
   set(CPACK_PACKAGE_NAME ${PROJECT_NAME_FULL})
