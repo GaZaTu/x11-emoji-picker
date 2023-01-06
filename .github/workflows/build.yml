@@ -153,7 +153,7 @@ jobs:
 
     steps:
       - name: Install git
-        run: apt update && apt install -y git
+        run: sudo apt update && sudo apt install -y git
 
       - uses: actions/checkout@v2
       - run: git fetch --prune --unshallow --tags
