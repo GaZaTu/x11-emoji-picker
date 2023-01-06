@@ -12,7 +12,7 @@ env:
   DEBIAN_FRONTEND: noninteractive
 
 jobs:
-  build-artifact:
+  build-artifact-x86_64:
     runs-on: ubuntu-latest
     container:
       image: ${{matrix.image}}
@@ -40,7 +40,7 @@ jobs:
         run: dnf clean expire-cache && dnf install -y tar gzip wget rpm-build git gcc-c++ cmake qt5-qtbase-devel libicu-devel libxdo-devel
 
       - name: Install dependencies .AppImage
-        if: startsWith(matrix.image, 'debian:9')
+        if: startsWith(matrix.image, 'ubuntu:18.04')
         run: |
           wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
           chmod a+x linuxdeployqt-continuous-x86_64.AppImage
@@ -87,7 +87,7 @@ jobs:
           make package
 
       - name: Package .AppImage
-        if: "startsWith(matrix.image, 'debian:9')"
+        if: "startsWith(matrix.image, 'ubuntu:18.04')"
         run: |
           cd build
           make appimage
@@ -105,17 +105,17 @@ jobs:
       - name: Rename artifact .deb (ubuntu / debian)
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
         run: |
-          mv build/x11-emoji-picker-x86_64.deb build/${{env.ARTIFACT_NAME_WITH_DISTRO}}.deb
+          mv build/*.deb build/${{env.ARTIFACT_NAME_WITH_DISTRO}}.deb
 
       - name: Rename artifact .rpm (opensuse / fedora / centos)
         if: startsWith(matrix.image, 'opensuse') || startsWith(matrix.image, 'fedora') || startsWith(matrix.image, 'centos')
         run: |
-          mv build/x11-emoji-picker-x86_64.rpm build/${{env.ARTIFACT_NAME_WITH_DISTRO}}.rpm
+          mv build/*.rpm build/${{env.ARTIFACT_NAME_WITH_DISTRO}}.rpm
 
       - name: Rename artifact .AppImage
-        if: "startsWith(matrix.image, 'debian:9')"
+        if: "startsWith(matrix.image, 'ubuntu:18.04')"
         run: |
-          mv build/x11-emoji-picker-dev-x86_64.AppImage build/${{env.ARTIFACT_NAME}}.AppImage
+          mv build/*.AppImage build/${{env.ARTIFACT_NAME}}.AppImage
 
       - name: Upload artifact .deb (ubuntu / debian)
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
@@ -134,7 +134,88 @@ jobs:
           if-no-files-found: error
 
       - name: Upload artifact .AppImage
-        if: startsWith(matrix.image, 'debian:9')
+        if: startsWith(matrix.image, 'ubuntu:18.04')
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{env.ARTIFACT_NAME}}.AppImage
+          path: build/*.AppImage
+          if-no-files-found: error
+
+  build-artifact-with-qemu:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        include:
+          - arch: armv7
+            distro: ubuntu18.04
+          - arch: aarch64
+            distro: ubuntu18.04
+
+    steps:
+      - name: Install git
+        run: apt update && apt install -y git
+
+      - uses: actions/checkout@v2
+      - run: git fetch --prune --unshallow --tags
+        continue-on-error: true
+
+      - name: Create artifact version
+        run: |
+          VERSION_LATEST_TAG=$(git describe --match "v[0-9]*" --abbrev=0 HEAD | sed "s/v//")
+          VERSION_TIMESTAMP=$(date +'%Y%m%d%H%M')
+          VERSION_GIT_HASH=$(git rev-parse --short HEAD)
+          VERSION=$VERSION_LATEST_TAG+git$VERSION_TIMESTAMP.$VERSION_GIT_HASH
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "VERSION=$VERSION"
+        continue-on-error: true
+
+      - uses: uraimo/run-on-arch-action@v2
+        name: Build artifact
+        id: build
+        with:
+          arch: ${{matrix.arch}}
+          distro: ${{matrix.distro}}
+          githubToken: ${{github.token}}
+          dockerRunArgs: |
+            --volume "$PWD:/project"
+          env: |
+            VERSION: ${{env.VERSION}}
+          shell: /bin/sh
+          install: |
+            apt update && apt install -y wget file dpkg-dev fuse git g++ cmake qtbase5-dev libicu-dev libxdo-dev
+
+            wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+            chmod a+x linuxdeployqt-continuous-x86_64.AppImage
+            cp ./linuxdeployqt-continuous-x86_64.AppImage /usr/bin/linuxdeployqt.AppImage
+          run: |
+            cd /project
+
+            # Configure
+            mkdir -p build
+            cd build
+            cmake -DCMAKE_BUILD_TYPE=Release -DPACKAGE_VERSION=${{env.VERSION}} ..
+
+            # Build
+            make -j$(nproc)
+
+            # Package .AppImage
+            make appimage
+
+      - name: Create artifact name
+        run: |
+          DISTRO_ID=$(grep "^ID=" "/etc/os-release" | sed "s/ID=//" | sed "s/\"//g")
+          DISTRO_VERSION_ID=$(grep "^VERSION_ID=" "/etc/os-release" | sed "s/VERSION_ID=//" | sed "s/\"//g")
+          ARTIFACT_NAME=x11-emoji-picker-${{matrix.arch}}
+          ARTIFACT_NAME_WITH_DISTRO=$ARTIFACT_NAME-$DISTRO_ID-$DISTRO_VERSION_ID
+          echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
+          echo "ARTIFACT_NAME_WITH_DISTRO=$ARTIFACT_NAME_WITH_DISTRO" >> $GITHUB_ENV
+          echo "ARTIFACT_NAME_WITH_DISTRO=$ARTIFACT_NAME_WITH_DISTRO"
+
+      - name: Rename artifact .AppImage
+        run: |
+          mv build/*.AppImage build/${{env.ARTIFACT_NAME}}.AppImage
+
+      - name: Upload artifact .AppImage
         uses: actions/upload-artifact@v2
         with:
           name: ${{env.ARTIFACT_NAME}}.AppImage
@@ -142,7 +223,7 @@ jobs:
           if-no-files-found: error
 
   create-nightly-release:
-    needs: build-artifact
+    needs: [build-artifact-x86_64, build-artifact-with-qemu]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
 
@@ -176,7 +257,7 @@ jobs:
           release-url: ${{steps.create_release.outputs.upload_url}}
 
   create-release:
-    needs: build-artifact
+    needs: [build-artifact-x86_64, build-artifact-with-qemu]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
 
