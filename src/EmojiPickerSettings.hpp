@@ -86,6 +86,9 @@ public:
   bool startInKaomojiMode() const;
   void setStartInKaomojiMode(bool startInKaomojiMode);
 
+  bool closeOnFocusLost() const;
+  void setCloseOnFocusLost(bool closeOnFocusLost);
+
   void toggleInputMethod(const std::string& processName);
 
 private:

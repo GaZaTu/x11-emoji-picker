@@ -31,6 +31,7 @@ signals:
 
 protected:
   void keyPressEvent(QKeyEvent* event) override;
+  void focusOutEvent(QFocusEvent* event) override;
 
 private:
   QWidget* _container = nullptr;
