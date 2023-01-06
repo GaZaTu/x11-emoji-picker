@@ -89,6 +89,9 @@ public:
   bool closeOnFocusLost() const;
   void setCloseOnFocusLost(bool closeOnFocusLost);
 
+  int previewTextLeftMargin() const;
+  void setPreviewTextLeftMargin(int previewTextLeftMargin);
+
   void toggleInputMethod(const std::string& processName);
 
 private:
