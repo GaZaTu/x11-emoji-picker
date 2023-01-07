@@ -109,8 +109,8 @@ if (UNIX AND NOT APPLE) # LINUX
   set(CMAKE_INSTALL_PREFIX /usr)
 
   install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-  install(FILES ${PROJECT_SOURCE_DIR}/res/${PROJECT_NAME_FULL}.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications)
-  install(FILES ${PROJECT_SOURCE_DIR}/res/${PROJECT_NAME_FULL}.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/72x72/apps)
+  install(FILES ${PROJECT_SOURCE_DIR}/src/res/${PROJECT_NAME_FULL}.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications)
+  install(FILES ${PROJECT_SOURCE_DIR}/src/res/${PROJECT_NAME_FULL}.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/72x72/apps)
 
   add_custom_target(appimage
     COMMAND make install DESTDIR=${CMAKE_BINARY_DIR}/_AppDir
