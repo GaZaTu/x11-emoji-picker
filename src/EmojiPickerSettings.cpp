@@ -83,6 +83,7 @@ void EmojiPickerSettings::writeDefaultsToDisk() {
   settings.setUseSystemEmojiFontWidthHeuristics(settings.useSystemEmojiFontWidthHeuristics());
   settings.setStartInKaomojiMode(settings.startInKaomojiMode());
   settings.setCloseOnFocusLost(settings.closeOnFocusLost());
+  settings.setPreviewTextLeftMargin(settings.previewTextLeftMargin());
 }
 
 EmojiPickerSettings::EmojiPickerSettings(QObject* parent)
@@ -408,6 +409,13 @@ bool EmojiPickerSettings::closeOnFocusLost() const {
 }
 void EmojiPickerSettings::setCloseOnFocusLost(bool closeOnFocusLost) {
   setValue("closeOnFocusLost", closeOnFocusLost);
+}
+
+int EmojiPickerSettings::previewTextLeftMargin() const {
+  return value("previewTextLeftMargin", 0).toInt();
+}
+void EmojiPickerSettings::setPreviewTextLeftMargin(int previewTextLeftMargin) {
+  setValue("previewTextLeftMargin", previewTextLeftMargin);
 }
 
 void EmojiPickerSettings::toggleInputMethod(const std::string& processName) {
