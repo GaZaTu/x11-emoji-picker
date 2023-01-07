@@ -96,7 +96,7 @@ This is a CMake project so you need `cmake`, `make` and some c++ compiler like `
 I committed the generated code so you won't have to run any scripts.
 
 - script [.scripts/create-emoji-map.js](.scripts/create-emoji-map.js) to create [src/emojis.hpp](src/emojis.hpp) and [src/emojis.cpp](src/emojis.cpp)
-- script [.scripts/create-emoji-aliases-ini.js](.scripts/create-emoji-aliases-ini.js) to create [src/aliases/github-emojis.ini](src/aliases/github-emojis.ini)
+- script [.scripts/create-emoji-aliases.js](.scripts/create-emoji-aliases.js) to create [src/aliases/github-emojis.ini](src/aliases/github-emojis.ini)
 
 ## Usage 🧐
 
@@ -151,6 +151,7 @@ The settings file should be located at `$XDG_CONFIG_HOME/gazatu.xyz/emoji-picker
 - `[General] | localeKey` => the emoji translation you want to use (en, de, fr, nl, da, it, pt, es, sv, pl, hr, cs, fi, el, hu) or empty if you want to use english with underscores
 - `[General] | maxEmojiVersion` => set this to for example 12 to exclude emojis released after that or -1 to show all emojis
 - `[General] | openAtMouseLocation` => `true` if you want to open the emoji picker dialog at the current mouse cursor
+- `[General] | previewTextLeftMargin` => change the number of this setting if the preview text is blurry
 - `[General] | skinTonesDisabled` => `true` if you only want to see skin-tone neutral emojis (hands or jobs or family or w/e)
 - `[General] | surroundAliasesWithColons` => `true` if you want emoji aliases to be in colons (:joy: for example)
 - `[General] | swapEnterAndShiftEnter` => `true` if you want `Return` to close the window
@@ -198,6 +199,7 @@ hideInputMethod=false
 localeKey=
 maxEmojiVersion=-1
 openAtMouseLocation=false
+previewTextLeftMargin=0
 skinTonesDisabled=false
 startInKaomojiMode=false
 surroundAliasesWithColons=true
@@ -254,6 +256,6 @@ Project licensed under the [MIT](https://opensource.org/licenses/MIT) license: [
 
 Emoji [graphics](src/res/72x72) licensed by [Twitter](https://github.com/twitter) under [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/) at [https://github.com/twitter/twemoji](https://github.com/twitter/twemoji/blob/master/LICENSE-GRAPHICS)
 
-Emoji [list](src/emojis.hpp) and [translations](src/emojis.cpp) licensed by [Unicode](https://github.com/unicode-org) at [https://github.com/unicode-org/cldr](https://github.com/unicode-org/cldr/blob/master/unicode-license.txt)
+Emoji [list](src/emojis.cpp) and [translations](src/i18n) licensed by [Unicode](https://github.com/unicode-org) at [https://github.com/unicode-org/cldr](https://github.com/unicode-org/cldr/blob/master/unicode-license.txt)
 
 Some Qt code licensed by Qt under [BSD](https://opensource.org/licenses/BSD-3-Clause): [src/flowlayout.h](src/flowlayout.h), [src/flowlayout.cpp](src/flowlayout.cpp)
