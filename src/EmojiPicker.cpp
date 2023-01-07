@@ -4,7 +4,6 @@
 #include <QClipboard>
 #include <QDesktopServices>
 #include "./kaomojis.hpp"
-#include <QDebug>
 
 constexpr size_t kaomojisSize = sizeof(kaomojis) / sizeof(Kaomoji);
 Emoji convertedKaomojis[kaomojisSize];
@@ -97,13 +96,10 @@ void EmojiPicker::wheelEvent(QWheelEvent* event) {
     return;
   }
 
-  switch (stepsDelta.y()) {
-  case +1:
+  if (stepsDelta.y() > 0) {
     onArrowKeyPressed(QKeyEvent(QEvent::KeyPress, Qt::Key_Up, {}));
-    break;
-  case -1:
+  } else {
     onArrowKeyPressed(QKeyEvent(QEvent::KeyPress, Qt::Key_Down, {}));
-    break;
   }
 }
 
