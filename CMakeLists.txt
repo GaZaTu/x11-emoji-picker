@@ -112,9 +112,16 @@ if (UNIX AND NOT APPLE) # LINUX
   install(FILES ${PROJECT_SOURCE_DIR}/src/res/${PROJECT_NAME_FULL}.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications)
   install(FILES ${PROJECT_SOURCE_DIR}/src/res/${PROJECT_NAME_FULL}.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/72x72/apps)
 
-  add_custom_target(appimage
+  add_custom_target(appimage_linuxdeployqt
     COMMAND make install DESTDIR=${CMAKE_BINARY_DIR}/_AppDir
-    COMMAND VERSION=dev linuxdeployqt.AppImage ${CMAKE_BINARY_DIR}/_AppDir/usr/share/applications/${PROJECT_NAME_FULL}.desktop -appimage -no-translations
+    COMMAND linuxdeployqt.AppImage ${CMAKE_BINARY_DIR}/_AppDir/usr/share/applications/${PROJECT_NAME_FULL}.desktop -appimage -no-translations
+  )
+
+  add_custom_target(appimage_appimagetool
+    COMMAND mkdir -p ${CMAKE_BINARY_DIR}/_AppDir
+    COMMAND cp ${PROJECT_SOURCE_DIR}/res/${PROJECT_NAME_FULL}.png ${CMAKE_BINARY_DIR}/_AppDir/${PROJECT_NAME_FULL}.png
+    COMMAND make install DESTDIR=${CMAKE_BINARY_DIR}/_AppDir
+    COMMAND appimagetool.AppImage -s deploy ${CMAKE_BINARY_DIR}/_AppDir/usr/share/applications/${PROJECT_NAME_FULL}.desktop
   )
 
   set(CPACK_PACKAGE_NAME ${PROJECT_NAME_FULL})
