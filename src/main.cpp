@@ -205,6 +205,7 @@ int main(int argc, char** argv) {
 
   window.setCentralWidget(mainWidget);
   window.show();
+  window.raise();
 
   return app.exec();
 }
