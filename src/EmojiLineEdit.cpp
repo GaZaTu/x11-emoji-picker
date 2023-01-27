@@ -74,8 +74,13 @@ void EmojiLineEdit::keyPressEvent(QKeyEvent* event) {
   EmojiAction action = getEmojiActionForQKeyEvent(event);
 
   if (action == EmojiAction::INVALID) {
+    QString oldText = text();
     QLineEdit::keyPressEvent(event);
-    emit updateEmojiList();
+    QString newText = text();
+
+    if (newText != oldText) {
+      emit updateEmojiList();
+    }
   } else {
     emit processKeyEvent(event);
   }
