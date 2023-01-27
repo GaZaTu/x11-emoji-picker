@@ -1,7 +1,5 @@
 #include "EmojiLineEdit.hpp"
 #include "EmojiPickerSettings.hpp"
-#include <QDebug>
-#include <QCoreApplication>
 
 EmojiAction getEmojiActionForQKeyEvent(const QKeyEvent* event) {
   if (event->type() == QKeyEvent::KeyRelease) {
@@ -36,6 +34,9 @@ EmojiAction getEmojiActionForQKeyEvent(const QKeyEvent* event) {
     return EmojiAction::COMMIT_EMOJI;
 
   case Qt::Key_Tab:
+    return EmojiAction::SWITCH_VIEW_MODE;
+
+  case Qt::Key_Backtab:
     return EmojiAction::SWITCH_VIEW_MODE;
 
   case Qt::Key_Up:

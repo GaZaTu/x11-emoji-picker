@@ -474,16 +474,30 @@ void EmojiPickerWindow::processKeyEvent(const QKeyEvent* event) {
     break;
 
   case EmojiAction::SWITCH_VIEW_MODE:
-    switch (_mode) {
-    case ViewMode::MRU:
-      _mode = ViewMode::LIST;
-      break;
-    case ViewMode::LIST:
-      _mode = ViewMode::KAOMOJI;
-      break;
-    case ViewMode::KAOMOJI:
-      _mode = ViewMode::MRU;
-      break;
+    if (event->modifiers() & Qt::ShiftModifier) {
+      switch (_mode) {
+      case ViewMode::MRU:
+        _mode = ViewMode::KAOMOJI;
+        break;
+      case ViewMode::LIST:
+        _mode = ViewMode::MRU;
+        break;
+      case ViewMode::KAOMOJI:
+        _mode = ViewMode::LIST;
+        break;
+      }
+    } else {
+      switch (_mode) {
+      case ViewMode::MRU:
+        _mode = ViewMode::LIST;
+        break;
+      case ViewMode::LIST:
+        _mode = ViewMode::KAOMOJI;
+        break;
+      case ViewMode::KAOMOJI:
+        _mode = ViewMode::MRU;
+        break;
+      }
     }
     _mruModeLabel->setHighlighted(_mode == ViewMode::MRU);
     _listModeLabel->setHighlighted(_mode == ViewMode::LIST);
