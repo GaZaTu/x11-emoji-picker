@@ -121,11 +121,9 @@ When you've selected your emoji you can press the **return key** to write it.
 - `Arrow keys` => navigate through shown emojis
 - `Return` => write emoji to previously active window
 - `Shift+Return` => write emoji to previously active window and close emoji picker
-- `F1` => show recently used emojis (default view)
-- `F2` => show list of all emojis (if you press this while searching, the view will jump to the currently selected emoji aswell)
 - `F4` => close emoji picker and open settings file
 - `F5` => toggle input method for current process (press [`F5` and then `Return`] a few times if emojis don't get written into the window; there are 4 different modes)
-- `Tab` => toggle between emoji and kaomoji
+- `Tab` => toggle between MRU, list and kaomoji
 
 ### AppImage
 
@@ -142,23 +140,18 @@ I recommend running it (in the keybind) using the following command instead:
 The settings file should be located at `$XDG_CONFIG_HOME/gazatu.xyz/emoji-picker.ini`. (usually in `~/.config`)
 
 - `[General] | activateWindowBeforeWritingByDefault` => `true` to activate windows by default before writing to them
-- `[General] | aliasExactMatching` => `true` to only show aliased emojis when the search matches completely
 - `[General] | closeOnFocusLost` => `true` to close the window after it lost focus
 - `[General] | customQssFilePath` => custom styling (colors and shit) for the emoji picker (refer to [src/main.qss](src/main.qss) for examples); useful if you don't like the dark theme
-- `[General] | enableEmojiIncludesSearch` => `true` to enable sub-string search (for example: `joy` to find face_with_tears_of_joy); you need to enter 3 or more characters
 - `[General] | gendersDisabled` => `true` if you only want to see gender neutral emojis (jobs or family or w/e)
-- `[General] | hideInputMethod` => `true` if you don't want to see the input method
 - `[General] | localeKey` => the emoji translation you want to use (en, de, fr, nl, da, it, pt, es, sv, pl, hr, cs, fi, el, hu) or empty if you want to use english with underscores
 - `[General] | maxEmojiVersion` => set this to for example 12 to exclude emojis released after that or -1 to show all emojis
 - `[General] | openAtMouseLocation` => `true` if you want to open the emoji picker dialog at the current mouse cursor
-- `[General] | previewTextLeftMargin` => change the number of this setting if the preview text is blurry
 - `[General] | skinTonesDisabled` => `true` if you only want to see skin-tone neutral emojis (hands or jobs or family or w/e)
-- `[General] | surroundAliasesWithColons` => `true` if you want emoji aliases to be in colons (:joy: for example)
 - `[General] | swapEnterAndShiftEnter` => `true` if you want `Return` to close the window
 - `[General] | useClipboardHackByDefault` => `true` to write emojis using `ctrl+v` by default (qt5 apps for example)
 - `[General] | useSystemEmojiFont` => `true` if you want to use the system emoji font instead of the bundled twemoji images
 - `[General] | useSystemEmojiFontWidthHeuristics` => `true` if you want to scale/hide unsupported emojis (may lead to false positives)
-- `[General] | useSystemQtTheme` => `true` if you want to use the system qt theme (not recommended, usually only works with kde i think)
+- `[General] | useSystemQtTheme` => `true` if you want to use the system qt theme
 - `[General] | windowOpacity` => how seethrough the emoji picker is supposed to be (0 = invisible)
 - `[activateWindowBeforeWritingExceptions]` => list of executables that should be an exception to the `[General] | activateWindowBeforeWritingByDefault` setting
 - `[emojiAliasesIniFilePaths]` => list of custom emoji codes (refer to [src/aliases/github-emojis.ini](src/aliases/github-emojis.ini) for examples); points to the builtin list of github emojis by default ([https://github.com/ikatyang/emoji-cheat-sheet](https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)); also points to the builtin list of gitmoji emojis by default ([https://gitmoji.dev/](https://gitmoji.dev/))
@@ -175,9 +168,6 @@ Some things such as recently used emojis are written to `$XDG_CACHE_HOME/gazatu.
 If you enabled `useSystemEmojiFont` to display emojis inside the emoji picker: it's possible that your installed emoji font does not support all emojis (for example: at the time of writing noto-fonts-emoji does not support `heart_mending`) which will likely result in some emojis being either invisible or displayed as 2 separate emojis. To "fix" this behavior you can either set `maxEmojiVersion` to the version supported by your emoji font (for example: 12) or set `useSystemEmojiFontWidthHeuristics` to `true` (which is the default) to automatically figure it out.
 
 Regarding kaomoji mode:
-- Check [src/kaomojis.hpp](src/kaomojis.hpp) for a list of kaomoji
-- `F2` (list of all emoji (or kaomoji in this case)) does not work yet
-- `useSystemEmojiFont=true` does not work with kaomoji mode
 - required font localizations:
   - cjk (tc, sc, kr, jp)
   - kannada
@@ -190,19 +180,13 @@ Regarding kaomoji mode:
 ```ini
 [General]
 activateWindowBeforeWritingByDefault=false
-aliasExactMatching=false
 closeOnFocusLost=false
 customQssFilePath=
-enableEmojiIncludesSearch=true
 gendersDisabled=false
-hideInputMethod=false
 localeKey=
 maxEmojiVersion=-1
 openAtMouseLocation=false
-previewTextLeftMargin=0
 skinTonesDisabled=false
-startInKaomojiMode=false
-surroundAliasesWithColons=true
 swapEnterAndShiftEnter=false
 useClipboardHackByDefault=false
 useSystemEmojiFont=false
@@ -217,7 +201,7 @@ windowOpacity=0.9
 4\processName=chromium
 5\processName=kate
 6\processName=brave
-size=5
+size=6
 
 [emojiAliasesIniFilePaths]
 1\path=:/aliases/github-emojis.ini

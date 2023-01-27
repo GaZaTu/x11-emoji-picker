@@ -188,35 +188,11 @@ QLineEdit:selected {
   font-size: 14px;
 }
 
-.EmojiLineEdit_previewLabel {
-  padding-left: 5px;
-  font-size: 14px;
-  color: rgba(240, 240, 240, 0.60);
-}
-
-.EmojiLineEdit_favsLabel,
-.EmojiLineEdit_helpLabel {
-  padding: 1px 2px 1px 2px;
-  border-radius: 5px;
-  font-size: 14px;
-}
-
-.EmojiLineEdit_favsLabel:hover,
-.EmojiLineEdit_helpLabel:hover {
-  background-color: rgba(240, 240, 240, 0.33);
-}
-
-.EmojiPicker_emojiLabel {
-  padding: 2px;
-  border-radius: 5px;
-}
-
-.EmojiPicker_emojiLabel.useFont {
+.EmojiLabel {
   padding: 0px;
   border-radius: 5px;
-  /* font-size: 28px; */
 }
 
-.EmojiPicker_emojiLabel:hover {
+.EmojiLabel:hover {
   background-color: rgba(240, 240, 240, 0.33);
 }

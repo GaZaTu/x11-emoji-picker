@@ -38,12 +38,12 @@ set(COMMON_SRC_FILES
   src/main.qrc
   src/emojis.cpp
   src/emojis.qrc
+  src/kaomojis.cpp
   src/EmojiLineEdit.cpp
   src/EmojiLabel.cpp
-  src/EmojiPicker.cpp
+  src/EmojiPickerWindow.cpp
   src/EmojiPickerSettings.cpp
   src/EmojiTranslator.cpp
-  src/flowlayout.cpp
 )
 
 if (UNIX AND NOT APPLE) # LINUX

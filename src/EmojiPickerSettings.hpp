@@ -4,6 +4,8 @@
 #include <QSettings>
 #include <utility>
 #include <vector>
+#include <QFontMetrics>
+#include <unordered_map>
 
 class EmojiPickerSettings : public QSettings {
   Q_OBJECT
@@ -14,9 +16,6 @@ public:
   static void writeDefaultsToDisk();
 
   explicit EmojiPickerSettings(QObject* parent = nullptr);
-
-  std::vector<Emoji> recentEmojis();
-  void setRecentEmojis(const std::vector<Emoji>& recentEmojis);
 
   std::string localeKey() const;
   void setLocaleKey(const std::string& localeKey);
@@ -36,12 +35,12 @@ public:
   int maxEmojiVersion() const;
   void setMaxEmojiVersion(int maxEmojiVersion);
 
+  bool isDisabledEmoji(const Emoji& emoji, const QFontMetrics& fontMetrics);
+
   std::vector<std::string> emojiAliasesIniFilePaths();
   void setEmojiAliasesIniFilePaths(const std::vector<std::string>& emojiAliasesIniFilePaths);
-  std::vector<Emoji> aliasedEmojis();
 
-  bool aliasExactMatching() const;
-  void setAliasExactMatching(bool aliasExactMatching);
+  std::unordered_map<std::string, std::vector<std::string>> emojiAliases();
 
   std::string customQssFilePath() const;
   void setCustomQssFilePath(const std::string& customQssFilePath);
@@ -68,32 +67,32 @@ public:
   bool swapEnterAndShiftEnter() const;
   void setSwapEnterAndShiftEnter(bool swapEnterAndShiftEnter);
 
-  bool surroundAliasesWithColons() const;
-  void setSurroundAliasesWithColons(bool surroundAliasesWithColons);
-
-  bool hideInputMethod() const;
-  void setHideInputMethod(bool hideInputMethod);
-
-  bool enableEmojiIncludesSearch() const;
-  void setEnableEmojiIncludesSearch(bool enableEmojiIncludesSearch);
-
   bool useSystemEmojiFont() const;
   void setUseSystemEmojiFont(bool useSystemEmojiFont);
 
   bool useSystemEmojiFontWidthHeuristics() const;
   void setUseSystemEmojiFontWidthHeuristics(bool useSystemEmojiFontWidthHeuristics);
 
-  bool startInKaomojiMode() const;
-  void setStartInKaomojiMode(bool startInKaomojiMode);
-
   bool closeOnFocusLost() const;
   void setCloseOnFocusLost(bool closeOnFocusLost);
-
-  int previewTextLeftMargin() const;
-  void setPreviewTextLeftMargin(int previewTextLeftMargin);
 
   void toggleInputMethod(const std::string& processName);
 
 private:
   static EmojiPickerSettings* _snapshot;
+};
+
+class EmojiPickerCache : public QSettings {
+  Q_OBJECT
+
+public:
+  explicit EmojiPickerCache();
+
+  ~EmojiPickerCache();
+
+  std::vector<Emoji> emojiMRU();
+  void emojiMRU(const std::vector<Emoji>& emojiMRU);
+
+private:
+  static QString path();
 };

@@ -7,38 +7,36 @@
 #include <QLineEdit>
 #include <QStackedLayout>
 
+enum class EmojiAction {
+  INVALID,
+  COPY_SELECTED_EMOJI,
+  DISABLE,
+  COMMIT_EMOJI,
+  SWITCH_VIEW_MODE,
+  UP,
+  DOWN,
+  LEFT,
+  RIGHT,
+  PAGE_UP,
+  PAGE_DOWN,
+  OPEN_SETTINGS,
+  TOGGLE_INPUT_MODE,
+};
+
+EmojiAction getEmojiActionForQKeyEvent(const QKeyEvent* event);
+
 class EmojiLineEdit : public QLineEdit {
   Q_OBJECT
 
 public:
-  explicit EmojiLineEdit(QWidget* parent = nullptr);
-
-  QWidget* containerWidget();
-  QLabel* previewLabel();
-  EmojiLabel* favsLabel();
-  EmojiLabel* helpLabel();
-
-  std::string previewText();
-  void setPreviewText(const std::string& previewText);
+  explicit EmojiLineEdit(QWidget* parent);
 
 signals:
-  void returnPressed(const QKeyEvent& event);
-  void arrowKeyPressed(const QKeyEvent& event);
-  void escapePressed(const QKeyEvent& event);
-  void functionKeyPressed(const QKeyEvent& event);
-  void tabPressed(const QKeyEvent& event);
-  void copyPressed(const QKeyEvent& event);
+  void updateEmojiList();
+  void processKeyEvent(const QKeyEvent* event);
+  void disable();
 
 protected:
   void keyPressEvent(QKeyEvent* event) override;
   void focusOutEvent(QFocusEvent* event) override;
-
-private:
-  QWidget* _container = nullptr;
-  QStackedLayout* _containerLayout = nullptr;
-  QLabel* _previewLabel = nullptr;
-  QWidget* _iconsLayoutWidget = nullptr;
-  QGridLayout* _iconsLayout = nullptr;
-  EmojiLabel* _favsLabel = nullptr;
-  EmojiLabel* _helpLabel = nullptr;
 };
