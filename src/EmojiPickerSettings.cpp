@@ -161,7 +161,6 @@ bool EmojiPickerSettings::isDisabledEmoji(const Emoji& emoji, const QFontMetrics
 
 std::vector<std::string> defaultEmojiAliasesIniFilePaths = {
     ":/aliases/github-emojis.ini",
-    ":/aliases/gitmoji-emojis.ini",
 };
 
 std::vector<std::string> EmojiPickerSettings::emojiAliasesIniFilePaths() {

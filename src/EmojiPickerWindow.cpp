@@ -306,14 +306,12 @@ void EmojiPickerWindow::updateEmojiList() {
     if (search == "") {
       int row = 0;
       int column = 0;
-      for (const auto& emoji : emojis) {
-        if (std::find(_emojiMRU.begin(), _emojiMRU.end(), emoji) != _emojiMRU.end()) {
-          auto emojiLayoutItem = getEmojiLayoutItem(emoji);
-          auto label = static_cast<EmojiLabel*>(emojiLayoutItem->widget());
-          label->show();
+      for (const auto& emoji : _emojiMRU) {
+        auto emojiLayoutItem = getEmojiLayoutItem(emoji);
+        auto label = static_cast<EmojiLabel*>(emojiLayoutItem->widget());
+        label->show();
 
-          addItemToEmojiList(&*emojiLayoutItem, label, row, column);
-        }
+        addItemToEmojiList(&*emojiLayoutItem, label, row, column);
       }
       break;
     }
@@ -324,7 +322,6 @@ void EmojiPickerWindow::updateEmojiList() {
     int row = 0;
     int column = 0;
     for (const auto& emoji : emojis) {
-
       if (_disabledEmojis.count(emoji.code) != 0) {
         continue;
       }
