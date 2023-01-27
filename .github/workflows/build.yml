@@ -35,8 +35,8 @@ jobs:
         if: startsWith(matrix.image, 'opensuse')
         run: zypper refresh && zypper install -y tar gzip wget rpm-build git gcc-c++ cmake libqt5-qtbase-devel libicu-devel xdotool-devel
 
-      - name: Install dependencies (fedora & centos)
-        if: startsWith(matrix.image, 'fedora') || startsWith(matrix.image, 'centos')
+      - name: Install dependencies (fedora)
+        if: startsWith(matrix.image, 'fedora')
         run: dnf clean expire-cache && dnf install -y tar gzip wget rpm-build git gcc-c++ cmake qt5-qtbase-devel libicu-devel libxdo-devel
 
       - name: Install dependencies .AppImage
@@ -46,8 +46,10 @@ jobs:
           chmod a+x linuxdeployqt-continuous-x86_64.AppImage
           cp ./linuxdeployqt-continuous-x86_64.AppImage /usr/bin/linuxdeployqt.AppImage
 
-      - uses: actions/checkout@v2
-      - run: git fetch --prune --unshallow --tags
+      - uses: actions/checkout@v3
+      - run: git config --global --add safe.directory $(realpath .)
+        continue-on-error: true
+      - run: git fetch --prune --unshallow --tags --force
         continue-on-error: true
 
       - name: Set CPACK_GENERATOR to DEB (ubuntu / debian)
@@ -55,8 +57,8 @@ jobs:
         run: |
           echo "CPACK_GENERATOR=DEB" >> $GITHUB_ENV
 
-      - name: Set CPACK_GENERATOR to RPM (opensuse / fedora / centos)
-        if: startsWith(matrix.image, 'opensuse') || startsWith(matrix.image, 'fedora') || startsWith(matrix.image, 'centos')
+      - name: Set CPACK_GENERATOR to RPM (opensuse / fedora)
+        if: startsWith(matrix.image, 'opensuse') || startsWith(matrix.image, 'fedora')
         run: |
           echo "CPACK_GENERATOR=RPM" >> $GITHUB_ENV
 
@@ -74,7 +76,7 @@ jobs:
         run: |
           mkdir -p build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -DCPACK_GENERATOR=$CPACK_GENERATOR -DPACKAGE_VERSION=${{env.VERSION}} ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DCPACK_GENERATOR=${{env.CPACK_GENERATOR}} -DPACKAGE_VERSION=${{env.VERSION}} ..
 
       - name: Build
         run: |
@@ -107,8 +109,8 @@ jobs:
         run: |
           mv build/x11-emoji-picker-x86_64.deb build/${{env.ARTIFACT_NAME_WITH_DISTRO}}.deb
 
-      - name: Rename artifact .rpm (opensuse / fedora / centos)
-        if: startsWith(matrix.image, 'opensuse') || startsWith(matrix.image, 'fedora') || startsWith(matrix.image, 'centos')
+      - name: Rename artifact .rpm (opensuse / fedora)
+        if: startsWith(matrix.image, 'opensuse') || startsWith(matrix.image, 'fedora')
         run: |
           mv build/x11-emoji-picker-x86_64.rpm build/${{env.ARTIFACT_NAME_WITH_DISTRO}}.rpm
 
@@ -119,15 +121,15 @@ jobs:
 
       - name: Upload artifact .deb (ubuntu / debian)
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{env.ARTIFACT_NAME_WITH_DISTRO}}.deb
           path: build/*.deb
           if-no-files-found: error
 
-      - name: Upload artifact .rpm (opensuse / fedora / centos)
-        if: startsWith(matrix.image, 'opensuse') || startsWith(matrix.image, 'fedora') || startsWith(matrix.image, 'centos')
-        uses: actions/upload-artifact@v2
+      - name: Upload artifact .rpm (opensuse / fedora)
+        if: startsWith(matrix.image, 'opensuse') || startsWith(matrix.image, 'fedora')
+        uses: actions/upload-artifact@v3
         with:
           name: ${{env.ARTIFACT_NAME_WITH_DISTRO}}.rpm
           path: build/*.rpm
@@ -135,7 +137,7 @@ jobs:
 
       - name: Upload artifact .AppImage
         if: startsWith(matrix.image, 'debian:9')
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{env.ARTIFACT_NAME}}.AppImage
           path: build/*.AppImage
@@ -147,33 +149,25 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
 
     steps:
-      - name: Create nightly
-        id: create_release
-        uses: pajlada/create-release@v2.0.3
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        with:
-          tag_name: nightly-build
-          release_name: Nightly Release
-          body: |
-            Nightly Build
-          prerelease: true
-
       - name: Download artifacts
         id: download_artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           path: artifacts
 
-      - name: Display downloaded artifacts
-        run: ls -R ${{steps.download_artifacts.outputs.download-path}}
-
-      - name: Upload release assets
-        uses: GaZaTu/release-asset-action@v3
+      - name: Create nightly
+        id: create_release
+        uses: ncipollo/release-action@v1.12.0
         with:
-          pattern: "${{steps.download_artifacts.outputs.download-path}}/**/*"
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          release-url: ${{steps.create_release.outputs.upload_url}}
+          removeArtifacts: true
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          artifacts: "${{steps.download_artifacts.outputs.download-path}}/*/*"
+          body: ${{github.event.head_commit.message}}
+          prerelease: true
+          makeLatest: false
+          name: Nightly Release
+          tag: nightly-build
 
   create-release:
     needs: build-artifact
@@ -181,29 +175,25 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
 
     steps:
-      - name: Create release
-        id: create_release
-        uses: pajlada/create-release@v2.0.3
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        with:
-          tag_name: ${{github.ref}}
-          release_name: ${{github.ref}}
-          body: |
-            ------
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
       - name: Download artifacts
         id: download_artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           path: artifacts
 
-      - name: Display downloaded artifacts
-        run: ls -R ${{steps.download_artifacts.outputs.download-path}}
-
-      - name: Upload release assets
-        uses: GaZaTu/release-asset-action@v3
+      - name: Create nightly
+        id: create_release
+        uses: ncipollo/release-action@v1.12.0
         with:
-          pattern: "${{steps.download_artifacts.outputs.download-path}}/**/*"
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          release-url: ${{steps.create_release.outputs.upload_url}}
+          removeArtifacts: false
+          allowUpdates: false
+          artifactErrorsFailBuild: true
+          artifacts: "${{steps.download_artifacts.outputs.download-path}}/*/*"
+          generateReleaseNotes: true
+          prerelease: false
+          makeLatest: true
+          name: ${{env.RELEASE_VERSION}}
+          tag: ${{github.ref}}

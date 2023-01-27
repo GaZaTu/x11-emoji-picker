@@ -1,4 +1,4 @@
-#include "EmojiPicker.hpp"
+#include "EmojiPickerWindow.hpp"
 #include "EmojiPickerSettings.hpp"
 #include "EmojiTranslator.hpp"
 #include "crossdo.h"
@@ -92,32 +92,10 @@ int main(int argc, char** argv) {
     app.setStyleSheet(readQFileIfExists(":/main.qss"));
   }
 
-  QMainWindow window;
-  int w = 376;
-  int h = 246;
-
-  if (EmojiPickerSettings::snapshot().useSystemQtTheme()) {
-    w = 360;
-    h = 228;
-
-    if (EmojiPickerSettings::snapshot().hideInputMethod()) {
-      h -= 22;
-    }
-  } else {
-    if (EmojiPickerSettings::snapshot().hideInputMethod()) {
-      h -= 26;
-    }
-  }
-
-  window.resize(w, h);
-
-  window.setWindowOpacity(EmojiPickerSettings::snapshot().windowOpacity());
-  window.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
-  window.setWindowIcon(QIcon(":/res/x11-emoji-picker.png"));
+  EmojiPickerWindow* window = new EmojiPickerWindow();
 
   if (!EmojiPickerSettings::snapshot().useSystemQtTheme()) {
-    window.setStyleSheet(
-        readQFileIfExists(QString::fromStdString(EmojiPickerSettings::snapshot().customQssFilePath())));
+    window->setStyleSheet(readQFileIfExists(QString::fromStdString(EmojiPickerSettings::snapshot().customQssFilePath())));
   }
 
   if (EmojiPickerSettings::snapshot().openAtMouseLocation()) {
@@ -126,15 +104,16 @@ int main(int argc, char** argv) {
     crossdo_get_mouse_location2(crossdo.get(), &cursorX, &cursorY, nullptr, nullptr);
 
     if (cursorX != 0 && cursorY != 0) {
-      window.move(cursorX, cursorY);
+      window->move(cursorX, cursorY);
     }
   }
 
   QMimeData* prevClipboardMimeData = nullptr;
-  EmojiPicker* mainWidget = new EmojiPicker();
-  mainWidget->setInputMethod(getInputMethod(prevWindowProcessName, EmojiPickerSettings::snapshot()));
 
-  QObject::connect(mainWidget, &EmojiPicker::returnPressed, [&](const std::string& emojiStr, bool closeAfter) {
+  window->statusBar()->showMessage(QString::fromStdString(
+      std::string("Mode: ") + getInputMethod(prevWindowProcessName, EmojiPickerSettings::snapshot())));
+
+  window->commitText = [&](const std::string& text, bool closeAfter) {
     window_t currentWindow = 0;
     if (activateWindowBeforeWriting || closeAfter) {
       crossdo_get_active_window(crossdo.get(), &currentWindow);
@@ -151,7 +130,7 @@ int main(int argc, char** argv) {
       }
 
       QApplication::clipboard()->clear();
-      QApplication::clipboard()->setText(QString::fromStdString(emojiStr));
+      QApplication::clipboard()->setText(QString::fromStdString(text));
 
       if (closeAfter) {
 #ifdef __linux__
@@ -165,20 +144,20 @@ int main(int argc, char** argv) {
 
       crossdo_send_keysequence_window(crossdo.get(), prevWindow, "ctrl+v", 12000);
     } else {
-      crossdo_enter_text_window(crossdo.get(), prevWindow, emojiStr.data(), 12000);
+      crossdo_enter_text_window(crossdo.get(), prevWindow, text.data(), 12000);
     }
 
     if (currentWindow != 0 && !closeAfter) {
       crossdo_activate_window(crossdo.get(), currentWindow);
       crossdo_wait_for_window_active(crossdo.get(), currentWindow, 1);
     }
-  });
+  };
 
-  QObject::connect(mainWidget, &EmojiPicker::escapePressed, [&]() {
+  window->onDisable = [&]() {
     EmojiPickerSettings::writeDefaultsToDisk();
 
     if (useClipboardHack && prevClipboardMimeData != nullptr) {
-      window.hide();
+      window->hide();
 
       QTimer::singleShot(100, [&]() {
         QApplication::clipboard()->clear();
@@ -191,20 +170,21 @@ int main(int argc, char** argv) {
     } else {
       app.exit();
     }
-  });
+  };
 
-  QObject::connect(mainWidget, &EmojiPicker::toggleInputMethod, [&]() {
+  window->onToggleInputMode = [&]() {
     EmojiPickerSettings settings;
     settings.toggleInputMethod(prevWindowProcessName);
 
     activateWindowBeforeWriting = settings.activateWindowBeforeWriting(prevWindowProcessName);
     useClipboardHack = settings.useClipboardHack(prevWindowProcessName);
 
-    mainWidget->setInputMethod(getInputMethod(prevWindowProcessName, settings));
-  });
+    window->statusBar()->showMessage(
+        QString::fromStdString(std::string("Mode: ") + getInputMethod(prevWindowProcessName, settings)));
+  };
 
-  window.setCentralWidget(mainWidget);
-  window.show();
+  window->enable();
+  window->show();
 
   return app.exec();
 }
