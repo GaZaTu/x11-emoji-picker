@@ -241,5 +241,3 @@ Project licensed under the [MIT](https://opensource.org/licenses/MIT) license: [
 Emoji [graphics](src/res/72x72) licensed by [Twitter](https://github.com/twitter) under [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/) at [https://github.com/twitter/twemoji](https://github.com/twitter/twemoji/blob/master/LICENSE-GRAPHICS)
 
 Emoji [list](src/emojis.cpp) and [translations](src/i18n) licensed by [Unicode](https://github.com/unicode-org) at [https://github.com/unicode-org/cldr](https://github.com/unicode-org/cldr/blob/master/unicode-license.txt)
-
-Some Qt code licensed by Qt under [BSD](https://opensource.org/licenses/BSD-3-Clause): [src/flowlayout.h](src/flowlayout.h), [src/flowlayout.cpp](src/flowlayout.cpp)
