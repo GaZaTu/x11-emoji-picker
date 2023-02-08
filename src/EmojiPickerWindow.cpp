@@ -57,6 +57,7 @@ EmojiPickerWindow::EmojiPickerWindow() : QMainWindow() {
   _emojiListWidget->setLayout(_emojiListLayout);
   _emojiListLayout->setContentsMargins(4, 4, 4, 4);
   _emojiListLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
+  _emojiListLayout->setAlignment(Qt::AlignTop);
 
   _emojiListScroll->setFocusPolicy(Qt::NoFocus);
   _emojiListScroll->setWidgetResizable(true);
@@ -535,8 +536,6 @@ void EmojiPickerWindow::processKeyEvent(const QKeyEvent* event) {
     _mruModeLabel->setHighlighted(_mode == ViewMode::MRU);
     _listModeLabel->setHighlighted(_mode == ViewMode::LIST);
     _kaomojiModeLabel->setHighlighted(_mode == ViewMode::KAOMOJI);
-    _searchEdit->setText("");
-    _searchCompletion->setText("");
     updateEmojiList();
     break;
 
