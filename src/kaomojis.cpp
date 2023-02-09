@@ -333,5 +333,5 @@ const Kaomoji kaomojis[] = {
   {"couple_kissing", u8"(* ￣)(￣ *) "},
   {"olympic_hammer_throw", u8"(ﾉ-o-)ﾉ 中"},
   {"cunning", u8"(¬‿¬)"},
-  {"puzzled", u8"「(°ヘ°)"}
+  {"puzzled", u8"「(°ヘ°)"},
 };

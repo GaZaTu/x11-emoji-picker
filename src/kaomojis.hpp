@@ -16,4 +16,4 @@ public:
   }
 };
 
-extern const Kaomoji kaomojis[293];
+extern const Kaomoji kaomojis[292];
