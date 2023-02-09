@@ -44,6 +44,8 @@ protected:
   void wheelEvent(QWheelEvent* event) override;
 
 private:
+  int _rowSize = 10;
+
   EmojiPickerSettings _settings;
 
   QWidgetItem* createEmojiLabel(std::unordered_map<std::string, QWidgetItem*>& layoutItems, const Emoji& emoji);
@@ -76,10 +78,19 @@ private:
   EmojiLabel* _listModeLabel = new EmojiLabel(_statusBar, _settings);
   EmojiLabel* _kaomojiModeLabel = new EmojiLabel(_statusBar, _settings);
 
-  void addItemToEmojiList(QLayoutItem* emojiLayoutItem, EmojiLabel* label, int& row, int& column);
+  void addItemToEmojiList(QLayoutItem* emojiLayoutItem, EmojiLabel* label, int colspan, int& row, int& column);
 
-  bool emojiMatchesSearch(const Emoji& emoji, const QString& search, bool mustStartWith, QString& found);
-  bool emojiMatchesSearch(const Emoji& emoji, const QString& search, bool mustStartWith);
+  enum class SearchMode {
+    AUTO,
+    CONTAINS,
+    STARTS_WITH,
+    EQUALS,
+  };
+
+  static bool stringMatches(const QString& target, const QString& search, SearchMode mode);
+
+  bool emojiMatchesSearch(const Emoji& emoji, const QString& search, SearchMode mode, QString& found);
+  bool emojiMatchesSearch(const Emoji& emoji, const QString& search, SearchMode mode);
 
   std::unordered_set<std::string> _disabledEmojis;
 

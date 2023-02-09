@@ -154,7 +154,7 @@ void EmojiPickerWindow::moveSelectedEmojiLabel(int row, int column) {
   _selectedRow += row;
   _selectedColumn += column;
 
-  if (!selectedEmojiLabel()) {
+  if (!selectedEmojiLabel() || selectedEmojiLabel()->emoji().code == "") {
     _selectedRow -= row;
     _selectedColumn -= column;
   }
@@ -189,20 +189,40 @@ bool stringIncludes(const std::string& text, const std::string& search) {
   }
 }
 
-bool EmojiPickerWindow::emojiMatchesSearch(const Emoji& emoji, const QString& search, bool mustStartWith, QString& found) {
-  if (!mustStartWith) {
-    mustStartWith = search.length() < 3;
+bool EmojiPickerWindow::stringMatches(const QString& target, const QString& search, SearchMode mode) {
+  if (mode == SearchMode::AUTO) {
+    if (search.length() < 3) {
+      mode = SearchMode::STARTS_WITH;
+    } else {
+      mode = SearchMode::CONTAINS;
+    }
   }
 
+  switch (mode) {
+  case SearchMode::CONTAINS:
+    return target.contains(search, Qt::CaseInsensitive);
+
+  case SearchMode::STARTS_WITH:
+    return target.startsWith(search, Qt::CaseInsensitive);
+
+  case SearchMode::EQUALS:
+    return QString::compare(target, search, Qt::CaseInsensitive) == 0;
+
+  default:
+    return false;
+  }
+}
+
+bool EmojiPickerWindow::emojiMatchesSearch(const Emoji& emoji, const QString& search, SearchMode mode, QString& found) {
   QString emojiName = tr(emoji.name.data());
 
-  if ((mustStartWith && emojiName.startsWith(search, Qt::CaseInsensitive)) || (!mustStartWith && emojiName.contains(search, Qt::CaseInsensitive))) {
+  if (stringMatches(emojiName, search, mode)) {
     found = emojiName;
     return true;
   }
 
   for (const QString& alias : _emojiAliases[emoji.code]) {
-    if ((mustStartWith && alias.startsWith(search, Qt::CaseInsensitive)) || (!mustStartWith && alias.contains(search, Qt::CaseInsensitive))) {
+    if (stringMatches(alias, search, mode)) {
       found = alias;
       return true;
     }
@@ -211,10 +231,10 @@ bool EmojiPickerWindow::emojiMatchesSearch(const Emoji& emoji, const QString& se
   return false;
 }
 
-bool EmojiPickerWindow::emojiMatchesSearch(const Emoji& emoji, const QString& search, bool mustStartWith) {
+bool EmojiPickerWindow::emojiMatchesSearch(const Emoji& emoji, const QString& search, SearchMode mode) {
   QString found;
 
-  return emojiMatchesSearch(emoji, search, mustStartWith, found);
+  return emojiMatchesSearch(emoji, search, mode, found);
 }
 
 void EmojiPickerWindow::updateSearchCompletion() {
@@ -224,7 +244,7 @@ void EmojiPickerWindow::updateSearchCompletion() {
   if (selectedEmojiLabel()) {
     const Emoji& emoji = selectedEmojiLabel()->emoji();
 
-    emojiMatchesSearch(emoji, search, false, completion);
+    emojiMatchesSearch(emoji, search, SearchMode::AUTO, completion);
   }
 
   int indexOfSearch = std::max(completion.indexOf(search, 0, Qt::CaseInsensitive), 0);
@@ -243,13 +263,16 @@ void EmojiPickerWindow::updateSearchCompletion() {
   _searchCompletion->setText(completion);
 }
 
-void EmojiPickerWindow::addItemToEmojiList(QLayoutItem* emojiLayoutItem, EmojiLabel* label, int& row, int& column) {
-  int colspan = 1;
-  if (!label->hasRealEmoji()) {
-    colspan = 2;
+void EmojiPickerWindow::addItemToEmojiList(QLayoutItem* emojiLayoutItem, EmojiLabel* label, int colspan, int& row, int& column) {
+  if (colspan == 0) {
+    if (label->hasRealEmoji()) {
+      colspan = 1;
+    } else {
+      colspan = 2;
+    }
   }
 
-  if ((column + colspan) > 10) {
+  if ((column + colspan) > _rowSize) {
     column = 0;
     row += 1;
   }
@@ -257,7 +280,7 @@ void EmojiPickerWindow::addItemToEmojiList(QLayoutItem* emojiLayoutItem, EmojiLa
   _emojiListLayout->addItem(emojiLayoutItem, row, column, 1, colspan, Qt::AlignHCenter | Qt::AlignBaseline);
 
   column += colspan;
-  if (column >= 10) {
+  if (column >= _rowSize) {
     column = 0;
     row += 1;
   }
@@ -304,17 +327,19 @@ void EmojiPickerWindow::updateEmojiList() {
   QString search = _searchEdit->text();
   std::string searchAsStdString = search.toStdString();
 
+  int row = 0;
+  int column = 0;
+
   switch (_mode) {
   case ViewMode::MRU: {
     if (search == "") {
-      int row = 0;
-      int column = 0;
       for (const auto& emoji : _emojiMRU) {
         auto emojiLayoutItem = getEmojiLayoutItem(emoji);
         auto label = static_cast<EmojiLabel*>(emojiLayoutItem->widget());
+
         label->show();
 
-        addItemToEmojiList(&*emojiLayoutItem, label, row, column);
+        addItemToEmojiList(&*emojiLayoutItem, label, 0, row, column);
       }
       break;
     }
@@ -322,16 +347,18 @@ void EmojiPickerWindow::updateEmojiList() {
   }
 
   case ViewMode::LIST: {
-    int row = 0;
-    int column = 0;
-    std::unordered_set<std::string> addedEmojis;
-    if (search != "") {
+    std::unordered_set<std::string> addedEmojis; // std::string_view would be better
+    auto addEmojis = [&](SearchMode searchMode) {
       for (const auto& emoji : emojis) {
+        if (addedEmojis.count(emoji.code) != 0) {
+          continue;
+        }
+
         if (_disabledEmojis.count(emoji.code) != 0) {
           continue;
         }
 
-        if (search != "" && !emojiMatchesSearch(emoji, search, true)) {
+        if (search != "" && !emojiMatchesSearch(emoji, search, searchMode)) {
           continue;
         }
 
@@ -342,7 +369,7 @@ void EmojiPickerWindow::updateEmojiList() {
           label->show();
         }
 
-        addItemToEmojiList(&*emojiLayoutItem, label, row, column);
+        addItemToEmojiList(&*emojiLayoutItem, label, 0, row, column);
 
         addedEmojis.emplace(emoji.code);
 
@@ -350,39 +377,17 @@ void EmojiPickerWindow::updateEmojiList() {
           break;
         }
       }
+    };
+
+    if (search != "") {
+      addEmojis(SearchMode::EQUALS);
+      addEmojis(SearchMode::STARTS_WITH);
     }
-    for (const auto& emoji : emojis) {
-      if (addedEmojis.count(emoji.code) != 0) {
-        continue;
-      }
-
-      if (_disabledEmojis.count(emoji.code) != 0) {
-        continue;
-      }
-
-      if (search != "" && !emojiMatchesSearch(emoji, search, false)) {
-        continue;
-      }
-
-      auto emojiLayoutItem = getEmojiLayoutItem(emoji);
-      auto label = static_cast<EmojiLabel*>(emojiLayoutItem->widget());
-
-      if (row <= 5) {
-        label->show();
-      }
-
-      addItemToEmojiList(&*emojiLayoutItem, label, row, column);
-
-      if (search != "" && row >= 5) {
-        break;
-      }
-    }
+    addEmojis(SearchMode::AUTO);
     break;
   }
 
   case ViewMode::KAOMOJI: {
-    int row = 0;
-    int column = 0;
     for (const auto& kaomoji : kaomojis) {
       if (_disabledEmojis.count(kaomoji.text) != 0) {
         continue;
@@ -399,7 +404,7 @@ void EmojiPickerWindow::updateEmojiList() {
         label->show();
       }
 
-      addItemToEmojiList(&*emojiLayoutItem, label, row, column);
+      addItemToEmojiList(&*emojiLayoutItem, label, 0, row, column);
 
       if (search != "" && row >= 5) {
         break;
@@ -413,6 +418,16 @@ void EmojiPickerWindow::updateEmojiList() {
   _selectedColumn = 0;
   if (selectedEmojiLabel()) {
     selectedEmojiLabel()->setHighlighted(true);
+
+    // add dummy labels so real labels keep their correct position to the left (NOT the same as Qt::AlignLeft)
+    while (row == 0) {
+      auto emojiLayoutItem = getEmojiLayoutItem(Emoji{"__DUMMY" + std::to_string(column), ""});
+      auto label = static_cast<EmojiLabel*>(emojiLayoutItem->widget());
+
+      label->show();
+
+      addItemToEmojiList(&*emojiLayoutItem, label, (_mode == ViewMode::KAOMOJI) ? 2 : 1, row, column);
+    }
   }
 
   updateSearchCompletion();
