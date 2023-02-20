@@ -98,16 +98,6 @@ int main(int argc, char** argv) {
     window->setStyleSheet(readQFileIfExists(QString::fromStdString(EmojiPickerSettings::snapshot().customQssFilePath())));
   }
 
-  if (EmojiPickerSettings::snapshot().openAtMouseLocation()) {
-    int cursorX = 0;
-    int cursorY = 0;
-    crossdo_get_mouse_location2(crossdo.get(), &cursorX, &cursorY, nullptr, nullptr);
-
-    if (cursorX != 0 && cursorY != 0) {
-      window->move(cursorX, cursorY);
-    }
-  }
-
   QMimeData* prevClipboardMimeData = nullptr;
 
   window->statusBar()->showMessage(QString::fromStdString(
@@ -184,6 +174,19 @@ int main(int argc, char** argv) {
   };
 
   window->enable();
+
+  if (EmojiPickerSettings::snapshot().openAtMouseLocation()) {
+    int cursorX = 0;
+    int cursorY = 0;
+    crossdo_get_mouse_location2(crossdo.get(), &cursorX, &cursorY, nullptr, nullptr);
+
+    printf("cursorX:%d cursorY:%d\n", cursorX, cursorY);
+
+    if (cursorX != 0 && cursorY != 0) {
+      window->move(cursorX, cursorY);
+    }
+  }
+
   window->show();
 
   return app.exec();
