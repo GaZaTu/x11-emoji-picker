@@ -126,6 +126,7 @@ int main(int argc, char** argv) {
     if (currentWindow != 0) {
       crossdo_activate_window(crossdo.get(), prevWindow);
       crossdo_wait_for_window_active(crossdo.get(), prevWindow, 1);
+      usleep(25000); // wait an additional 25 ms
     }
 
     if (useClipboardHack) {

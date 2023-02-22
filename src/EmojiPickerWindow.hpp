@@ -45,6 +45,8 @@ public Q_SLOTS:
   void processKeyEvent(const QKeyEvent* event);
 
 protected:
+  void changeEvent(QEvent* event) override;
+
   void wheelEvent(QWheelEvent* event) override;
 
 private:

@@ -64,7 +64,8 @@ EmojiPickerWindow::EmojiPickerWindow() : QMainWindow() {
     _searchCompletion->setStyleSheet(_searchCompletion->styleSheet() + QString("background: #00000000;"));
     QColor _searchCompletionTextColor = _searchEdit->palette().text().color();
     _searchCompletionTextColor.setAlphaF(0.6);
-    _searchCompletion->setStyleSheet(_searchCompletion->styleSheet() + QString("color: #%1;").arg(_searchCompletionTextColor.rgba(), 0, 16));
+    _searchCompletion->setStyleSheet(
+        _searchCompletion->styleSheet() + QString("color: #%1;").arg(_searchCompletionTextColor.rgba(), 0, 16));
   } else {
     _searchCompletion->setStyleSheet(_searchCompletion->styleSheet() + QString("background: #00000000;"));
     _searchCompletion->setStyleSheet(_searchCompletion->styleSheet() + QString("color: rgba(255, 255, 255, 155);"));
@@ -294,7 +295,8 @@ void EmojiPickerWindow::updateSearchCompletion() {
   _searchCompletion->setText(completion);
 }
 
-void EmojiPickerWindow::addItemToEmojiList(QLayoutItem* emojiLayoutItem, EmojiLabel* label, int colspan, int& row, int& column) {
+void EmojiPickerWindow::addItemToEmojiList(
+    QLayoutItem* emojiLayoutItem, EmojiLabel* label, int colspan, int& row, int& column) {
   if (colspan == 0) {
     if (label->hasRealEmoji()) {
       colspan = 1;
@@ -360,6 +362,8 @@ void EmojiPickerWindow::updateEmojiList() {
 
   int row = 0;
   int column = 0;
+
+  _emojiListLayout->setEnabled(false);
 
   switch (_mode) {
   case ViewMode::MRU: {
@@ -461,6 +465,8 @@ void EmojiPickerWindow::updateEmojiList() {
     }
   }
 
+  _emojiListLayout->setEnabled(true);
+
   updateSearchCompletion();
 }
 
@@ -485,6 +491,18 @@ void EmojiPickerWindow::enable() {
   _emojiAliases = _settings.emojiAliases();
 
   _emojiMRU = EmojiPickerCache{}.emojiMRU();
+}
+
+void EmojiPickerWindow::changeEvent(QEvent* event) {
+  QWidget::changeEvent(event);
+
+  if (event->type() == QEvent::ActivationChange) {
+    if (isVisible()) {
+      _searchEdit->setText("");
+      _searchCompletion->setText("");
+      updateEmojiList();
+    }
+  }
 }
 
 void EmojiPickerWindow::disable() {
@@ -543,7 +561,8 @@ void EmojiPickerWindow::processKeyEvent(const QKeyEvent* event) {
 
   case EmojiAction::COMMIT_EMOJI:
     if (selectedEmojiLabel()) {
-      bool closeAfter = (((event->modifiers() & Qt::ShiftModifier) && !_settings.swapEnterAndShiftEnter()) || (!(event->modifiers() & Qt::ShiftModifier) && _settings.swapEnterAndShiftEnter()));
+      bool closeAfter = (((event->modifiers() & Qt::ShiftModifier) && !_settings.swapEnterAndShiftEnter()) ||
+          (!(event->modifiers() & Qt::ShiftModifier) && _settings.swapEnterAndShiftEnter()));
 
       commitEmoji(selectedEmojiLabel()->emoji(), selectedEmojiLabel()->hasRealEmoji(), closeAfter);
     }
