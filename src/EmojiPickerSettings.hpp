@@ -79,6 +79,9 @@ public:
   std::string scaleFactor() const;
   void setScaleFactor(std::string scaleFactor);
 
+  bool saveKaomojiInMRU() const;
+  void setSaveKaomojiInMRU(bool saveKaomojiInMRU);
+
   void toggleInputMethod(const std::string& processName);
 
 private:

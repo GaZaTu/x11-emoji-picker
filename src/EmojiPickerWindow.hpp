@@ -45,6 +45,8 @@ public Q_SLOTS:
   void processKeyEvent(const QKeyEvent* event);
 
 protected:
+  void changeEvent(QEvent* event) override;
+
   void wheelEvent(QWheelEvent* event) override;
 
 private:
@@ -52,12 +54,10 @@ private:
 
   EmojiPickerSettings _settings;
 
-  QWidgetItem* createEmojiLabel(std::unordered_map<std::string, QWidgetItem*>& layoutItems, const Emoji& emoji);
-
   std::unordered_map<std::string, QWidgetItem*> _emojiLayoutItems;
-  QWidgetItem* getEmojiLayoutItem(const Emoji& emoji);
+  QWidgetItem* createEmojiLabel(const Emoji& emoji);
 
-  std::unordered_map<std::string, QWidgetItem*> _kaomojiLayoutItems;
+  QWidgetItem* getEmojiLayoutItem(const Emoji& emoji);
   QWidgetItem* getKaomojiLayoutItem(const Kaomoji& kaomoji);
 
   int _selectedRow = 0;
@@ -111,4 +111,6 @@ private:
   ViewMode _mode = ViewMode::MRU;
 
   void commitEmoji(const Emoji& emoji, bool isRealEmoji, bool closeAfter);
+
+  bool _closing = false;
 };

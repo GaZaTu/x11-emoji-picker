@@ -146,6 +146,7 @@ The settings file should be located at `$XDG_CONFIG_HOME/gazatu.xyz/emoji-picker
 - `[General] | localeKey` => the emoji translation you want to use (en, de, fr, nl, da, it, pt, es, sv, pl, hr, cs, fi, el, hu) or empty if you want to use english with underscores
 - `[General] | maxEmojiVersion` => set this to for example 12 to exclude emojis released after that or -1 to show all emojis
 - `[General] | openAtMouseLocation` => `true` if you want to open the emoji picker dialog at the current mouse cursor
+- `[General] | saveKaomojiInMRU` => `true` to include kaomoji in the list of recently used emojis
 - `[General] | scaleFactor` => `1.25` for example if you want the emoji picker to be bigger
 - `[General] | skinTonesDisabled` => `true` if you only want to see skin-tone neutral emojis (hands or jobs or family or w/e)
 - `[General] | swapEnterAndShiftEnter` => `true` if you want `Return` to close the window
@@ -187,6 +188,7 @@ gendersDisabled=false
 localeKey=
 maxEmojiVersion=-1
 openAtMouseLocation=false
+saveKaomojiInMRU=false
 scaleFactor=
 skinTonesDisabled=false
 swapEnterAndShiftEnter=false

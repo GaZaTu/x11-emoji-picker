@@ -64,7 +64,8 @@ EmojiPickerWindow::EmojiPickerWindow() : QMainWindow() {
     _searchCompletion->setStyleSheet(_searchCompletion->styleSheet() + QString("background: #00000000;"));
     QColor _searchCompletionTextColor = _searchEdit->palette().text().color();
     _searchCompletionTextColor.setAlphaF(0.6);
-    _searchCompletion->setStyleSheet(_searchCompletion->styleSheet() + QString("color: #%1;").arg(_searchCompletionTextColor.rgba(), 0, 16));
+    _searchCompletion->setStyleSheet(
+        _searchCompletion->styleSheet() + QString("color: #%1;").arg(_searchCompletionTextColor.rgba(), 0, 16));
   } else {
     _searchCompletion->setStyleSheet(_searchCompletion->styleSheet() + QString("background: #00000000;"));
     _searchCompletion->setStyleSheet(_searchCompletion->styleSheet() + QString("color: rgba(255, 255, 255, 155);"));
@@ -94,11 +95,11 @@ EmojiPickerWindow::EmojiPickerWindow() : QMainWindow() {
 
   setCentralWidget(_centralWidget);
 
-  _mruModeLabel->setEmoji({"", u8"⭐"}, 14, 14);
+  _mruModeLabel->setEmoji({"favorites", u8"⭐"}, 14, 14);
   _mruModeLabel->setHighlighted(_mode == ViewMode::MRU);
-  _listModeLabel->setEmoji({"", u8"🗃"}, 14, 14);
+  _listModeLabel->setEmoji({"emoji list", u8"🗃"}, 14, 14);
   _listModeLabel->setHighlighted(_mode == ViewMode::LIST);
-  _kaomojiModeLabel->setEmoji({"", u8"ヽ(o^ ^o)ﾉ"}, 18, 18);
+  _kaomojiModeLabel->setEmoji({"kaomoji list", u8"ヽ(o^ ^o)ﾉ"}, 18, 18);
   _kaomojiModeLabel->setHighlighted(_mode == ViewMode::KAOMOJI);
 
   _statusBar->setFixedHeight(20);
@@ -111,6 +112,8 @@ EmojiPickerWindow::EmojiPickerWindow() : QMainWindow() {
   QObject::connect(_searchEdit, &EmojiLineEdit::updateEmojiList, this, &EmojiPickerWindow::updateEmojiList);
   QObject::connect(_searchEdit, &EmojiLineEdit::processKeyEvent, this, &EmojiPickerWindow::processKeyEvent);
   QObject::connect(_searchEdit, &EmojiLineEdit::disable, this, &EmojiPickerWindow::disable);
+
+  _emojiLayoutItems.reserve((sizeof(emojis) / sizeof(Emoji)) + (sizeof(kaomojis) / sizeof(Kaomoji)));
 }
 
 void EmojiPickerWindow::wheelEvent(QWheelEvent* event) {
@@ -160,27 +163,36 @@ void showEmojiRow(QGridLayout* _emojiListLayout, int row) {
 }
 
 void EmojiPickerWindow::moveSelectedEmojiLabel(int row, int column) {
-  if (selectedEmojiLabel()) {
-    selectedEmojiLabel()->setHighlighted(false);
+  EmojiLabel* previousLabel = selectedEmojiLabel();
 
-    // the following is a piece of shit
-    // basically kaomoji have a colspan of 2 which means:
-    // moving left or right requires a 2 instead of 1
-    if (!selectedEmojiLabel()->hasRealEmoji()) {
-      column *= 2;
-    }
+  if (previousLabel) {
+    previousLabel->setHighlighted(false);
   }
 
   _selectedRow += row;
   _selectedColumn += column;
 
-  if (!selectedEmojiLabel() || selectedEmojiLabel()->emoji().code == "") {
-    _selectedRow -= row;
-    _selectedColumn -= column;
+  EmojiLabel* nextLabel = selectedEmojiLabel();
+
+  // the following is a piece of shit
+  // basically kaomoji have a colspan of 2 which means:
+  // moving left or right requires a 2 instead of 1
+  if (nextLabel == previousLabel) {
+    _selectedRow += row;
+    _selectedColumn += column;
+
+    nextLabel = selectedEmojiLabel();
   }
 
-  if (selectedEmojiLabel()) {
-    selectedEmojiLabel()->setHighlighted(true);
+  if (!nextLabel || nextLabel->emoji().code == "") {
+    _selectedRow -= row;
+    _selectedColumn -= column;
+
+    nextLabel = selectedEmojiLabel();
+  }
+
+  if (nextLabel) {
+    nextLabel->setHighlighted(true);
 
     if (row != 0) {
       for (int x = _selectedRow; x < std::min(_selectedRow + 5, _emojiListLayout->rowCount()); x++) {
@@ -191,7 +203,7 @@ void EmojiPickerWindow::moveSelectedEmojiLabel(int row, int column) {
       }
     }
 
-    _emojiListScroll->ensureWidgetVisible(selectedEmojiLabel());
+    _emojiListScroll->ensureWidgetVisible(nextLabel);
 
     updateSearchCompletion();
   }
@@ -283,7 +295,8 @@ void EmojiPickerWindow::updateSearchCompletion() {
   _searchCompletion->setText(completion);
 }
 
-void EmojiPickerWindow::addItemToEmojiList(QLayoutItem* emojiLayoutItem, EmojiLabel* label, int colspan, int& row, int& column) {
+void EmojiPickerWindow::addItemToEmojiList(
+    QLayoutItem* emojiLayoutItem, EmojiLabel* label, int colspan, int& row, int& column) {
   if (colspan == 0) {
     if (label->hasRealEmoji()) {
       colspan = 1;
@@ -306,8 +319,8 @@ void EmojiPickerWindow::addItemToEmojiList(QLayoutItem* emojiLayoutItem, EmojiLa
   }
 }
 
-QWidgetItem* EmojiPickerWindow::createEmojiLabel(std::unordered_map<std::string, QWidgetItem*>& layoutItems, const Emoji& emoji) {
-  auto existing = layoutItems[emoji.code];
+QWidgetItem* EmojiPickerWindow::createEmojiLabel(const Emoji& emoji) {
+  auto existing = _emojiLayoutItems[emoji.code];
   if (!existing) {
     auto emojiLayoutWidget = new EmojiLabel(_emojiListWidget, _settings, emoji);
     auto emojiLayoutItem = new QWidgetItemV2(emojiLayoutWidget);
@@ -324,11 +337,11 @@ QWidgetItem* EmojiPickerWindow::createEmojiLabel(std::unordered_map<std::string,
 }
 
 QWidgetItem* EmojiPickerWindow::getEmojiLayoutItem(const Emoji& emoji) {
-  return createEmojiLabel(_emojiLayoutItems, emoji);
+  return createEmojiLabel(emoji);
 }
 
 QWidgetItem* EmojiPickerWindow::getKaomojiLayoutItem(const Kaomoji& kaomoji) {
-  return createEmojiLabel(_kaomojiLayoutItems, convertKaomojiToEmoji(kaomoji));
+  return createEmojiLabel(convertKaomojiToEmoji(kaomoji));
 }
 
 void EmojiPickerWindow::updateEmojiList() {
@@ -349,6 +362,8 @@ void EmojiPickerWindow::updateEmojiList() {
 
   int row = 0;
   int column = 0;
+
+  _emojiListLayout->setEnabled(false);
 
   switch (_mode) {
   case ViewMode::MRU: {
@@ -450,6 +465,8 @@ void EmojiPickerWindow::updateEmojiList() {
     }
   }
 
+  _emojiListLayout->setEnabled(true);
+
   updateSearchCompletion();
 }
 
@@ -474,20 +491,32 @@ void EmojiPickerWindow::enable() {
   _emojiAliases = _settings.emojiAliases();
 
   _emojiMRU = EmojiPickerCache{}.emojiMRU();
+}
 
-  _searchEdit->setText("");
-  _searchCompletion->setText("");
-  updateEmojiList();
+void EmojiPickerWindow::changeEvent(QEvent* event) {
+  QWidget::changeEvent(event);
+
+  if (event->type() == QEvent::ActivationChange) {
+    if (isVisible()) {
+      _searchEdit->setText("");
+      _searchCompletion->setText("");
+      updateEmojiList();
+    }
+  }
 }
 
 void EmojiPickerWindow::disable() {
-  if (!isVisible()) {
+  if (_closing || !isVisible()) {
     return;
   }
+
+  _closing = true;
 
   EmojiPickerCache{}.emojiMRU(_emojiMRU);
 
   onDisable();
+
+  _closing = false;
 }
 
 void EmojiPickerWindow::setCursorLocation(const QRect* rect) {
@@ -501,7 +530,7 @@ void EmojiPickerWindow::setCursorLocation(const QRect* rect) {
 void EmojiPickerWindow::commitEmoji(const Emoji& emoji, bool isRealEmoji, bool closeAfter) {
   commitText(emoji.code, closeAfter);
 
-  if (isRealEmoji) {
+  if (isRealEmoji || _settings.saveKaomojiInMRU()) {
     _emojiMRU.erase(std::remove(_emojiMRU.begin(), _emojiMRU.end(), emoji), _emojiMRU.end());
     _emojiMRU.insert(_emojiMRU.begin(), emoji);
     while (_emojiMRU.size() > 40) {
@@ -536,7 +565,8 @@ void EmojiPickerWindow::processKeyEvent(const QKeyEvent* event) {
 
   case EmojiAction::COMMIT_EMOJI:
     if (selectedEmojiLabel()) {
-      bool closeAfter = (((event->modifiers() & Qt::ShiftModifier) && !_settings.swapEnterAndShiftEnter()) || (!(event->modifiers() & Qt::ShiftModifier) && _settings.swapEnterAndShiftEnter()));
+      bool closeAfter = (((event->modifiers() & Qt::ShiftModifier) && !_settings.swapEnterAndShiftEnter()) ||
+          (!(event->modifiers() & Qt::ShiftModifier) && _settings.swapEnterAndShiftEnter()));
 
       commitEmoji(selectedEmojiLabel()->emoji(), selectedEmojiLabel()->hasRealEmoji(), closeAfter);
     }
