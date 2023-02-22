@@ -52,12 +52,10 @@ private:
 
   EmojiPickerSettings _settings;
 
-  QWidgetItem* createEmojiLabel(std::unordered_map<std::string, QWidgetItem*>& layoutItems, const Emoji& emoji);
-
   std::unordered_map<std::string, QWidgetItem*> _emojiLayoutItems;
-  QWidgetItem* getEmojiLayoutItem(const Emoji& emoji);
+  QWidgetItem* createEmojiLabel(const Emoji& emoji);
 
-  std::unordered_map<std::string, QWidgetItem*> _kaomojiLayoutItems;
+  QWidgetItem* getEmojiLayoutItem(const Emoji& emoji);
   QWidgetItem* getKaomojiLayoutItem(const Kaomoji& kaomoji);
 
   int _selectedRow = 0;
