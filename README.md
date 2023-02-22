@@ -146,6 +146,7 @@ The settings file should be located at `$XDG_CONFIG_HOME/gazatu.xyz/emoji-picker
 - `[General] | localeKey` => the emoji translation you want to use (en, de, fr, nl, da, it, pt, es, sv, pl, hr, cs, fi, el, hu) or empty if you want to use english with underscores
 - `[General] | maxEmojiVersion` => set this to for example 12 to exclude emojis released after that or -1 to show all emojis
 - `[General] | openAtMouseLocation` => `true` if you want to open the emoji picker dialog at the current mouse cursor
+- `[General] | scaleFactor` => `1.25` for example if you want the emoji picker to be bigger
 - `[General] | skinTonesDisabled` => `true` if you only want to see skin-tone neutral emojis (hands or jobs or family or w/e)
 - `[General] | swapEnterAndShiftEnter` => `true` if you want `Return` to close the window
 - `[General] | useClipboardHackByDefault` => `true` to write emojis using `ctrl+v` by default (qt5 apps for example)
@@ -161,7 +162,7 @@ The settings file should be located at `$XDG_CONFIG_HOME/gazatu.xyz/emoji-picker
 
 If emojis do not get written into your window: try adding that executable to the `[activateWindowBeforeWritingExceptions]` array or to the `[useClipboardHackExceptions]` array. (at runtime also possible using `F5`)
 
-If the dialog is too smol for you: put `QT_SCALE_FACTOR=float` in front of the command. (example: `QT_SCALE_FACTOR=1.25 emoji-picker`)
+If the dialog is too smol for you: set `scaleFactor` or put `QT_SCALE_FACTOR=float` in front of the command. (example: `QT_SCALE_FACTOR=1.25 emoji-picker`)
 
 Some things such as recently used emojis are written to `$XDG_CACHE_HOME/gazatu.xyz/emoji-picker/cache.ini`. (usually in `~/.cache`)
 
@@ -186,6 +187,7 @@ gendersDisabled=false
 localeKey=
 maxEmojiVersion=-1
 openAtMouseLocation=false
+scaleFactor=
 skinTonesDisabled=false
 swapEnterAndShiftEnter=false
 useClipboardHackByDefault=false

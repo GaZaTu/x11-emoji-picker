@@ -31,8 +31,10 @@ protected:
 private:
   Emoji _emoji;
   bool _hasRealEmoji = false;
-  double _devicePixelRatio;
 
+  bool _highlighted = false;
+
+  QColor _shadowColor;
   QGraphicsDropShadowEffect* _shadowEffect = new QGraphicsDropShadowEffect(this);
 
   const EmojiPickerSettings& _settings;

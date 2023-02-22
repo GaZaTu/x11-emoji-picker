@@ -23,17 +23,37 @@ void moveQWidgetToCenter(QWidget* window) {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
   auto rect = QApplication::screenAt(QCursor::pos())->geometry();
 #else
-  auto rect = qApp->desktop()->availableGeometry(QCursor::pos());
+  auto rect = QApplication::desktop()->availableGeometry(QCursor::pos());
 #endif
 
   window->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, window->size(), rect));
+}
+
+void moveQWidgetToPoint(QWidget* window, QPoint windowPoint) {
+  QRect windowRect = window->geometry();
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+  QRect screenRect = QApplication::screenAt(windowPoint)->geometry();
+#else
+  QRect screenRect = QApplication::desktop()->availableGeometry(windowPoint);
+#endif
+
+  if ((windowPoint.x() + windowRect.width()) > (screenRect.x() + screenRect.width())) {
+    windowPoint.setX(windowPoint.x() - windowRect.width());
+  }
+
+  if ((windowPoint.y() + windowRect.height()) > (screenRect.y() + screenRect.height())) {
+    windowPoint.setY(windowPoint.y() - windowRect.height());
+  }
+
+  window->move(windowPoint);
 }
 
 EmojiPickerWindow::EmojiPickerWindow() : QMainWindow() {
   setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
   setWindowIcon(QIcon(":/res/x11-emoji-picker.png"));
   setWindowOpacity(_settings.windowOpacity());
-  setFixedSize(340, 200);
+  setFixedSize(340, 190);
 
   _searchContainerWidget->setLayout(_searchContainerLayout);
   _searchContainerLayout->setStackingMode(QStackedLayout::StackAll);
