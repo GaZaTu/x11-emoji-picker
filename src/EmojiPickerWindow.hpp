@@ -20,6 +20,10 @@
 #include "EmojiLineEdit.hpp"
 #include "kaomojis.hpp"
 
+void moveQWidgetToCenter(QWidget* window);
+
+void moveQWidgetToPoint(QWidget* window, QPoint windowPoint);
+
 struct EmojiPickerWindow : public QMainWindow {
   Q_OBJECT
 

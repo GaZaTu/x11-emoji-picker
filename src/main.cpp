@@ -176,7 +176,7 @@ int main(int argc, char** argv) {
   window->enable();
 
   if (EmojiPickerSettings::snapshot().openAtMouseLocation()) {
-    window->move(QCursor::pos());
+    moveQWidgetToPoint(window, QCursor::pos());
   }
 
   window->show();
