@@ -506,13 +506,17 @@ void EmojiPickerWindow::changeEvent(QEvent* event) {
 }
 
 void EmojiPickerWindow::disable() {
-  if (!isVisible()) {
+  if (_closing || !isVisible()) {
     return;
   }
+
+  _closing = true;
 
   EmojiPickerCache{}.emojiMRU(_emojiMRU);
 
   onDisable();
+
+  _closing = false;
 }
 
 void EmojiPickerWindow::setCursorLocation(const QRect* rect) {

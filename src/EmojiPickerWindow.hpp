@@ -111,4 +111,6 @@ private:
   ViewMode _mode = ViewMode::MRU;
 
   void commitEmoji(const Emoji& emoji, bool isRealEmoji, bool closeAfter);
+
+  bool _closing = false;
 };
