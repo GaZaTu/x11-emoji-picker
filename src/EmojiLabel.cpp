@@ -11,17 +11,15 @@ EmojiLabel::EmojiLabel(QWidget* parent, const EmojiPickerSettings& settings) : Q
   setGraphicsEffect(_shadowEffect);
   setMouseTracking(true);
 
+  _shadowColor = QColor(240, 240, 240);
   if (EmojiPickerSettings::snapshot().useSystemQtTheme()) {
-    _shadowEffect->setColor(palette().text().color());
-  } else {
-    _shadowEffect->setColor(QColor(240, 240, 240));
+    _shadowColor = palette().text().color();
   }
 
+  _shadowEffect->setColor(_shadowColor);
   _shadowEffect->setOffset(0);
   _shadowEffect->setBlurRadius(20);
   _shadowEffect->setEnabled(false);
-
-  _devicePixelRatio = QApplication::primaryScreen()->devicePixelRatio();
 }
 
 EmojiLabel::EmojiLabel(QWidget* parent, const EmojiPickerSettings& settings, const Emoji& emoji) : EmojiLabel(parent, settings) {
@@ -98,8 +96,10 @@ const Emoji& EmojiLabel::emoji() const {
 void EmojiLabel::setEmoji(const Emoji& emoji, int w, int h) {
   _emoji = emoji;
 
-  w = w * _devicePixelRatio;
-  h = h * _devicePixelRatio;
+  double pixelRatio = std::max(devicePixelRatioF(), 1.0);
+
+  w = w * pixelRatio;
+  h = h * pixelRatio;
 
   setAccessibleName(QString::fromStdString(_emoji.name));
 
@@ -108,7 +108,7 @@ void EmojiLabel::setEmoji(const Emoji& emoji, int w, int h) {
 
   if (_hasRealEmoji && !_settings.useSystemEmojiFont()) {
     emojiPixmap = emojiPixmap.scaled(w, h, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    emojiPixmap.setDevicePixelRatio(_devicePixelRatio);
+    emojiPixmap.setDevicePixelRatio(pixelRatio);
 
     setPixmap(emojiPixmap);
   } else if (_hasRealEmoji) {
@@ -137,6 +137,8 @@ void EmojiLabel::setEmoji(const Emoji& emoji, int w, int h) {
       }
     }
 
+    textFont.setPixelSize((double)textFont.pixelSize() / pixelRatio);
+
     setFont(textFont);
     setText(text);
     setMaximumSize(w * 1.10, h * 1.10);
@@ -144,38 +146,32 @@ void EmojiLabel::setEmoji(const Emoji& emoji, int w, int h) {
     QString text = QString::fromStdString(_emoji.code);
 
     QFont textFont = font();
-    textFont.setPixelSize(w * 0.45);
+    textFont.setPixelSize((double)w * 0.45 / pixelRatio);
 
     setFont(textFont);
     setText(text);
-    setMaximumSize(w * 2.45, h * 1.10);
+    setMaximumSize(w * 2.45 / pixelRatio, h * 1.10);
   }
 }
 
 bool EmojiLabel::highlighted() const {
-  if (_devicePixelRatio != 1) {
-    return styleSheet().isNull();
-  }
-
-  return _shadowEffect->isEnabled();
+  return _highlighted;
 }
 
 void EmojiLabel::setHighlighted(bool highlighted) {
-  // QGraphicsDropShadowEffect breaks QPixmap::setDevicePixelRatio
-  // https://bugreports.qt.io/browse/QTBUG-65035
-  if (_devicePixelRatio != 1) {
-    if (highlighted) {
-      QColor emojiLabelHoverBgColor = palette().text().color();
-      emojiLabelHoverBgColor.setAlphaF(0.33);
+  _highlighted = highlighted;
+
+  _shadowEffect->setEnabled(_highlighted);
+
+  if (!_hasRealEmoji) {
+    if (_highlighted) {
+      QColor emojiLabelHoverBgColor = _shadowColor;
+      emojiLabelHoverBgColor.setAlphaF(0.1);
       setStyleSheet(QString("background-color: #%1").arg(emojiLabelHoverBgColor.rgba(), 0, 16));
     } else {
       setStyleSheet(QString());
     }
-
-    return;
   }
-
-  _shadowEffect->setEnabled(highlighted);
 }
 
 void EmojiLabel::mousePressEvent(QMouseEvent* ev) {
