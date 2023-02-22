@@ -76,6 +76,9 @@ public:
   bool closeOnFocusLost() const;
   void setCloseOnFocusLost(bool closeOnFocusLost);
 
+  std::string scaleFactor() const;
+  void setScaleFactor(std::string scaleFactor);
+
   void toggleInputMethod(const std::string& processName);
 
 private:

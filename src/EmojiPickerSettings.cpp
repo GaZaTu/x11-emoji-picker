@@ -78,6 +78,7 @@ void EmojiPickerSettings::writeDefaultsToDisk() {
   settings.setUseSystemEmojiFont(settings.useSystemEmojiFont());
   settings.setUseSystemEmojiFontWidthHeuristics(settings.useSystemEmojiFontWidthHeuristics());
   settings.setCloseOnFocusLost(settings.closeOnFocusLost());
+  settings.setScaleFactor(settings.scaleFactor());
 }
 
 EmojiPickerSettings::EmojiPickerSettings(QObject* parent)
@@ -334,6 +335,13 @@ bool EmojiPickerSettings::closeOnFocusLost() const {
 }
 void EmojiPickerSettings::setCloseOnFocusLost(bool closeOnFocusLost) {
   setValue("closeOnFocusLost", closeOnFocusLost);
+}
+
+std::string EmojiPickerSettings::scaleFactor() const {
+  return value("scaleFactor", "").toString().toStdString();
+}
+void EmojiPickerSettings::setScaleFactor(std::string scaleFactor) {
+  setValue("scaleFactor", QString::fromStdString(scaleFactor));
 }
 
 void EmojiPickerSettings::toggleInputMethod(const std::string& processName) {

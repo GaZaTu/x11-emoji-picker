@@ -69,11 +69,25 @@ std::string getInputMethod(const std::string& prevWindowProcessName, EmojiPicker
   }
 }
 
+void loadScaleFactorFromSettings() {
+  int argc = 0;
+  char** argv = nullptr;
+
+  auto dummyApp = std::make_unique<QCoreApplication>(argc, argv);
+
+  auto scaleFactor = EmojiPickerSettings::snapshot().scaleFactor();
+  if (scaleFactor != "") {
+    qputenv("QT_SCALE_FACTOR", QString::fromStdString(scaleFactor).toLatin1());
+  }
+}
+
 int main(int argc, char** argv) {
   QApplication::setOrganizationName(PROJECT_ORGANIZATION);
   QApplication::setOrganizationDomain(PROJECT_ORGANIZATION);
   QApplication::setApplicationName(PROJECT_NAME);
   QApplication::setApplicationVersion(PROJECT_VERSION);
+
+  loadScaleFactorFromSettings();
 
   QApplication app(argc, argv);
   QApplication::installTranslator(new EmojiTranslator(nullptr, EmojiPickerSettings::snapshot().localeKey()));
