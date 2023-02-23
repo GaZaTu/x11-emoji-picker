@@ -12,14 +12,13 @@ I switched from Windows 10 to Linux at work and missed filling my emails with em
 
 ## Screenshots 😮
 
-![dialog with search result](doc/search.png)
-*dialog with search result*
+*Twemoji and Kaomoji support (EndeavourOS with KDE):*
 
-![dialog with full emoji list](doc/list.png)
-*dialog with full emoji list*
+![doc/screenshot2.png](doc/screenshot2.png)
 
-![dialog with github aliases](doc/aliases.png)
-*dialog with github aliases*
+*System emoji font support (openSUSE 15.1 with KDE):*
+
+![doc/screenshot1.png](doc/screenshot1.png)
 
 ## Installation 😉
 
