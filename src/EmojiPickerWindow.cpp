@@ -113,7 +113,21 @@ EmojiPickerWindow::EmojiPickerWindow() : QMainWindow() {
   QObject::connect(_searchEdit, &EmojiLineEdit::processKeyEvent, this, &EmojiPickerWindow::processKeyEvent);
   QObject::connect(_searchEdit, &EmojiLineEdit::disable, this, &EmojiPickerWindow::disable);
 
-  _emojiLayoutItems.reserve((sizeof(emojis) / sizeof(Emoji)) + (sizeof(kaomojis) / sizeof(Kaomoji)));
+  int emojisLength = sizeof(emojis) / sizeof(Emoji);
+  int kaomojisLength = sizeof(kaomojis) / sizeof(Kaomoji);
+  _emojiLayoutItems.reserve(emojisLength + kaomojisLength);
+
+  // dummyRow needs to be outside of the used range
+  int dummyRow = ((emojisLength + kaomojisLength) / _rowSize) + 1;
+  // add dummy labels so real labels keep their correct position to the left (NOT the same as Qt::AlignLeft)
+  for (int column = 0, row = dummyRow; row == dummyRow;) {
+    auto emojiLayoutItem = getEmojiLayoutItem(Emoji{"|DUMMY" + std::to_string(column), ""});
+    auto label = static_cast<EmojiLabel*>(emojiLayoutItem->widget());
+
+    label->show();
+
+    addItemToEmojiList(&*emojiLayoutItem, label, 1, row, column);
+  }
 }
 
 void EmojiPickerWindow::wheelEvent(QWheelEvent* event) {
@@ -349,12 +363,19 @@ void EmojiPickerWindow::updateEmojiList() {
     selectedEmojiLabel()->setHighlighted(false);
   }
 
+  int indexToDelete = 0;
   QLayoutItem* itemToRemove;
-  while ((itemToRemove = _emojiListLayout->itemAt(0))) {
-    _emojiListLayout->removeItem(itemToRemove);
-
+  while ((itemToRemove = _emojiListLayout->itemAt(indexToDelete))) {
     auto label = static_cast<EmojiLabel*>(itemToRemove->widget());
+
+    if (label->emoji().name[0] == '|') {
+      indexToDelete += 1;
+      continue;
+    }
+
     label->hide();
+
+    _emojiListLayout->removeItem(itemToRemove);
   }
 
   QString search = _searchEdit->text();
@@ -453,16 +474,6 @@ void EmojiPickerWindow::updateEmojiList() {
   _selectedColumn = 0;
   if (selectedEmojiLabel()) {
     selectedEmojiLabel()->setHighlighted(true);
-
-    // add dummy labels so real labels keep their correct position to the left (NOT the same as Qt::AlignLeft)
-    while (row == 0) {
-      auto emojiLayoutItem = getEmojiLayoutItem(Emoji{"__DUMMY" + std::to_string(column), ""});
-      auto label = static_cast<EmojiLabel*>(emojiLayoutItem->widget());
-
-      label->show();
-
-      addItemToEmojiList(&*emojiLayoutItem, label, (_mode == ViewMode::KAOMOJI) ? 2 : 1, row, column);
-    }
   }
 
   _emojiListLayout->setEnabled(true);
