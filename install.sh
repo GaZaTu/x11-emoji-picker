@@ -20,7 +20,7 @@ DISTRO_VERSION_ID=$(grep "^VERSION_ID=" "/etc/os-release" | sed "s/VERSION_ID=//
 
 PACKAGE_MANAGER=$(
   case "$DISTRO_ID" in
-    "ubuntu"* | "debian"*) echo "apt";;
+    "ubuntu"* | "debian"* | "pop"*) echo "apt";;
     "opensuse"*) echo "zypper";;
     "fedora"*) echo "dnf";;
   esac
