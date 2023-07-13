@@ -3,8 +3,7 @@
 #include <QScreen>
 #include <QWindow>
 #include <sstream>
-#include <unicode/schriter.h>
-#include <unicode/unistr.h>
+#include "utf8.h"
 
 EmojiLabel::EmojiLabel(QWidget* parent, const EmojiPickerSettings& settings) : QLabel(parent), _settings(settings) {
   setProperty("class", "EmojiLabel");
@@ -27,15 +26,18 @@ EmojiLabel::EmojiLabel(QWidget* parent, const EmojiPickerSettings& settings, con
 }
 
 void getCodepointsByEmojiStr(const std::string& emojiStr, const std::string& separator, std::stringstream& emojiHexCodeStream) {
-  bool firstCodepoint = true;
-  icu::UnicodeString emojiUStr(emojiStr.data(), emojiStr.length(), "utf-8");
-  icu::StringCharacterIterator emojiUStrIterator(emojiUStr);
-  while (emojiUStrIterator.hasNext()) {
-    int32_t codepoint = emojiUStrIterator.next32PostInc();
+  const utf8_int8_t* ptr = emojiStr.data();
+  utf8_int32_t codepoint = 0;
 
-    if (firstCodepoint) {
-      firstCodepoint = false;
-    } else {
+  while (true) {
+    bool first = codepoint == 0;
+
+    ptr = utf8codepoint(ptr, &codepoint);
+    if (codepoint == 0) {
+      break;
+    }
+
+    if (!first) {
       emojiHexCodeStream << separator;
     }
 
