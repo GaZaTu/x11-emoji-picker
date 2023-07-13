@@ -19,17 +19,13 @@ jobs:
       options: --privileged
     strategy:
       matrix:
-        image: ['ubuntu:23.04', 'ubuntu:22.10', 'ubuntu:22.04', 'ubuntu:20.04', 'debian:12', 'debian:11', 'debian:10', 'debian:9', 'opensuse/leap:15.5', 'opensuse/leap:15.4', 'fedora:39', 'fedora:38', 'fedora:37']
+        image: ['ubuntu:23.04', 'ubuntu:22.10', 'ubuntu:22.04', 'ubuntu:20.04', 'debian:12', 'debian:11', 'debian:10', 'opensuse/leap:15.5', 'opensuse/leap:15.4', 'fedora:38', 'fedora:37']
       fail-fast: false
 
     steps:
       - name: Install dependencies (ubuntu & debian)
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
         run: apt update && apt install -y wget file dpkg-dev fuse git g++ cmake qtbase5-dev libxdo-dev
-
-      - name: Install dependencies (debian:9)
-        if: startsWith(matrix.image, 'debian:9')
-        run: apt install qt5-default
 
       - name: Install dependencies (opensuse)
         if: startsWith(matrix.image, 'opensuse')
@@ -40,7 +36,7 @@ jobs:
         run: dnf clean expire-cache && dnf install -y tar gzip rpm-build git gcc-c++ cmake qt5-qtbase-devel libxdo-devel
 
       - name: Install dependencies .AppImage
-        if: startsWith(matrix.image, 'debian:9')
+        if: startsWith(matrix.image, 'debian:10')
         run: |
           wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
           chmod a+x linuxdeployqt-continuous-x86_64.AppImage
@@ -89,7 +85,7 @@ jobs:
           make package
 
       - name: Package .AppImage
-        if: startsWith(matrix.image, 'debian:9')
+        if: startsWith(matrix.image, 'debian:10')
         run: |
           cd build
           make appimage
@@ -115,7 +111,7 @@ jobs:
           mv build/x11-emoji-picker-x86_64.rpm build/${{env.ARTIFACT_NAME_WITH_DISTRO}}.rpm
 
       - name: Rename artifact .AppImage
-        if: startsWith(matrix.image, 'debian:9')
+        if: startsWith(matrix.image, 'debian:10')
         run: |
           mv build/x11-emoji-picker-dev-x86_64.AppImage build/${{env.ARTIFACT_NAME}}.AppImage
 
@@ -136,7 +132,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload artifact .AppImage
-        if: startsWith(matrix.image, 'debian:9')
+        if: startsWith(matrix.image, 'debian:10')
         uses: actions/upload-artifact@v3
         with:
           name: ${{env.ARTIFACT_NAME}}.AppImage
