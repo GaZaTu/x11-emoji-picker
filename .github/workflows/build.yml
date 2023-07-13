@@ -27,6 +27,10 @@ jobs:
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
         run: apt update && apt install -y wget file dpkg-dev fuse git g++ cmake qtbase5-dev libxdo-dev
 
+      - name: Install dependencies (debian:10)
+        if: startsWith(matrix.image, 'debian:10')
+        run: apt install qt5-qmake
+
       - name: Install dependencies (opensuse)
         if: startsWith(matrix.image, 'opensuse')
         run: zypper refresh && zypper install -y tar gzip rpm-build git gcc-c++ cmake libqt5-qtbase-devel xdotool-devel
