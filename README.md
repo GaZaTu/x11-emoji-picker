@@ -71,17 +71,16 @@ This is a CMake project so you need `cmake`, `make` and some c++ compiler like `
 ### Dependencies
 
 - Qt5 (core, gui, widgets)
-- ICU (uc)
 - xdotool
 
 **Arch**:
-`sudo pacman -S qt5-base icu xdotool`
+`sudo pacman -S qt5-base xdotool`
 
 **Debian**:
-`sudo apt install qtbase5-dev libicu-dev libxdo-dev`
+`sudo apt install qtbase5-dev libxdo-dev`
 
 **openSUSE**:
-`sudo zypper install libqt5-qtbase-devel libicu-devel xdotool-devel`
+`sudo zypper install libqt5-qtbase-devel xdotool-devel`
 
 ### CMake
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.7.2 FATAL_ERROR)
-project(emoji-picker VERSION 0.14.0 LANGUAGES CXX)
+project(emoji-picker VERSION 0.15.0 LANGUAGES CXX)
 
 set(PROJECT_NAME_FULL x11-emoji-picker)
 set(PROJECT_ORGANIZATION gazatu.xyz)
@@ -20,8 +20,6 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets)
-
-find_package(ICU REQUIRED COMPONENTS uc)
 
 if (UNIX AND NOT APPLE) # LINUX (X11)
   find_library(XDOTOOL_LIB xdo REQUIRED)
@@ -77,7 +75,6 @@ target_link_libraries(${PROJECT_NAME}
   Qt5::Core
   Qt5::Gui
   Qt5::Widgets
-  ICU::uc
 )
 
 if (UNIX AND NOT APPLE) # LINUX (X11)
