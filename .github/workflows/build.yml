@@ -27,10 +27,6 @@ jobs:
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
         run: apt update && apt install -y wget file dpkg-dev fuse git g++ cmake qtbase5-dev libxdo-dev
 
-      - name: Install dependencies (debian:10)
-        if: startsWith(matrix.image, 'debian:10')
-        run: apt install -y qt5-qmake
-
       - name: Install dependencies (opensuse)
         if: startsWith(matrix.image, 'opensuse')
         run: zypper refresh && zypper install -y tar gzip rpm-build git gcc-c++ cmake libqt5-qtbase-devel xdotool-devel
@@ -40,7 +36,7 @@ jobs:
         run: dnf clean expire-cache && dnf install -y tar gzip rpm-build git gcc-c++ cmake qt5-qtbase-devel libxdo-devel
 
       - name: Install dependencies .AppImage
-        if: startsWith(matrix.image, 'debian:10')
+        if: startsWith(matrix.image, 'ubuntu:20.04')
         run: |
           wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
           chmod a+x linuxdeployqt-continuous-x86_64.AppImage
@@ -89,7 +85,7 @@ jobs:
           make package
 
       - name: Package .AppImage
-        if: startsWith(matrix.image, 'debian:10')
+        if: startsWith(matrix.image, 'ubuntu:20.04')
         run: |
           cd build
           make appimage
@@ -115,7 +111,7 @@ jobs:
           mv build/x11-emoji-picker-x86_64.rpm build/${{env.ARTIFACT_NAME_WITH_DISTRO}}.rpm
 
       - name: Rename artifact .AppImage
-        if: startsWith(matrix.image, 'debian:10')
+        if: startsWith(matrix.image, 'ubuntu:20.04')
         run: |
           mv build/x11-emoji-picker-dev-x86_64.AppImage build/${{env.ARTIFACT_NAME}}.AppImage
 
@@ -136,7 +132,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload artifact .AppImage
-        if: startsWith(matrix.image, 'debian:10')
+        if: startsWith(matrix.image, 'ubuntu:20.04')
         uses: actions/upload-artifact@v3
         with:
           name: ${{env.ARTIFACT_NAME}}.AppImage
