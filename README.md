@@ -6,6 +6,10 @@ Works for my use case most of the time. 😅
 
 *Disclaimer: Donk code ahead FDM*
 
+## Wayland ⚠
+
+If you're looking for an emoji picker for Wayland you may consider using [im-emoji-picker](https://github.com/GaZaTu/im-emoji-picker).
+
 ## Motivation 🤔
 
 I switched from Windows 10 to Linux at work and missed filling my emails with emojis. ~~(the KDE version we use doesn't have the builtin emoji picker yet)~~ (turns out that the KDE emoji picker only copies emojis to clipboard anyway so yea fuck that)
