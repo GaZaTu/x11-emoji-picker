@@ -117,7 +117,7 @@ jobs:
 
       - name: Upload artifact .deb (ubuntu / debian)
         if: startsWith(matrix.image, 'ubuntu') || startsWith(matrix.image, 'debian')
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{env.ARTIFACT_NAME_WITH_DISTRO}}.deb
           path: build/*.deb
@@ -125,7 +125,7 @@ jobs:
 
       - name: Upload artifact .rpm (opensuse / fedora)
         if: startsWith(matrix.image, 'opensuse') || startsWith(matrix.image, 'fedora')
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{env.ARTIFACT_NAME_WITH_DISTRO}}.rpm
           path: build/*.rpm
@@ -133,7 +133,7 @@ jobs:
 
       - name: Upload artifact .AppImage
         if: startsWith(matrix.image, 'ubuntu:20.04')
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{env.ARTIFACT_NAME}}.AppImage
           path: build/*.AppImage
@@ -147,7 +147,7 @@ jobs:
     steps:
       - name: Download artifacts
         id: download_artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
 
@@ -176,7 +176,7 @@ jobs:
 
       - name: Download artifacts
         id: download_artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
 
