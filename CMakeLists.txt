@@ -42,6 +42,7 @@ set(COMMON_SRC_FILES
   src/EmojiPickerWindow.cpp
   src/EmojiPickerSettings.cpp
   src/EmojiTranslator.cpp
+  src/crossdo.cpp
 )
 
 if (UNIX AND NOT APPLE) # LINUX
