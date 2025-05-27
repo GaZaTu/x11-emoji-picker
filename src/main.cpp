@@ -1,7 +1,7 @@
 #include "EmojiPickerWindow.hpp"
 #include "EmojiPickerSettings.hpp"
 #include "EmojiTranslator.hpp"
-#include "crossdo.h"
+#include "crossdo.hpp"
 #undef Status
 #undef KeyPress
 #undef KeyRelease
@@ -126,7 +126,6 @@ int main(int argc, char** argv) {
     if (currentWindow != 0) {
       crossdo_activate_window(crossdo.get(), prevWindow);
       crossdo_wait_for_window_active(crossdo.get(), prevWindow, 1);
-      usleep(25000); // wait an additional 25 ms
     }
 
     if (useClipboardHack) {
@@ -149,7 +148,8 @@ int main(int argc, char** argv) {
 
       crossdo_send_keysequence_window(crossdo.get(), prevWindow, "ctrl+v", 12000);
     } else {
-      crossdo_enter_text_window(crossdo.get(), prevWindow, text.data(), 12000);
+
+      crossdo_enter_text_window(crossdo.get(), prevWindow, text.data(), 250000);
     }
 
     if (currentWindow != 0 && !closeAfter) {
