@@ -4,9 +4,9 @@
 extern "C" {
 #endif
 
-#ifdef __linux__
+#if !_WIN32
 #include "xdo.h"
-#elif _WIN32
+#else
 #ifndef _WIN32_WINNT
 #define _WIN32_WINNT _WIN32_WINNT_WIN10
 #define WIN32_LEAN_AND_MEAN 1
@@ -55,18 +55,18 @@ extern "C" {
 #include "windowsx.h"
 #endif
 
-#ifdef __linux__
+#if !_WIN32
 typedef Window window_t;
-#elif _WIN32
+#else
 typedef HWND window_t;
 #endif
 
-#ifdef __linux__
-typedef xdo_t crossdo_t;
-#elif _WIN32
+#if _WIN32
 typedef struct {
   int nothing;
 } crossdo_t;
+#else
+typedef xdo_t crossdo_t;
 #endif
 
 crossdo_t* crossdo_new();

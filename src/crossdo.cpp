@@ -5,26 +5,26 @@ extern "C" {
 #endif
 
 crossdo_t* crossdo_new() {
-#ifdef __linux__
+#if !_WIN32
   return xdo_new(NULL);
-#elif _WIN32
+#else
   return (crossdo_t*)malloc(sizeof(crossdo_t));
 #endif
 }
 
 void crossdo_free(crossdo_t* crossdo) {
-#ifdef __linux__
+#if !_WIN32
   xdo_free(crossdo);
-#elif _WIN32
+#else
   free(crossdo);
 #endif
 }
 
 int crossdo_get_mouse_location2(
     const crossdo_t* crossdo, int* x_ret, int* y_ret, int* screen_num_ret, window_t* window_ret) {
-#ifdef __linux__
+#if !_WIN32
   return xdo_get_mouse_location2(crossdo, x_ret, y_ret, screen_num_ret, window_ret);
-#elif _WIN32
+#else
   POINT cursor;
   GetCursorPos(&cursor);
 
@@ -46,14 +46,14 @@ int crossdo_get_mouse_location2(
 
 int crossdo_get_caret_location2(
     const crossdo_t* crossdo, int* x_ret, int* y_ret, int* screen_num_ret, window_t* window_ret) {
-#ifdef __linux__
+#if !_WIN32
   *x_ret = 0;
   *y_ret = 0;
   *screen_num_ret = 0;
   *window_ret = 0;
 
   return 0;
-#elif _WIN32
+#else
   *x_ret = 0;
   *y_ret = 0;
   *screen_num_ret = 0;
@@ -64,9 +64,9 @@ int crossdo_get_caret_location2(
 }
 
 int crossdo_get_pid_window(const crossdo_t* crossdo, window_t window) {
-#ifdef __linux__
+#if !_WIN32
   return xdo_get_pid_window(crossdo, window);
-#elif _WIN32
+#else
   unsigned long pid = 0;
   GetWindowThreadProcessId(window, &pid);
 
@@ -75,9 +75,9 @@ int crossdo_get_pid_window(const crossdo_t* crossdo, window_t window) {
 }
 
 int crossdo_get_active_window(const crossdo_t* crossdo, window_t* window_ret) {
-#ifdef __linux__
+#if !_WIN32
   return xdo_get_active_window(crossdo, window_ret);
-#elif _WIN32
+#else
   *window_ret = GetForegroundWindow();
 
   return 0;
@@ -85,9 +85,9 @@ int crossdo_get_active_window(const crossdo_t* crossdo, window_t* window_ret) {
 }
 
 int crossdo_activate_window(const crossdo_t* crossdo, window_t window) {
-#ifdef __linux__
+#if !_WIN32
   return xdo_activate_window(crossdo, window);
-#elif _WIN32
+#else
   window_t current_window = GetForegroundWindow();
 
   unsigned long process_thread = GetProcessId();
@@ -109,9 +109,9 @@ int crossdo_activate_window(const crossdo_t* crossdo, window_t window) {
 }
 
 int crossdo_wait_for_window_active(const crossdo_t* crossdo, window_t window, int active) {
-#ifdef __linux__
+#if !_WIN32
   return xdo_wait_for_window_active(crossdo, window, active);
-#elif _WIN32
+#else
   Sleep(25);
 
   return 0;
@@ -119,9 +119,9 @@ int crossdo_wait_for_window_active(const crossdo_t* crossdo, window_t window, in
 }
 
 int crossdo_enter_text_window(const crossdo_t* crossdo, window_t window, const char* string, unsigned int delay) {
-#ifdef __linux__
+#if !_WIN32
   return xdo_enter_text_window(crossdo, window, string, delay);
-#elif _WIN32
+#else
   // string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
   size_t input_len = strlen(string) * 2;
@@ -185,9 +185,9 @@ int crossdo_enter_text_window(const crossdo_t* crossdo, window_t window, const c
 }
 
 int crossdo_send_keysequence_window(const crossdo_t* crossdo, window_t window, const char* keysequence, unsigned int delay) {
-#ifdef __linux__
+#if !_WIN32
   return xdo_send_keysequence_window(crossdo, window, keysequence, delay);
-#elif _WIN32
+#else
   return 0;
 #endif
 }
