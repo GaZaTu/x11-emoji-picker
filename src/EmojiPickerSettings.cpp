@@ -120,14 +120,14 @@ void EmojiPickerSettings::setOpenAtMouseLocation(bool openAtMouseLocation) {
 }
 
 bool EmojiPickerSettings::useSystemQtTheme() const {
-#ifdef __linux__
+#if !_WIN32
   return value("useSystemQtTheme", false).toBool();
-#elif _WIN32
+#else
   return false;
 #endif
 }
 void EmojiPickerSettings::setUseSystemQtTheme(bool useSystemQtTheme) {
-#ifdef __linux__
+#if !_WIN32
   setValue("useSystemQtTheme", useSystemQtTheme);
 #endif
 }
@@ -217,14 +217,14 @@ void EmojiPickerSettings::setCustomQssFilePath(const std::string& customQssFileP
 }
 
 bool EmojiPickerSettings::activateWindowBeforeWritingByDefault() const {
-#ifdef __linux__
+#if !_WIN32
   return value("activateWindowBeforeWritingByDefault", false).toBool();
-#elif _WIN32
+#else
   return true;
 #endif
 }
 void EmojiPickerSettings::setActivateWindowBeforeWritingByDefault(bool activateWindowBeforeWritingByDefault) {
-#ifdef __linux__
+#if !_WIN32
   setValue("activateWindowBeforeWritingByDefault", activateWindowBeforeWritingByDefault);
 #endif
 }
@@ -239,20 +239,20 @@ std::vector<std::string> defaultActivateWindowBeforeWritingExceptions = {
 };
 
 std::vector<std::string> EmojiPickerSettings::activateWindowBeforeWritingExceptions() {
-#ifdef __linux__
+#if !_WIN32
   return readQSettingsArrayToStdVector<std::string>(
       *this, "activateWindowBeforeWritingExceptions",
       [](QSettings& settings) -> std::string {
         return settings.value("processName").toString().toStdString();
       },
       defaultActivateWindowBeforeWritingExceptions);
-#elif _WIN32
+#else
   return {};
 #endif
 }
 void EmojiPickerSettings::setActivateWindowBeforeWritingExceptions(
     const std::vector<std::string>& activateWindowBeforeWritingExceptions) {
-#ifdef __linux__
+#if !_WIN32
   writeQSettingsArrayFromStdVector<std::string>(*this, "activateWindowBeforeWritingExceptions",
       activateWindowBeforeWritingExceptions, [](QSettings& settings, const std::string& exception) -> void {
         settings.setValue("processName", QString::fromStdString(exception));

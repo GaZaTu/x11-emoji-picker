@@ -19,7 +19,7 @@ std::string getProcessNameFromPID(int pid) {
     return "";
   }
 
-#ifdef __linux__
+#if !_WIN32
   QFile qssFile(QString("/proc/%1/status").arg(pid));
   if (!qssFile.exists()) {
     return "";
@@ -28,7 +28,7 @@ std::string getProcessNameFromPID(int pid) {
   qssFile.open(QFile::ReadOnly | QFile::Text);
   QTextStream ts(&qssFile);
   return ts.readLine().remove(0, 6).toStdString();
-#elif _WIN32
+#else
   return "";
 #endif
 }
@@ -137,7 +137,7 @@ int main(int argc, char** argv) {
       QApplication::clipboard()->setText(QString::fromStdString(text));
 
       if (closeAfter) {
-#ifdef __linux__
+#if !_WIN32
         charcodemap_t* keys;
         int keysLen;
 
